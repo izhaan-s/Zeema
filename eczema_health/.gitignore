@@ -25,6 +25,7 @@ migrate_working_dir/
 
 # Sensitive files
 lib/config/supabase_secrets.dart
+
 # Flutter/Dart/Pub related
 **/doc/api/
 **/ios/Flutter/.last_build_id
@@ -45,3 +46,7 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+/android/app/.cxx/
+/android/app/.cxx/Debug/
+/android/app/.cxx/**/
+*.cxx

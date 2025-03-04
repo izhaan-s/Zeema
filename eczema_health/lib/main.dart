@@ -1,6 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'config/supabase_secrets.dart';
 
-void main() {
+final supabase = Supabase.instance.client;
+
+Future<void> main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Supabase.initialize(
+    url: SupabaseSecrets.supabaseUrl,
+    anonKey: SupabaseSecrets.supabaseKey,
+  );
   runApp(const EczemaHealthApp());
 }
 

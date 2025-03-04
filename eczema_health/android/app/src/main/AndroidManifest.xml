@@ -1,4 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Add this line for internet permission -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    
     <application
         android:label="eczema_health"
         android:name="${applicationName}"

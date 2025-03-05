@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../data/repositories/auth_repository.dart';
+import 'signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -59,8 +60,26 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 }
               },
-              child: const Text('Login'),
+              child: const Text('Hello'),
             ),
+            const SizedBox(height:16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text('Don\'t have an account?'),
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SignupScreen(),
+                        ),  
+                    );
+                  },
+                  child: const Text('Sign Up'),
+                ),
+              ],
+            )
           ],
         ),
       ),

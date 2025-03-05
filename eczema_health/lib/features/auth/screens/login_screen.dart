@@ -34,8 +34,9 @@ class _LoginScreenState extends State<LoginScreen> {
             TextField(
               controller: passwordController,
               obscureText: !passwordVisible,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Password',
+                suffixIcon: togglePassword(),
               ),
             ),
             ElevatedButton(
@@ -65,4 +66,11 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
-}
+  Widget togglePassword(){
+    return IconButton(onPressed:(){
+      setState((){
+        passwordVisible = !passwordVisible;
+      });
+    }, icon: Icon(passwordVisible ? Icons.visibility : Icons.visibility_off));
+    }
+  }

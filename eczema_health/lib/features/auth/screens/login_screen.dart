@@ -55,12 +55,47 @@ class _LoginScreenState extends State<LoginScreen> {
                     print('Logged in user: ${response.user?.email}');
                     print('User ID: ${response.user?.id}');
                   }
+                  else {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: const Text('Login Failed'),
+                          content: const Text('Invalid email or password'),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: const Text('OK'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  }
                 } catch (e){
-                  // Handle login error here
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: const Text('Login Failed'),
+                        content: Text(e.toString()),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: const Text('OK'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
 
                 }
               },
-              child: const Text('Hello'),
+              child: const Text('Login'),
             ),
             const SizedBox(height:16),
             Row(

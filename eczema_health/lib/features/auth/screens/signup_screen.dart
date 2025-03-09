@@ -1,3 +1,4 @@
+import 'package:eczema_health/features/auth/screens/verification_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../data/repositories/auth_repository.dart';
@@ -70,20 +71,45 @@ class _SignupScreenState extends State<SignupScreen> {
             ),
             ElevatedButton(
               onPressed: () async {
+                print("Sign up button pressed");
                 final authRepository = AuthRepository();
                 try {
+                  print("Attempting to sign up user with email: ${emailController.text}");
                   final response = await authRepository.signUpUser(
                     email: emailController.text,
                     password: passwordController.text,
                   );
 
+                  // Debug what we got back
+                  print("Raw response data: ${response.toString()}");
+                  print("User exists: ${response.user != null}");
+                  print("Session exists: ${response.session != null}");
+                  
+                  // For email confirmation flow, the session might be null until verified
+                  // but we should still have a user object
                   if (response.user != null) {
-                    // Navigate to home screen
-                    print('Logged in user: ${response.user?.email}');
-                    print('User ID: ${response.user?.id}');
+                    // Navigate regardless of session status
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => VerificationScreen(
+                          email: emailController.text,  // Pass the email
+                        ),
+                      ),
+                    );
+                  } else {
+                    // Something went wrong - no user
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Sign-up failed: No user returned")),
+                    );
                   }
-                } catch (e) {
-                  // Handle login error here
+                } catch (e, stackTrace) {
+                  // Print both error and stack trace for better debugging
+                  print("Error during signup: $e");
+                  print("Stack trace: $stackTrace");
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Signup failed: $e")),
+                  );
                 }
               },
               child: const Text('Sign Up'),

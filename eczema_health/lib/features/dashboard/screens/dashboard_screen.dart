@@ -28,39 +28,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
       bottomNavigationBar: BottomNavigationBar(
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard),
+            icon: Icon(Icons.home),
             label: 'Dashboard',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.book),
-            label: 'Diary',
+            icon: Icon(Icons.camera_alt),
+            label: 'Photos',
           ),
           BottomNavigationBarItem(
-            icon: Padding(
-              padding: const EdgeInsets.only(top: 8.0), // Adds space above the container
-              child: Container(
-                height: 56,
-                width: 56,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Color(0xFFA2A2A2),
-                ),
-                child: const Icon(
-                  Icons.add,
-                  color: Colors.white,
-                  size: 35,
-                ),
-              ),
-            ),
-            label: '',
+            icon: Icon(Icons.show_chart_rounded),
+            label: 'Symptoms',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.assignment),
-            label: 'Plans',
+            icon: Icon(Icons.event),
+            label: 'Lifestyle',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.more_horiz),
-            label: 'More',
+            icon: Icon(Icons.notifications),
+            label: 'Reminders',
           ),
         ],
         currentIndex: _selectedIndex,

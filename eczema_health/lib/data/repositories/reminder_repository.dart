@@ -1,6 +1,9 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/reminder_model.dart';
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
+import 'package:intl/intl.dart'; 
+
 
 class ReminderRepository {
   final SupabaseClient _supabase;
@@ -21,16 +24,21 @@ class ReminderRepository {
       final userId = _supabase.auth.currentUser?.id ?? 'anonymous';
       final now = DateTime.now();
 
-      final dateTime = DateTime(
-        now.year,
-        now.month,
-        now.day,
-        time.hour,
-        time.minute,
-      );
+      final uuid = Uuid();
+      final id = uuid.v4();
+
+      final dateTime = DateTime.now().toUtc().copyWith(
+            hour: time.hour,
+            minute: time.minute,
+            second: 0,
+            millisecond: 0,
+            microsecond: 0,
+          );
+
+      final formattedTime = '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}:00';
 
       final reminder = ReminderModel(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        id: id,
         userId: userId,
         title: title,
         description: description,
@@ -38,12 +46,14 @@ class ReminderRepository {
         dateTime: dateTime,
         repeatDays: repeatDays,
         isActive: true,
-        createdAt: now,
+        createdAt: now.toUtc(),
         updatedAt: now,
       );
 
       final reminderMap = reminder.toMap();
 
+      reminderMap['time'] = formattedTime;
+      
       // Add field for dosage later on cba rn
 
       final data = await _supabase
@@ -55,6 +65,10 @@ class ReminderRepository {
       return ReminderModel.fromMap(data);
 
     } catch (e) {
+      print("Error in ReminderRepository.createReminder: $e");
+      if (e is FormatException) {
+        print("Format exception details: ${e.source}");
+      }
       rethrow;
     }
   }

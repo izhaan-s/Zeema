@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
+import '../../../navigation/app_router.dart';
 
 class RemindersScreen extends StatefulWidget {
   const RemindersScreen({super.key});
@@ -25,7 +26,7 @@ class _RemindersScreenState extends State<RemindersScreen> {
             padding: const EdgeInsets.only(right: 16.0),
             child: ElevatedButton.icon(
               onPressed: () {
-                print('Add button pressed');
+                Navigator.pushNamed(context, AppRouter.addReminder);
               },
               icon: const Icon(
                 Icons.add,

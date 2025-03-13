@@ -3,6 +3,9 @@ import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/signup_screen.dart';
 import '../features/auth/screens/verification_screen.dart';
 import '../features/dashboard/screens/dashboard_screen.dart';
+import '../features/profile/screens/profile_screen.dart';
+import '../features/reminders/screens/reminders_screen.dart';
+import '../features/reminders/screens/add_reminder_screen.dart';
 
 // Class for passing email to verification screen
 class VerificationScreenArguments {
@@ -16,6 +19,9 @@ class AppRouter {
   static const String signup = '/signup';
   static const String verification = '/verification';
   static const String dashboard = '/dashboard';
+  static const String profile = '/profile';
+  static const String reminder = '/reminder';
+  static const String addReminder = '/addReminder';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch(settings.name) {
@@ -34,9 +40,21 @@ class AppRouter {
           builder: (_) => VerificationScreen(email: args.email),
           maintainState: false,
         );
+      case profile:
+        return MaterialPageRoute(
+          builder: (_) => const ProfileScreen(),
+        );
       case dashboard:
         return MaterialPageRoute(
           builder: (_) => const DashboardScreen(),
+        );
+      case reminder:
+        return MaterialPageRoute(
+          builder: (_) => const RemindersScreen(),
+        );
+      case addReminder:
+        return MaterialPageRoute(
+          builder: (_) => const AddReminderScreen(),
         );
       default:
         return MaterialPageRoute(

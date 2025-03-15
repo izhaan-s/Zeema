@@ -29,7 +29,7 @@ class ReminderModel {
         title = map['title'] as String,
         description = map['description'] as String?,
         reminderType = map['reminder_type'] as String?,
-        dateTime = DateTime.parse(map['time'] as String),
+        dateTime = _parseDateTime(map['time'] as String),
         repeatDays = map['repeat_days'] as List,
         isActive = map['is_active'] as bool,
         createdAt = DateTime.parse(map['created_at'] as String),
@@ -75,4 +75,21 @@ class ReminderModel {
     );
   }
   
+  // Helper method to parse time string
+  static DateTime _parseDateTime(String timeStr) {
+    // Split the time string (e.g., "14:18:00")
+    final parts = timeStr.split(':');
+    final hour = int.parse(parts[0]);
+    final minute = int.parse(parts[1]);
+    
+    // Create DateTime with today's date and the specified time
+    final now = DateTime.now();
+    return DateTime(
+      now.year,
+      now.month,
+      now.day,
+      hour,
+      minute,
+    );
+  }
 }

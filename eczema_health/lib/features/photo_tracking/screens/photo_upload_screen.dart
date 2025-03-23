@@ -49,9 +49,58 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
       );
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Upload Photo'),
+        // Add action button when image is selected
+        actions: [
+          if (_selectedImage != null)
+            IconButton(
+              icon: const Icon(Icons.check),
+              onPressed: () {
+                // Add upload logic here
+                print('Ready to upload: ${_selectedImage?.path}');
+              },
+            ),
+        ],
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (_selectedImage != null)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.file(
+                  _selectedImage!,
+                  height: 200,
+                  width: 200,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: _isLoading ? null : () => _pickImage(ImageSource.gallery),
+                  icon: const Icon(Icons.photo_library),
+                  label: const Text('Gallery'),
+                ),
+                const SizedBox(width: 16),
+                ElevatedButton.icon(
+                  onPressed: _isLoading ? null : () => _pickImage(ImageSource.camera),
+                  icon: const Icon(Icons.camera_alt),
+                  label: const Text('Camera'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

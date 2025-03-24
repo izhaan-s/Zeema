@@ -22,26 +22,26 @@ class PhotoEntryModel {
     factory PhotoEntryModel.fromJson(Map<String, dynamic> json) {
         return PhotoEntryModel(
             id: json['id'],
-            userId: json['userId'],
-            imageURL: json['imageURL'],
-            bodyPart: json['bodyPart'],
-            itchIntensity: json['itchIntensity'],
+            userId: json['user_id'],
+            imageURL: json['image_url'],
+            bodyPart: json['body_part'],
+            itchIntensity: json['itch_intensity'],
             notes: json['notes'],
-            createdAt: DateTime.parse(json['createdAt']),
-            updatedAt: DateTime.parse(json['updatedAt'])
+            createdAt: DateTime.parse(json['created_at']),
+            updatedAt: DateTime.parse(json['updated_at'])
         );
     }
 
     Map<String, dynamic> toJson() {
         return {
             'id': id,
-            'userId': userId,
-            'imageURL': imageURL,
-            'bodyPart': bodyPart,
-            'itchIntensity': itchIntensity,
+            'user_id': userId,
+            'image_url': imageURL,
+            'body_part': bodyPart,
+            'itch_intensity': itchIntensity,
             'notes': notes,
-            'createdAt': createdAt.toIso8601String(),
-            'updatedAt': updatedAt.toIso8601String()
+            'created_at': createdAt.toIso8601String(),
+            'updated_at': updatedAt.toIso8601String()
         };
     }
 }

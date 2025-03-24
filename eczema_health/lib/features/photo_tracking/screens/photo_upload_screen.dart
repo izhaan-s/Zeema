@@ -12,6 +12,7 @@ class PhotoUploadScreen extends StatefulWidget {
 
 class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
   final ImagePicker _picker = ImagePicker();
+  late final PhotoRepository photoRepository;
   File? _selectedImage;
   bool _isLoading = false;
   String? _selectedBodyPart;
@@ -61,7 +62,13 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
             IconButton(
               icon: const Icon(Icons.check),
               onPressed: () {
-                // Add upload logic here
+                photoRepository = PhotoRepository();
+                photoRepository.uploadPhoto(
+                  photoFile: _selectedImage!,
+                  bodyPart: "test data replace later",
+                  itchIntensity: 2,
+                  notes: "test data replace later",
+                );
                 print('Ready to upload: ${_selectedImage?.path}');
               },
             ),

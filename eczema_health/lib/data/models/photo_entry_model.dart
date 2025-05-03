@@ -1,50 +1,50 @@
 class PhotoEntryModel {
-    final String id;
-    final String userId;
-    final String imageURL;
-    final String bodyPart;
-    final int itchIntensity;
-    final String? notes;
-    final DateTime createdAt;
-    final DateTime updatedAt;
+  final String id;
+  final String userId;
+  final String imageUrl;
+  final String bodyPart;
+  final int itchIntensity;
+  final List<String>? notes;
+  final DateTime createdAt;
+  final DateTime updatedAt;
 
-    PhotoEntryModel({
-        required this.id,
-        required this.userId,
-        required this.imageURL,
-        required this.bodyPart,
-        required this.itchIntensity,
-        this.notes,
-        required this.createdAt,
-        required this.updatedAt,
-    });
+  PhotoEntryModel({
+    required this.id,
+    required this.userId,
+    required this.imageUrl,
+    required this.bodyPart,
+    required this.itchIntensity,
+    this.notes,
+    required this.createdAt,
+    required this.updatedAt,
+  });
 
-    factory PhotoEntryModel.fromJson(Map<String, dynamic> json) {
-        return PhotoEntryModel(
-            id: json['id'],
-            userId: json['user_id'],
-            imageURL: json['image_url'],
-            bodyPart: json['body_part'],
-            itchIntensity: json['itch_intensity'],
-            notes: json['notes'],
-            createdAt: DateTime.parse(json['created_at']),
-            updatedAt: DateTime.parse(json['updated_at'])
-        );
+  factory PhotoEntryModel.fromMap(Map<String, dynamic> map) {
+    return PhotoEntryModel(
+      id: map['id'] as String,
+      userId: map['user_id'] as String,
+      imageUrl: map['image_url'] as String,
+      bodyPart: map['body_part'] as String,
+      itchIntensity: map['itch_intensity'] as int,
+      notes: map['notes'] != null ? List<String>.from(map['notes']) : null,
+      createdAt: DateTime.parse(map['created_at'] as String),
+      updatedAt: DateTime.parse(map['updated_at'] as String),
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    final map = <String, dynamic>{
+      'id': id,
+      'user_id': userId,
+      'image_url': imageUrl,
+      'body_part': bodyPart,
+      'itch_intensity': itchIntensity,
+      'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt.toIso8601String(),
+    };
+    if (notes != null) {
+      map['notes'] = notes;
     }
-
-    Map<String, dynamic> toJson() {
-        return {
-            'id': id,
-            'user_id': userId,
-            'image_url': imageURL,
-            'body_part': bodyPart,
-            'itch_intensity': itchIntensity,
-            'notes': notes,
-            'created_at': createdAt.toIso8601String(),
-            'updated_at': updatedAt.toIso8601String()
-        };
-    }
+    return map;
+  }
 }
-
-// Might have to adapt image loading logic to work with this model as data will be stored in supabase storage
-// Plan is users can enter several photos at once but each photo will be stored in a different entity

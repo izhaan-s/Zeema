@@ -4,10 +4,11 @@ class SymptomEntryModel {
   final DateTime date;
   final bool isFlareup;
   final String severity;
-  final List affectedAreas;
-  final String? symptoms;
-  final String? notes;
+  final List<String> affectedAreas;
+  final List<String>? symptoms;
+  final List<String>? notes;
   final DateTime createdAt;
+  final DateTime updatedAt;
 
   SymptomEntryModel({
     required this.id,
@@ -18,34 +19,43 @@ class SymptomEntryModel {
     required this.affectedAreas,
     this.symptoms,
     this.notes,
-    required this.createdAt
+    required this.createdAt,
+    required this.updatedAt,
   });
-  
-  factory SymptomEntryModel.fromJson(Map<String, dynamic> json) {
+
+  factory SymptomEntryModel.fromMap(Map<String, dynamic> map) {
     return SymptomEntryModel(
-      id: json['id'],
-      userId: json['userId'],
-      date: DateTime.parse(json['date']),
-      isFlareup: json['isFlareup'],
-      severity: json['severity'],
-      affectedAreas: json['affectedAreas'],
-      symptoms: json['symptoms'],
-      notes: json['notes'],
-      createdAt: DateTime.parse(json['createdAt'])
+      id: map['id'] as String,
+      userId: map['user_id'] as String,
+      date: DateTime.parse(map['date'] as String),
+      isFlareup: map['is_flareup'] as bool,
+      severity: map['severity'] as String,
+      affectedAreas: List<String>.from(map['affected_areas'] ?? []),
+      symptoms:
+          map['symptoms'] != null ? List<String>.from(map['symptoms']) : null,
+      notes: map['notes'] != null ? List<String>.from(map['notes']) : null,
+      createdAt: DateTime.parse(map['created_at'] as String),
+      updatedAt: DateTime.parse(map['updated_at'] as String),
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
+  Map<String, dynamic> toMap() {
+    final map = <String, dynamic>{
       'id': id,
-      'userId': userId,
+      'user_id': userId,
       'date': date.toIso8601String(),
-      'isFlareup': isFlareup,
+      'is_flareup': isFlareup,
       'severity': severity,
-      'affectedAreas': affectedAreas,
-      'symptoms': symptoms,
-      'notes': notes,
-      'createdAt': createdAt.toIso8601String()
+      'affected_areas': affectedAreas,
+      'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt.toIso8601String(),
     };
+    if (symptoms != null) {
+      map['symptoms'] = symptoms;
+    }
+    if (notes != null) {
+      map['notes'] = notes;
+    }
+    return map;
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../../data/repositories/auth_repository.dart';
+import '../../../data/repositories/cloud/auth_repository.dart';
 import 'signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -41,8 +41,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
             ElevatedButton(
-              onPressed: () async{
-
+              onPressed: () async {
                 final authRepository = AuthRepository();
                 try {
                   final response = await authRepository.verifyUser(
@@ -54,8 +53,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     // Navigate to home screen
                     print('Logged in user: ${response.user?.email}');
                     print('User ID: ${response.user?.id}');
-                  }
-                  else {
+                  } else {
                     showDialog(
                       context: context,
                       builder: (context) {
@@ -74,7 +72,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       },
                     );
                   }
-                } catch (e){
+                } catch (e) {
                   showDialog(
                     context: context,
                     builder: (context) {
@@ -92,12 +90,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       );
                     },
                   );
-
                 }
               },
               child: const Text('Login'),
             ),
-            const SizedBox(height:16),
+            const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -108,7 +105,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => const SignupScreen(),
-                        ),  
+                      ),
                     );
                   },
                   child: const Text('Sign Up'),
@@ -120,11 +117,14 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
-  Widget togglePassword(){
-    return IconButton(onPressed:(){
-      setState((){
-        passwordVisible = !passwordVisible;
-      });
-    }, icon: Icon(passwordVisible ? Icons.visibility : Icons.visibility_off));
-    }
+
+  Widget togglePassword() {
+    return IconButton(
+        onPressed: () {
+          setState(() {
+            passwordVisible = !passwordVisible;
+          });
+        },
+        icon: Icon(passwordVisible ? Icons.visibility : Icons.visibility_off));
   }
+}

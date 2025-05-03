@@ -76,12 +76,11 @@ class _PhotoGalleryScreenState extends State<PhotoGalleryScreen> {
                     crossAxisSpacing: 8.0,
                     mainAxisSpacing: 8.0,
                     childAspectRatio: 0.8,
-                    ), 
+                  ),
                   itemCount: 9, // Replace with actual photo count
                   itemBuilder: (context, index) {
                     return Image.asset('assets/images/placeholder.png');
-                  }
-                  ),
+                  }),
             ),
           ],
         ),

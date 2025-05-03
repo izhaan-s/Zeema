@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 import '../../../navigation/app_router.dart';
-import '../../../data/repositories/reminder_repository.dart';
+import '../../../data/repositories/cloud/reminder_repository.dart';
 import '../../../data/models/reminder_model.dart';
 import 'package:intl/intl.dart';
 
@@ -29,7 +29,7 @@ class _RemindersScreenState extends State<RemindersScreen> {
       setState(() {
         isLoading = false;
       });
-    } catch(e) {
+    } catch (e) {
       print(e);
     }
   }
@@ -112,10 +112,8 @@ class _RemindersScreenState extends State<RemindersScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12.0, 
-                  vertical: 8.0
-                ),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10.0),
                 ),
@@ -148,7 +146,8 @@ class _RemindersScreenState extends State<RemindersScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          final result = await Navigator.pushNamed(context, AppRouter.addReminder);
+          final result =
+              await Navigator.pushNamed(context, AppRouter.addReminder);
           if (result != null) {
             getReminders(); // Refresh the list when returning from add screen
           }
@@ -212,7 +211,8 @@ class _RemindersScreenState extends State<RemindersScreen> {
                   ),
                 ],
               ),
-              if (reminder.description != null && reminder.description!.isNotEmpty) ...[
+              if (reminder.description != null &&
+                  reminder.description!.isNotEmpty) ...[
                 const SizedBox(height: 4),
                 Text(
                   reminder.description!,
@@ -226,10 +226,9 @@ class _RemindersScreenState extends State<RemindersScreen> {
             onChanged: (value) async {
               try {
                 // Add this later
-                getReminders(); 
+                getReminders();
               } catch (e) {
                 print(e);
-                
               }
             },
           ),

@@ -1,6 +1,6 @@
 import 'package:eczema_health/main.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../models/photo_entry_model.dart';
+import '../../models/photo_entry_model.dart';
 import 'package:uuid/uuid.dart';
 import 'dart:io';
 import 'package:path/path.dart' as path;
@@ -15,13 +15,12 @@ class PhotoRepository {
 
   PhotoRepository({SupabaseClient? supabase})
       : _supabase = supabase ?? Supabase.instance.client;
-  
+
   Future<PhotoEntryModel> uploadPhoto({
     required File photoFile,
     required String bodyPart,
     required int itchIntensity,
-    String? notes,
-
+    List<String>? notes,
   }) async {
     try {
       final userId = _supabase.auth.currentUser?.id;
@@ -36,23 +35,19 @@ class PhotoRepository {
       final fileName = '$userId/$date/$uuid$fileExt';
 
       // Upload here to storage bucket
-      await supabase
-        .storage
-        .from(_bucketName)
-        .upload(fileName, photoFile);
+      await supabase.storage.from(_bucketName).upload(fileName, photoFile);
 
       // Creates secure URL which is valid for 1 hour
-      final imageURL = await _supabase
-        .storage
-        .from(_bucketName)
-        .createSignedUrl(fileName, 3600);
-      
+      final imageURL = await _supabase.storage
+          .from(_bucketName)
+          .createSignedUrl(fileName, 3600);
+
       // Creates photo entry model to upload to DB
       final now = DateTime.now().toUtc();
       final photoEntry = PhotoEntryModel(
         id: uuid,
         userId: userId,
-        imageURL: imageURL,
+        imageUrl: imageURL,
         bodyPart: bodyPart,
         itchIntensity: itchIntensity,
         notes: notes,
@@ -61,16 +56,15 @@ class PhotoRepository {
       );
 
       final data = await _supabase
-        .from('photos')
-        .insert(photoEntry.toJson())
-        .select()
-        .single();
-      
-      return PhotoEntryModel.fromJson(data);
+          .from('photos')
+          .insert(photoEntry.toMap())
+          .select()
+          .single();
+
+      return PhotoEntryModel.fromMap(data);
     } catch (e) {
       print("Error in PhotoRepository.uploadPhoto: $e");
       rethrow;
     }
-  } 
-
+  }
 }

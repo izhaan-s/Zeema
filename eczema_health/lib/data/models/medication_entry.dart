@@ -1,57 +1,66 @@
-// Medication / treatement such as creams, ointments, etc.
-
-class MedicationEntry {
+class MedicationEntryModel {
   final String id;
   final String userId;
   final String name;
-  final String dosage; // Not sure could change this data type to double 
-  final int frequency;
+  final String dosage;
+  final String frequency;
   final DateTime startDate;
-  final DateTime endDate;
-  final String? notes;
+  final DateTime? endDate;
+  final int? effectiveness;
+  final List<String>? sideEffects;
+  final List<String>? notes;
   final DateTime createdAt;
   final DateTime updatedAt;
 
-  MedicationEntry({
+  MedicationEntryModel({
     required this.id,
     required this.userId,
     required this.name,
     required this.dosage,
     required this.frequency,
     required this.startDate,
-    required this.endDate,
+    this.endDate,
+    this.effectiveness,
+    this.sideEffects,
     this.notes,
     required this.createdAt,
-    required this.updatedAt
+    required this.updatedAt,
   });
 
-  factory MedicationEntry.fromJson(Map<String, dynamic> json) {
-    return MedicationEntry(
-      id: json['id'],
-      userId: json['userId'],
-      name: json['name'],
-      dosage: json['dosage'],
-      frequency: json['frequency'],
-      startDate: DateTime.parse(json['startDate']),
-      endDate: DateTime.parse(json['endDate']),
-      notes: json['notes'],
-      createdAt: DateTime.parse(json['createdAt']),
-      updatedAt: DateTime.parse(json['updatedAt'])
+  factory MedicationEntryModel.fromMap(Map<String, dynamic> map) {
+    return MedicationEntryModel(
+      id: map['id'] as String,
+      userId: map['user_id'] as String,
+      name: map['name'] as String,
+      dosage: map['dosage'] as String,
+      frequency: map['frequency'] as String,
+      startDate: DateTime.parse(map['start_date'] as String),
+      endDate: map['end_date'] != null ? DateTime.parse(map['end_date'] as String) : null,
+      effectiveness: map['effectiveness'] as int?,
+      sideEffects: map['side_effects'] != null ? List<String>.from(map['side_effects']) : null,
+      notes: map['notes'] != null ? List<String>.from(map['notes']) : null,
+      createdAt: DateTime.parse(map['created_at'] as String),
+      updatedAt: DateTime.parse(map['updated_at'] as String),
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
+  Map<String, dynamic> toMap() {
+    final map = <String, dynamic>{
       'id': id,
-      'userId': userId,
+      'user_id': userId,
       'name': name,
       'dosage': dosage,
       'frequency': frequency,
-      'startDate': startDate.toIso8601String(),
-      'endDate': endDate.toIso8601String(),
+      'start_date': startDate.toIso8601String(),
+      'end_date': endDate?.toIso8601String(),
+      'effectiveness': effectiveness,
+      'side_effects': sideEffects,
       'notes': notes,
-      'createdAt': createdAt.toIso8601String(),
-      'updatedAt': updatedAt.toIso8601String()
+      'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt.toIso8601String(),
     };
+    // Remove nulls for optional fields
+    map.removeWhere((key, value) => value == null);
+    return map;
   }
 }

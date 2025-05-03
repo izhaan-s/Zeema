@@ -1,7 +1,7 @@
 import 'package:eczema_health/features/auth/screens/verification_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../../data/repositories/auth_repository.dart';
+import '../../../data/repositories/cloud/auth_repository.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -74,7 +74,8 @@ class _SignupScreenState extends State<SignupScreen> {
                 print("Sign up button pressed");
                 final authRepository = AuthRepository();
                 try {
-                  print("Attempting to sign up user with email: ${emailController.text}");
+                  print(
+                      "Attempting to sign up user with email: ${emailController.text}");
                   final response = await authRepository.signUpUser(
                     email: emailController.text,
                     password: passwordController.text,
@@ -84,7 +85,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   print("Raw response data: ${response.toString()}");
                   print("User exists: ${response.user != null}");
                   print("Session exists: ${response.session != null}");
-                  
+
                   // For email confirmation flow, the session might be null until verified
                   // but we should still have a user object
                   if (response.user != null) {
@@ -93,14 +94,15 @@ class _SignupScreenState extends State<SignupScreen> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => VerificationScreen(
-                          email: emailController.text,  // Pass the email
+                          email: emailController.text, // Pass the email
                         ),
                       ),
                     );
                   } else {
                     // Something went wrong - no user
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Sign-up failed: No user returned")),
+                      const SnackBar(
+                          content: Text("Sign-up failed: No user returned")),
                     );
                   }
                 } catch (e, stackTrace) {

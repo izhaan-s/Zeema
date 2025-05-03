@@ -20,7 +20,7 @@ class AuthRepository {
         throw Exception('Auth failed');
       }
       // This point means auth was successful
-      
+
       return response;
     } catch (e) {
       rethrow;
@@ -36,17 +36,17 @@ class AuthRepository {
         email: email,
         password: password,
       );
-      
+
       // Debug information
       print("Sign up response received: ${response.toString()}");
       print("User: ${response.user?.toJson()}");
-      
+
       // Don't throw an exception if session is null - for email confirmation,
       // session will be null until email is verified, but user should exist
       if (response.user == null) {
         throw Exception("Sign up failed - no user returned");
       }
-      
+
       return response;
     } catch (e) {
       print("Error in AuthRepository.signUpUser: $e");

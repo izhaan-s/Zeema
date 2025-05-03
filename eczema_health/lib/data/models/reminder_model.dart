@@ -75,14 +75,12 @@ class ReminderModel {
     );
   }
   
-  // Helper method to parse time string
   static DateTime _parseDateTime(String timeStr) {
     // Split the time string (e.g., "14:18:00")
     final parts = timeStr.split(':');
     final hour = int.parse(parts[0]);
     final minute = int.parse(parts[1]);
     
-    // Create DateTime with today's date and the specified time
     final now = DateTime.now();
     return DateTime(
       now.year,

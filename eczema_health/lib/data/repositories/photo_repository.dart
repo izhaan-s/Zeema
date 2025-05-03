@@ -5,6 +5,10 @@ import 'package:uuid/uuid.dart';
 import 'dart:io';
 import 'package:path/path.dart' as path;
 
+// Update this later as we need to make it so that the image is uploaded as a path
+// Rather than it being uploaded as a temp link
+// Path -> function which creates the signed URL
+
 class PhotoRepository {
   final SupabaseClient _supabase;
   static const String _bucketName = 'eczema-photos';
@@ -64,6 +68,7 @@ class PhotoRepository {
       
       return PhotoEntryModel.fromJson(data);
     } catch (e) {
+      print("Error in PhotoRepository.uploadPhoto: $e");
       rethrow;
     }
   } 

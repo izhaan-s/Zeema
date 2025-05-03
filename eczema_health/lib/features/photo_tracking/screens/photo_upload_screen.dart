@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../../data/repositories/photo_repository.dart';
+import '../../../data/repositories/cloud/photo_repository.dart';
 
 class PhotoUploadScreen extends StatefulWidget {
   const PhotoUploadScreen({super.key});
@@ -30,10 +30,11 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
     'Other',
   ];
 
-  Future<void> _pickImage(ImageSource source) async{
+  Future<void> _pickImage(ImageSource source) async {
     try {
       setState(() => _isLoading = true);
-      final XFile? image = await _picker.pickImage(source: source, imageQuality: 80);
+      final XFile? image =
+          await _picker.pickImage(source: source, imageQuality: 80);
 
       if (image != null) {
         setState(() {
@@ -41,7 +42,7 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
           _isLoading = false;
         });
       }
-    } catch(e) {
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to pick image: $e'),
@@ -67,7 +68,7 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
                   photoFile: _selectedImage!,
                   bodyPart: "test data replace later",
                   itchIntensity: 2,
-                  notes: "test data replace later",
+                  notes: ["test data replace later"],
                 );
                 print('Ready to upload: ${_selectedImage?.path}');
               },
@@ -93,13 +94,15 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ElevatedButton.icon(
-                  onPressed: _isLoading ? null : () => _pickImage(ImageSource.gallery),
+                  onPressed:
+                      _isLoading ? null : () => _pickImage(ImageSource.gallery),
                   icon: const Icon(Icons.photo_library),
                   label: const Text('Gallery'),
                 ),
                 const SizedBox(width: 16),
                 ElevatedButton.icon(
-                  onPressed: _isLoading ? null : () => _pickImage(ImageSource.camera),
+                  onPressed:
+                      _isLoading ? null : () => _pickImage(ImageSource.camera),
                   icon: const Icon(Icons.camera_alt),
                   label: const Text('Camera'),
                 ),

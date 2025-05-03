@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart'; // Assuming you have theme utilities
-import '../../../data/models/reminder_model.dart';  // You'll need to create this model
-import '../../../data/repositories/reminder_repository.dart';
+import '../../../data/models/reminder_model.dart'; // You'll need to create this model
+import '../../../data/repositories/cloud/reminder_repository.dart';
 
 class AddReminderScreen extends StatefulWidget {
   const AddReminderScreen({super.key});
@@ -12,16 +12,24 @@ class AddReminderScreen extends StatefulWidget {
 
 class _AddReminderScreenState extends State<AddReminderScreen> {
   final _formKey = GlobalKey<FormState>();
-  
+
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _dosageController = TextEditingController();
   final TextEditingController _notesController = TextEditingController();
-  
+
   TimeOfDay _selectedTime = TimeOfDay.now();
-  
+
   final List<bool> selectedDays = List.generate(7, (_) => false);
-  final List<String> daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  
+  final List<String> daysOfWeek = [
+    'Mon',
+    'Tue',
+    'Wed',
+    'Thu',
+    'Fri',
+    'Sat',
+    'Sun'
+  ];
+
   bool _isLoading = false;
 
   @override
@@ -49,7 +57,8 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
     if (_formKey.currentState?.validate() ?? false) {
       if (!selectedDays.contains(true)) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please select at least one day of the week')),
+          const SnackBar(
+              content: Text('Please select at least one day of the week')),
         );
         return;
       }
@@ -67,16 +76,21 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
           _selectedTime.hour,
           _selectedTime.minute,
         );
-        
+
         // Create reminder object to be able to add to supabase
         final reminder = ReminderModel(
           id: DateTime.now().millisecondsSinceEpoch.toString(),
           userId: 'user123', // Change to user ID later on not rn
           title: _titleController.text,
-          description: _notesController.text.isNotEmpty ? _notesController.text : null,
-          reminderType: 'medication', // Maybe change this up later to different reminder types
+          description:
+              _notesController.text.isNotEmpty ? _notesController.text : null,
+          reminderType:
+              'medication', // Maybe change this up later to different reminder types
           dateTime: dateTime,
-          repeatDays: selectedDays,
+          repeatDays: [
+            for (int i = 0; i < selectedDays.length; i++)
+              if (selectedDays[i]) daysOfWeek[i]
+          ],
           isActive: true,
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
@@ -89,7 +103,8 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
           description: reminder.description,
           time: _selectedTime,
           repeatDays: selectedDays,
-          dosage: _dosageController.text.isNotEmpty ? _dosageController.text : null,
+          dosage:
+              _dosageController.text.isNotEmpty ? _dosageController.text : null,
         );
 
         print(savedReminder);
@@ -174,7 +189,7 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
               },
             ),
             const SizedBox(height: 20),
-            
+
             TextFormField(
               controller: _dosageController,
               decoration: const InputDecoration(
@@ -185,12 +200,13 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            
+
             // Time picker
             GestureDetector(
               onTap: _selectTime,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.grey.shade400),
                   borderRadius: BorderRadius.circular(4),
@@ -210,7 +226,7 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            
+
             // Days of week
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -249,7 +265,7 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
               ],
             ),
             const SizedBox(height: 20),
-            
+
             // Notes field
             TextFormField(
               controller: _notesController,
@@ -263,7 +279,7 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
               maxLines: 3,
             ),
             const SizedBox(height: 40),
-            
+
             // Save button
             ElevatedButton(
               onPressed: _isLoading ? null : _saveReminder,

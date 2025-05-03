@@ -1,52 +1,126 @@
-# Miscellaneous
-*.class
-*.log
-*.pyc
-*.swp
-.DS_Store
-.atom/
-.build/
-.buildlog/
-.history
-.svn/
-.swiftpm/
-migrate_working_dir/
+# Dart/Pub related
+.dart_tool/
+.packages
+.pub/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+.flutter-versions
+.flutter_dependencies
+generated_plugin_registrant.dart
+.pub-cache/
+pubspec.lock
 
-# IntelliJ related
-*.iml
-*.ipr
-*.iws
+# Flutter/Dart specific
+**/doc/api/
+.flutter-*
+**/ios/Flutter/.last_build_id
+
+# IDE related
 .idea/
+.vscode/
+*.iml
 
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
+# Android
+android/.gradle/
+android/captures/
+android/.idea/
+android/local.properties
+android/app/*.keystore
+android/app/key.properties
+android/app/google-services.json
+android/app/.cxx/
+android/app/.cxx/**
+
+# iOS
+ios/.generated/
+ios/Flutter/App.framework
+ios/Flutter/Flutter.framework
+ios/Flutter/Generated.xcconfig
+ios/Flutter/ephemeral/
+ios/Pods/
+ios/.symlinks/
+ios/Runner.xcworkspace/
+ios/Runner.xcuserstate
+ios/Runner.xcuserdatad
+ios/Runner.xcscmblueprint
+ios/Podfile.lock
+ios/Podfile
+
+# macOS
+macos/Flutter/ephemeral/
+macos/Flutter/GeneratedPluginRegistrant.swift
+macos/Pods/
+macos/Podfile.lock
+macos/Podfile
+macos/.symlinks/
+
+# Linux
+linux/flutter/
+linux/CMakeFiles/
+linux/Makefile
+linux/cmake_install.cmake
+linux/Flutter/ephemeral/
+linux/Flutter/generated_plugin_registrant.cc
+linux/Flutter/generated_plugins.cmake
+
+# Windows
+windows/flutter/
+windows/CMakeFiles/
+windows/Makefile
+windows/cmake_install.cmake
+windows/Flutter/ephemeral/
+windows/Flutter/generated_plugin_registrant.cc
+windows/Flutter/generated_plugins.cmake
+
+# Web
+web/.dart_tool/
+web/build/
+
+# Other
+*.log
+*.tmp
+*.swp
+*.lock
+*.DS_Store
+*.class
+
+# Coverage
+coverage/
+
+# User-specific
+devtools_options.yaml
+tree.txt
 
 # Sensitive files
 lib/config/supabase_secrets.dart
 
-# Flutter/Dart/Pub related
-**/doc/api/
-**/ios/Flutter/.last_build_id
-.dart_tool/
-.flutter-plugins
-.flutter-plugins-dependencies
-.pub-cache/
-.pub/
-/build/
-
-# Symbolication related
+# Symbolication/Obfuscation
 app.*.symbols
-
-# Obfuscation related
 app.*.map.json
 
-# Android Studio will place build artifacts here
+# Android Studio build artifacts
 /android/app/debug
 /android/app/profile
 /android/app/release
-/android/app/.cxx/
-/android/app/.cxx/Debug/
-/android/app/.cxx/**/
-*.cxx
+
+# Project-specific (eczema_health subfolder)
+eczema_health/android/app/.cxx/
+eczema_health/android/.gradle/
+eczema_health/android/captures/
+eczema_health/android/.idea/
+eczema_health/android/local.properties
+eczema_health/linux/flutter/
+eczema_health/linux/CMakeFiles/
+eczema_health/linux/Makefile
+eczema_health/linux/cmake_install.cmake
+eczema_health/linux/flutter/generated_plugin_registrant.cc
+eczema_health/linux/flutter/generated_plugins.cmake
+eczema_health/windows/flutter/
+eczema_health/windows/CMakeFiles/
+eczema_health/windows/Makefile
+eczema_health/windows/cmake_install.cmake
+eczema_health/windows/flutter/generated_plugin_registrant.cc
+eczema_health/windows/flutter/generated_plugins.cmake
+eczema_health/macos/Flutter/GeneratedPluginRegistrant.swift
+eczema_health/pubspec.lock

@@ -226,12 +226,10 @@ class _RemindersScreenState extends State<RemindersScreen> {
             onChanged: (value) async {
               try {
                 // Add this later
-                //await reminderRepository.toggleReminderActive(reminder.id, value);
-                getReminders(); // Refresh the list
+                getReminders(); 
               } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Error updating reminder: $e')),
-                );
+                print(e);
+                
               }
             },
           ),

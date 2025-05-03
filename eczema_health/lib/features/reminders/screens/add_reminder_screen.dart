@@ -92,6 +92,8 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
           dosage: _dosageController.text.isNotEmpty ? _dosageController.text : null,
         );
 
+        print(savedReminder);
+
         // Go back to previous screen
         if (mounted) {
           Navigator.pop(context, reminder);

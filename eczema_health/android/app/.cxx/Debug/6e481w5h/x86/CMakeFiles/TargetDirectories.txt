@@ -1,2 +1,0 @@
-C:/Users/Izhaa/Desktop/eczema-health/eczema_health/android/app/.cxx/Debug/6e481w5h/x86/CMakeFiles/edit_cache.dir
-C:/Users/Izhaa/Desktop/eczema-health/eczema_health/android/app/.cxx/Debug/6e481w5h/x86/CMakeFiles/rebuild_cache.dir

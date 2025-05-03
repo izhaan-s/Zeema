@@ -27,12 +27,13 @@ class EczemaHealthApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      initialRoute: AppRouter.login,
+      initialRoute: AppRouter.photoGallery,
       onGenerateRoute: AppRouter.generateRoute,
     );
   }
 }
-// Can ignore class below
+
+// Can ignore class below 
 class AuthRedirect extends StatefulWidget {
   const AuthRedirect({super.key});
 

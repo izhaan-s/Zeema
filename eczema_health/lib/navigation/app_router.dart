@@ -7,6 +7,7 @@ import '../features/profile/screens/profile_screen.dart';
 import '../features/reminders/screens/reminders_screen.dart';
 import '../features/reminders/screens/add_reminder_screen.dart';
 import '../features/photo_tracking/screens/photo_upload_screen.dart';
+import '../features/photo_tracking/screens/photo_gallery_screen.dart';
 
 // Class for passing email to verification screen
 class VerificationScreenArguments {
@@ -24,6 +25,7 @@ class AppRouter {
   static const String reminder = '/reminder';
   static const String addReminder = '/addReminder';
   static const String photoUpload = '/photoUpload';
+  static const String photoGallery = '/photoGallery';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch(settings.name) {
@@ -61,6 +63,10 @@ class AppRouter {
       case photoUpload:
         return MaterialPageRoute(
           builder: (_) => const PhotoUploadScreen(),
+        );
+      case photoGallery:
+        return MaterialPageRoute(
+          builder: (_) => const PhotoGalleryScreen(),
         );
       default:
         return MaterialPageRoute(

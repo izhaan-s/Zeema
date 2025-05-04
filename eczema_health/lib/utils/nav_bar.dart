@@ -17,6 +17,8 @@ List<IconData> bottomNavIcons = [
   Icons.notifications
 ];
 
+int _selectedIndex = 0;
+
 class BottomNav extends StatefulWidget {
   const BottomNav({super.key});
 
@@ -48,11 +50,41 @@ class _BottomNavState extends State<BottomNav> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: List.generate(
               bottomNavItems.length,
-              (index) => SizedBox(
-                height: 36,
-                width: 36,
-                child: Icon(bottomNavIcons[index],
-                    color: Color.fromRGBO(240, 240, 240, 1)),
+              (index) => GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _selectedIndex = index;
+                  });
+                },
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AnimatedContainer(
+                      duration: Duration(milliseconds: 300),
+                      curve: Curves.ease,
+                      height: 3,
+                      width: _selectedIndex == index ? 24 : 0,
+                      decoration: BoxDecoration(
+                        color: _selectedIndex == index
+                            ? Color(0xFF3B6FE8)
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    SizedBox(height: 2),
+                    SizedBox(
+                      height: 27,
+                      width: 27,
+                      child: Icon(
+                        bottomNavIcons[index],
+                        size: 22,
+                        color: _selectedIndex == index
+                            ? Color.fromRGBO(240, 240, 240, 1)
+                            : Color.fromRGBO(240, 240, 240, 0.5),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

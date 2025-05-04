@@ -3,6 +3,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'config/supabase_secrets.dart';
 import 'features/auth/screens/login_screen.dart';
 import 'navigation/app_router.dart';
+import 'features/dashboard/screens/dashboard_screen.dart';
+import 'features/photo_tracking/screens/photo_gallery_screen.dart';
+import 'features/reminders/screens/reminders_screen.dart';
+import 'utils/nav_bar.dart';
 
 final supabase = Supabase.instance.client;
 
@@ -27,8 +31,47 @@ class EczemaHealthApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      initialRoute: AppRouter.photoGallery,
+      home: const MainScreen(),
+      // Keep onGenerateRoute for auth and deep links
       onGenerateRoute: AppRouter.generateRoute,
+    );
+  }
+}
+
+class MainScreen extends StatefulWidget {
+  const MainScreen({super.key});
+
+  @override
+  State<MainScreen> createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
+  int _selectedIndex = 0;
+
+  static final List<Widget> _pages = [
+    DashboardScreen(),
+    PhotoGalleryScreen(),
+    // Replace with your Symptoms screen widget
+    Center(child: Text('Symptoms')), 
+    // Replace with your Lifestyle screen widget
+    Center(child: Text('Lifestyle')),
+    RemindersScreen(),
+  ];
+
+  void _onTabSelected(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: _pages[_selectedIndex],
+      bottomNavigationBar: BottomNav(
+        selectedIndex: _selectedIndex,
+        onTabSelected: _onTabSelected,
+      ),
     );
   }
 }

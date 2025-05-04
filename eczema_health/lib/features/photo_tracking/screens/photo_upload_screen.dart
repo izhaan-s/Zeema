@@ -59,7 +59,6 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Upload Photo'),
         // Add action button when image is selected
         actions: [
           if (_selectedImage != null)

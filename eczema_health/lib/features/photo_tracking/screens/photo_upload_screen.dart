@@ -2,6 +2,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../data/repositories/cloud/photo_repository.dart';
+import '../widgets/body_part_selector.dart';
+import '../widgets/image_picker_section.dart';
+import '../widgets/notes_input.dart';
 
 class PhotoUploadScreen extends StatefulWidget {
   const PhotoUploadScreen({super.key});
@@ -79,35 +82,20 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            if (_selectedImage != null)
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.file(
-                  _selectedImage!,
-                  height: 200,
-                  width: 200,
-                  fit: BoxFit.cover,
-                ),
-              ),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton.icon(
-                  onPressed:
-                      _isLoading ? null : () => _pickImage(ImageSource.gallery),
-                  icon: const Icon(Icons.photo_library),
-                  label: const Text('Gallery'),
-                ),
-                const SizedBox(width: 16),
-                ElevatedButton.icon(
-                  onPressed:
-                      _isLoading ? null : () => _pickImage(ImageSource.camera),
-                  icon: const Icon(Icons.camera_alt),
-                  label: const Text('Camera'),
-                ),
-              ],
+            BodyPartSelector(
+              selectedBodyPart: _selectedBodyPart,
+              onSelected: (bodyPart) =>
+                  setState(() => _selectedBodyPart = bodyPart),
             ),
+            const SizedBox(height: 20),
+            ImagePickerSection(
+              selectedImage: _selectedImage,
+              isLoading: _isLoading,
+              onPickGallery: () => _pickImage(ImageSource.gallery),
+              onPickCamera: () => _pickImage(ImageSource.camera),
+            ),
+            const SizedBox(height: 20),
+            NotesInput(controller: _notesController),
           ],
         ),
       ),

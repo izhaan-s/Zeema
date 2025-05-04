@@ -62,7 +62,7 @@ class AppRouter {
         );
       case photoUpload:
         return MaterialPageRoute(
-          builder: (_) => const PhotoUploadScreen(),
+          builder: (_) => const PhotoUploadScreen(),    
         );
       case photoGallery:
         return MaterialPageRoute(

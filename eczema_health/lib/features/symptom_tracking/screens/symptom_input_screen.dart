@@ -1,5 +1,8 @@
+import 'package:eczema_health/data/local/app_database.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../../../data/models/symptom_entry_model.dart';
+import '../../../data/repositories/local_storage/symptom_repository.dart';
 
 class SymptomInputScreen extends StatefulWidget {
   const SymptomInputScreen({super.key});
@@ -50,9 +53,28 @@ class _SymptomInputScreenState extends State<SymptomInputScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.check),
-            onPressed: () {
-              // TODO: Submit logic
-              Navigator.pop(context);
+            onPressed: () async {
+              final entry = SymptomEntryModel(
+                  id: DateTime.now().millisecondsSinceEpoch.toString(),
+                  userId: '1',
+                  date: selectedDate,
+                  isFlareup: intensity >= 4,
+                  severity: intensity.toInt().toString(),
+                  affectedAreas: selectedSymptoms.toList(),
+                  symptoms: selectedSymptoms.toList(),
+                  notes: notesController.text.isNotEmpty
+                      ? [notesController.text]
+                      : null,
+                  createdAt: DateTime.now(),
+                  updatedAt: DateTime.now());
+
+              try {
+                await LocalSymptomRepository(AppDatabase())
+                    .addSymptomEntry(entry);
+                print("HELL YAAA");
+              } catch (e) {
+                print(e);
+              }
             },
           ),
         ],

@@ -35,9 +35,13 @@ class MedicationEntryModel {
       dosage: map['dosage'] as String,
       frequency: map['frequency'] as String,
       startDate: DateTime.parse(map['start_date'] as String),
-      endDate: map['end_date'] != null ? DateTime.parse(map['end_date'] as String) : null,
+      endDate: map['end_date'] != null
+          ? DateTime.parse(map['end_date'] as String)
+          : null,
       effectiveness: map['effectiveness'] as int?,
-      sideEffects: map['side_effects'] != null ? List<String>.from(map['side_effects']) : null,
+      sideEffects: map['side_effects'] != null
+          ? List<String>.from(map['side_effects'])
+          : null,
       notes: map['notes'] != null ? List<String>.from(map['notes']) : null,
       createdAt: DateTime.parse(map['created_at'] as String),
       updatedAt: DateTime.parse(map['updated_at'] as String),

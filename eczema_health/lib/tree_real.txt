@@ -1,0 +1,116 @@
+Folder PATH listing for volume Windows-SSD
+Volume serial number is 8A8E-59C4
+C:.
+¦   main.dart
+¦   tree_real.txt
+¦   
++---config
+¦       supabase_secrets.dart
+¦       
++---core
+¦   +---constants
+¦   ¦       app_colors.dart
+¦   ¦       app_constants.dart
+¦   ¦       app_text_styles.dart
+¦   ¦       
+¦   +---theme
+¦   ¦       app_theme.dart
+¦   ¦       
+¦   +---widgets
+¦           custom_button.dart
+¦           custom_text_field.dart
+¦           loading_indicator.dart
+¦           
++---data
+¦   +---local
+¦   ¦       app_database.dart
+¦   ¦       app_database.g.dart
+¦   ¦       
+¦   +---models
+¦   ¦       lifestyle_entry_model.dart
+¦   ¦       medication_entry.dart
+¦   ¦       photo_entry_model.dart
+¦   ¦       profiles_model.dart
+¦   ¦       reminder_model.dart
+¦   ¦       symptom_entry_model.dart
+¦   ¦       
+¦   +---repositories
+¦   ¦   +---cloud
+¦   ¦   ¦       auth_repository.dart
+¦   ¦   ¦       lifestyle_repository.dart
+¦   ¦   ¦       photo_repository.dart
+¦   ¦   ¦       reminder_repository.dart
+¦   ¦   ¦       symptom_repository.dart
+¦   ¦   ¦       
+¦   ¦   +---local_storage
+¦   +---services
+¦           local_storage_service.dart
+¦           supabase_service.dart
+¦           
++---features
+¦   +---auth
+¦   ¦   +---screens
+¦   ¦   ¦       login_screen.dart
+¦   ¦   ¦       signup_screen.dart
+¦   ¦   ¦       verification_screen.dart
+¦   ¦   ¦       
+¦   ¦   +---widgets
+¦   +---dashboard
+¦   ¦   +---screens
+¦   ¦           dashboard_screen.dart
+¦   ¦           
+¦   +---lifestyle_tracking
+¦   ¦   +---screens
+¦   ¦   ¦       lifestyle_log_screen.dart
+¦   ¦   ¦       
+¦   ¦   +---widgets
+¦   ¦           diet_entry_form.dart
+¦   ¦           hydration_tracker.dart
+¦   ¦           sleep_tracker.dart
+¦   ¦           stress_tracker.dart
+¦   ¦           
+¦   +---photo_tracking
+¦   ¦   +---screens
+¦   ¦   ¦       photo_gallery_screen.dart
+¦   ¦   ¦       photo_upload_screen.dart
+¦   ¦   ¦       
+¦   ¦   +---widgets
+¦   ¦           body_part_selector.dart
+¦   ¦           image_picker_section.dart
+¦   ¦           itch_intensity_slider.dart
+¦   ¦           notes_input.dart
+¦   ¦           photo_grid_item.dart
+¦   ¦           
+¦   +---profile
+¦   ¦   +---screens
+¦   ¦   ¦       profile_screen.dart
+¦   ¦   ¦       
+¦   ¦   +---widgets
+¦   ¦           allergy_list_item.dart
+¦   ¦           
+¦   +---reminders
+¦   ¦   +---screens
+¦   ¦   ¦       add_reminder_screen.dart
+¦   ¦   ¦       reminders_screen.dart
+¦   ¦   ¦       
+¦   ¦   +---widgets
+¦   ¦           reminder_card.dart
+¦   ¦           
+¦   +---symptom_tracking
+¦       +---screens
+¦       ¦       symptom_input_screen.dart
+¦       ¦       symptom_tracking_screen.dart
+¦       ¦       
+¦       +---widgets
+¦               flare_up_card.dart
+¦               symptom_calendar.dart
+¦               symptom_window.dart
+¦               
++---navigation
+¦       app_router.dart
+¦       
++---utils
+        date_formatter.dart
+        nav_bar.dart
+        validators.dart
+        

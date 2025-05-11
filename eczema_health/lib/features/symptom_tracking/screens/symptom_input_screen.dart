@@ -71,7 +71,7 @@ class _SymptomInputScreenState extends State<SymptomInputScreen> {
               try {
                 await LocalSymptomRepository(AppDatabase())
                     .addSymptomEntry(entry);
-                print("HELL YAAA");
+                Navigator.pop(context);
               } catch (e) {
                 print(e);
               }

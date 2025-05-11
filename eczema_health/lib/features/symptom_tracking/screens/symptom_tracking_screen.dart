@@ -20,7 +20,7 @@ class _SymptomTrackingScreenState extends State<SymptomTrackingScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 12.0),
             child: TextButton.icon(
               style: TextButton.styleFrom(
-                backgroundColor: Colors.blue,
+                backgroundColor: Theme.of(context).colorScheme.primary,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -32,7 +32,7 @@ class _SymptomTrackingScreenState extends State<SymptomTrackingScreen> {
                     MaterialPageRoute(
                         builder: (context) => const SymptomInputScreen()));
               },
-              icon: const Icon(Icons.add, size: 18),
+              icon: const Icon(Icons.add, size: 18, color: Colors.white),
               label: const Text('Log Symptoms'),
             ),
           ),

@@ -8,11 +8,12 @@ import '../features/reminders/screens/reminders_screen.dart';
 import '../features/reminders/screens/add_reminder_screen.dart';
 import '../features/photo_tracking/screens/photo_upload_screen.dart';
 import '../features/photo_tracking/screens/photo_gallery_screen.dart';
+import '../features/symptom_tracking/screens/symptom_tracking_screen.dart';
 
 // Class for passing email to verification screen
 class VerificationScreenArguments {
   final String email;
-  
+
   VerificationScreenArguments(this.email);
 }
 
@@ -26,9 +27,10 @@ class AppRouter {
   static const String addReminder = '/addReminder';
   static const String photoUpload = '/photoUpload';
   static const String photoGallery = '/photoGallery';
+  static const String symptomTracking = '/symptomTracking';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
-    switch(settings.name) {
+    switch (settings.name) {
       case login:
         return MaterialPageRoute(
           builder: (_) => const LoginScreen(),
@@ -62,11 +64,15 @@ class AppRouter {
         );
       case photoUpload:
         return MaterialPageRoute(
-          builder: (_) => const PhotoUploadScreen(),    
+          builder: (_) => const PhotoUploadScreen(),
         );
       case photoGallery:
         return MaterialPageRoute(
           builder: (_) => const PhotoGalleryScreen(),
+        );
+      case symptomTracking:
+        return MaterialPageRoute(
+          builder: (_) => const SymptomTrackingScreen(),
         );
       default:
         return MaterialPageRoute(
@@ -87,7 +93,7 @@ class AppRouter {
 
   static void navigateToVerification(BuildContext context, String email) {
     Navigator.pushReplacementNamed(
-      context, 
+      context,
       verification,
       arguments: VerificationScreenArguments(email),
     );
@@ -96,7 +102,7 @@ class AppRouter {
   // Use this for logout or session expiration
   static void resetToLogin(BuildContext context) {
     Navigator.pushNamedAndRemoveUntil(
-      context, 
+      context,
       login,
       (route) => false, // Remove all previous routes
     );

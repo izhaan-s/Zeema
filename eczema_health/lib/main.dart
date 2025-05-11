@@ -7,10 +7,11 @@ import 'features/dashboard/screens/dashboard_screen.dart';
 import 'features/photo_tracking/screens/photo_gallery_screen.dart';
 import 'features/reminders/screens/reminders_screen.dart';
 import 'utils/nav_bar.dart';
+import 'features/symptom_tracking/screens/symptom_tracking_screen.dart';
 
 final supabase = Supabase.instance.client;
 
-Future<void> main() async{
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Supabase.initialize(
@@ -51,8 +52,7 @@ class _MainScreenState extends State<MainScreen> {
   static final List<Widget> _pages = [
     DashboardScreen(),
     PhotoGalleryScreen(),
-    // Replace with your Symptoms screen widget
-    Center(child: Text('Symptoms')), 
+    SymptomTrackingScreen(),
     // Replace with your Lifestyle screen widget
     Center(child: Text('Lifestyle')),
     RemindersScreen(),
@@ -76,7 +76,7 @@ class _MainScreenState extends State<MainScreen> {
   }
 }
 
-// Can ignore class below 
+// Can ignore class below
 class AuthRedirect extends StatefulWidget {
   const AuthRedirect({super.key});
 
@@ -85,9 +85,8 @@ class AuthRedirect extends StatefulWidget {
 }
 
 class _AuthRedirectState extends State<AuthRedirect> {
-  
   @override
-  void initState(){
+  void initState() {
     super.initState();
   }
 

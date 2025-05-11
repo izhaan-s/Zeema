@@ -17,10 +17,10 @@ class BodyPartSelector extends StatelessWidget {
   };
 
   const BodyPartSelector({
-    Key? key,
+    super.key,
     required this.selectedBodyPart,
     required this.onSelected,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 
 class ImagePickerSection extends StatelessWidget {
   final File? selectedImage;
@@ -9,12 +8,12 @@ class ImagePickerSection extends StatelessWidget {
   final VoidCallback onPickCamera;
 
   const ImagePickerSection({
-    Key? key,
+    super.key,
     required this.selectedImage,
     required this.isLoading,
     required this.onPickGallery,
     required this.onPickCamera,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

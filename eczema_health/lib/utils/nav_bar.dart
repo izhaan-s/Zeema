@@ -21,15 +21,15 @@ class BottomNav extends StatelessWidget {
   final int selectedIndex;
   final ValueChanged<int> onTabSelected;
   const BottomNav(
-      {Key? key, required this.selectedIndex, required this.onTabSelected})
-      : super(key: key);
+      {super.key, required this.selectedIndex, required this.onTabSelected});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 64,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-      margin: const EdgeInsets.fromLTRB(24, 0, 24, 24), // more bottom margin
+      height: 80,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 6),
+      margin: const EdgeInsets.fromLTRB(
+          8, 0, 8, 24), // reduced margin for wider navbar
       decoration: BoxDecoration(
         color: Theme.of(context)
             .colorScheme
@@ -45,7 +45,6 @@ class BottomNav extends StatelessWidget {
             spreadRadius: 2,
           ),
         ],
-        // Optional: add a border for more separation
         border: Border.all(
           color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.10),
           width: 1.2,
@@ -85,6 +84,22 @@ class BottomNav extends StatelessWidget {
                             .colorScheme
                             .onSurface
                             .withValues(alpha: 0.6),
+                  ),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  bottomNavItems[index],
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: selectedIndex == index
+                        ? FontWeight.bold
+                        : FontWeight.normal,
+                    color: selectedIndex == index
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withValues(alpha: 0.7),
                   ),
                 ),
               ],

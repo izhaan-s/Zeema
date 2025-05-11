@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({Key? key}) : super(key: key);
+  const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +22,7 @@ class ProfileScreen extends StatelessWidget {
               // Replace with user image when available
             ),
             const SizedBox(height: 16),
-            
+
             // User Name
             const Text(
               'John Doe',
@@ -32,7 +32,7 @@ class ProfileScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            
+
             // Email
             const Text(
               'johndoe@example.com',
@@ -42,7 +42,7 @@ class ProfileScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            
+
             // Profile Options
             ProfileOption(
               icon: Icons.person_outline,
@@ -86,9 +86,9 @@ class ProfileScreen extends StatelessWidget {
                 // Navigate to help screen
               },
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Sign Out Button
             ElevatedButton(
               onPressed: () {
@@ -116,11 +116,11 @@ class ProfileOption extends StatelessWidget {
   final VoidCallback onTap;
 
   const ProfileOption({
-    Key? key,
+    super.key,
     required this.icon,
     required this.title,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -3,11 +3,11 @@ import 'login_screen.dart';
 
 class VerificationScreen extends StatelessWidget {
   final String email;
-  
+
   const VerificationScreen({
-    Key? key,
+    super.key,
     required this.email,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

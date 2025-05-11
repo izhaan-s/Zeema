@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
-import 'package:flutter/material.dart'; // Assuming you have theme utilities
-import '../../../data/models/reminder_model.dart'; // You'll need to create this model
+import 'package:flutter/material.dart';
+import '../../../data/models/reminder_model.dart';
 import '../../../data/repositories/cloud/reminder_repository.dart';
 
 class AddReminderScreen extends StatefulWidget {
@@ -216,7 +216,7 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
                     const Icon(Icons.access_time, color: Colors.grey),
                     const SizedBox(width: 10),
                     Text(
-                      '${_selectedTime.format(context)}',
+                      _selectedTime.format(context),
                       style: const TextStyle(fontSize: 16),
                     ),
                     const Spacer(),
@@ -239,7 +239,7 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                Container(
+                SizedBox(
                   height: 50,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,

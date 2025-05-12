@@ -1,5 +1,6 @@
 import 'package:eczema_health/features/symptom_tracking/screens/symptom_input_screen.dart';
 import 'package:flutter/material.dart';
+import '../widgets/symptom_calendar.dart';
 
 class SymptomTrackingScreen extends StatefulWidget {
   const SymptomTrackingScreen({super.key});
@@ -38,8 +39,9 @@ class _SymptomTrackingScreenState extends State<SymptomTrackingScreen> {
           ),
         ],
       ),
-      body: const Center(
-        child: Text('Welcome to the symptom tracking screen'),
+      body: SymptomCalendar(
+        symptoms: [],
+        onDateSelected: (date) {},
       ),
     );
   }

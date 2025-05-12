@@ -67,6 +67,15 @@ class _SymptomTrackingScreenState extends State<SymptomTrackingScreen> {
             symptoms: _symptoms,
             onDateSelected: (date) {},
           ),
+          const SizedBox(height: 8),
+          const Text(
+            'Recent Symptoms Entries',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
           Expanded(
             child: symptom_widgets.SymptomEntries(symptoms: _symptoms),
           ),

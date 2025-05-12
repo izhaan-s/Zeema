@@ -10,7 +10,8 @@ part 'app_database.g.dart';
 
 class Reminders extends Table {
   TextColumn get id => text()();
-  TextColumn get userId => text()();
+  TextColumn get userId => text()
+      .customConstraint('NOT NULL REFERENCES profiles(id) ON DELETE CASCADE')();
   TextColumn get title => text()();
   TextColumn get description => text().nullable()();
   TextColumn get reminderType => text().nullable()();
@@ -25,7 +26,8 @@ class Reminders extends Table {
 
 class Medications extends Table {
   TextColumn get id => text()();
-  TextColumn get userId => text()();
+  TextColumn get userId => text()
+      .customConstraint('NOT NULL REFERENCES profiles(id) ON DELETE CASCADE')();
   TextColumn get name => text()();
   TextColumn get dosage => text()();
   TextColumn get frequency => text()();
@@ -42,7 +44,8 @@ class Medications extends Table {
 
 class Photos extends Table {
   TextColumn get id => text()();
-  TextColumn get userId => text()();
+  TextColumn get userId => text()
+      .customConstraint('NOT NULL REFERENCES profiles(id) ON DELETE CASCADE')();
   TextColumn get imageUrl => text()();
   TextColumn get bodyPart => text()();
   IntColumn get itchIntensity => integer()();
@@ -71,7 +74,8 @@ class Profiles extends Table {
 
 class LifestyleEntries extends Table {
   TextColumn get id => text()();
-  TextColumn get userId => text()();
+  TextColumn get userId => text()
+      .customConstraint('NOT NULL REFERENCES profiles(id) ON DELETE CASCADE')();
   DateTimeColumn get date => dateTime()();
   TextColumn get foodsConsumed => text()(); // JSON string
   TextColumn get potentialTriggerFoods => text()(); // JSON string
@@ -89,7 +93,8 @@ class LifestyleEntries extends Table {
 
 class SymptomEntries extends Table {
   TextColumn get id => text()();
-  TextColumn get userId => text()();
+  TextColumn get userId => text()
+      .customConstraint('NOT NULL REFERENCES profiles(id) ON DELETE CASCADE')();
   DateTimeColumn get date => dateTime()();
   BoolColumn get isFlareup => boolean()();
   TextColumn get severity => text()();
@@ -98,6 +103,30 @@ class SymptomEntries extends Table {
   TextColumn get notes => text().nullable()(); // JSON string
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+class Treatments extends Table {
+  TextColumn get id => text()();
+  TextColumn get userId => text()
+      .customConstraint('NOT NULL REFERENCES profiles(id) ON DELETE CASCADE')();
+  TextColumn get name => text().withLength(min: 1, max: 50)();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+class SymptomTreatmentLinks extends Table {
+  TextColumn get id => text()();
+  TextColumn get symptomId => text().customConstraint(
+      'NOT NULL REFERENCES symptom_entries(id) ON DELETE CASCADE')();
+  TextColumn get treatmentId => text().customConstraint(
+      'NOT NULL REFERENCES treatments(id) ON DELETE CASCADE')();
+  TextColumn get userId => text()
+      .customConstraint('NOT NULL REFERENCES profiles(id) ON DELETE CASCADE')();
+  DateTimeColumn get createdAt => dateTime()();
   @override
   Set<Column> get primaryKey => {id};
 }
@@ -112,10 +141,13 @@ class SymptomEntries extends Table {
     Profiles,
     LifestyleEntries,
     SymptomEntries,
+    Treatments,
+    SymptomTreatmentLinks,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
+
   @override
   int get schemaVersion => 1;
 }

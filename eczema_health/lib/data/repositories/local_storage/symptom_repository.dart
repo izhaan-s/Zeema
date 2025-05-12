@@ -30,9 +30,11 @@ class LocalSymptomRepository {
   }
 
   // GET !!
-  Future<List<SymptomEntryModel>> getSymptomEntries() async {
+  Future<List<SymptomEntryModel>> getSymptomEntries(String userId) async {
     try {
-      final entries = await _db.select(_db.symptomEntries).get();
+      final entries = await (_db.select(_db.symptomEntries)
+            ..where((t) => t.userId.equals(userId)))
+          .get();
       return entries
           .map((entry) => SymptomEntryModel(
                 id: entry.id,

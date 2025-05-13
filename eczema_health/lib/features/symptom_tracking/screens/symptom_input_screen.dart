@@ -99,6 +99,7 @@ class _SymptomInputScreenState extends State<SymptomInputScreen> {
             selectedMedications.addAll(medications);
           });
         },
+        userId: '1',
       ),
     );
   }

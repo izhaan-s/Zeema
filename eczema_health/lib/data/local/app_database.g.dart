@@ -1160,6 +1160,16 @@ class $MedicationsTable extends Medications
       defaultConstraints: GeneratedColumn.constraintIsAlways(
           'CHECK ("is_preloaded" IN (0, 1))'),
       defaultValue: const Constant(false));
+  static const VerificationMeta _isSteroidMeta =
+      const VerificationMeta('isSteroid');
+  @override
+  late final GeneratedColumn<bool> isSteroid = GeneratedColumn<bool>(
+      'is_steroid', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_steroid" IN (0, 1))'),
+      defaultValue: const Constant(false));
   static const VerificationMeta _createdAtMeta =
       const VerificationMeta('createdAt');
   @override
@@ -1185,6 +1195,7 @@ class $MedicationsTable extends Medications
         sideEffects,
         notes,
         isPreloaded,
+        isSteroid,
         createdAt,
         updatedAt
       ];
@@ -1259,6 +1270,10 @@ class $MedicationsTable extends Medications
           isPreloaded.isAcceptableOrUnknown(
               data['is_preloaded']!, _isPreloadedMeta));
     }
+    if (data.containsKey('is_steroid')) {
+      context.handle(_isSteroidMeta,
+          isSteroid.isAcceptableOrUnknown(data['is_steroid']!, _isSteroidMeta));
+    }
     if (data.containsKey('created_at')) {
       context.handle(_createdAtMeta,
           createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
@@ -1302,6 +1317,8 @@ class $MedicationsTable extends Medications
           .read(DriftSqlType.string, data['${effectivePrefix}notes']),
       isPreloaded: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_preloaded'])!,
+      isSteroid: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_steroid'])!,
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
       updatedAt: attachedDatabase.typeMapping
@@ -1327,6 +1344,7 @@ class Medication extends DataClass implements Insertable<Medication> {
   final String? sideEffects;
   final String? notes;
   final bool isPreloaded;
+  final bool isSteroid;
   final DateTime createdAt;
   final DateTime updatedAt;
   const Medication(
@@ -1341,6 +1359,7 @@ class Medication extends DataClass implements Insertable<Medication> {
       this.sideEffects,
       this.notes,
       required this.isPreloaded,
+      required this.isSteroid,
       required this.createdAt,
       required this.updatedAt});
   @override
@@ -1365,6 +1384,7 @@ class Medication extends DataClass implements Insertable<Medication> {
       map['notes'] = Variable<String>(notes);
     }
     map['is_preloaded'] = Variable<bool>(isPreloaded);
+    map['is_steroid'] = Variable<bool>(isSteroid);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
@@ -1390,6 +1410,7 @@ class Medication extends DataClass implements Insertable<Medication> {
       notes:
           notes == null && nullToAbsent ? const Value.absent() : Value(notes),
       isPreloaded: Value(isPreloaded),
+      isSteroid: Value(isSteroid),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -1410,6 +1431,7 @@ class Medication extends DataClass implements Insertable<Medication> {
       sideEffects: serializer.fromJson<String?>(json['sideEffects']),
       notes: serializer.fromJson<String?>(json['notes']),
       isPreloaded: serializer.fromJson<bool>(json['isPreloaded']),
+      isSteroid: serializer.fromJson<bool>(json['isSteroid']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -1429,6 +1451,7 @@ class Medication extends DataClass implements Insertable<Medication> {
       'sideEffects': serializer.toJson<String?>(sideEffects),
       'notes': serializer.toJson<String?>(notes),
       'isPreloaded': serializer.toJson<bool>(isPreloaded),
+      'isSteroid': serializer.toJson<bool>(isSteroid),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
@@ -1446,6 +1469,7 @@ class Medication extends DataClass implements Insertable<Medication> {
           Value<String?> sideEffects = const Value.absent(),
           Value<String?> notes = const Value.absent(),
           bool? isPreloaded,
+          bool? isSteroid,
           DateTime? createdAt,
           DateTime? updatedAt}) =>
       Medication(
@@ -1461,6 +1485,7 @@ class Medication extends DataClass implements Insertable<Medication> {
         sideEffects: sideEffects.present ? sideEffects.value : this.sideEffects,
         notes: notes.present ? notes.value : this.notes,
         isPreloaded: isPreloaded ?? this.isPreloaded,
+        isSteroid: isSteroid ?? this.isSteroid,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
       );
@@ -1481,6 +1506,7 @@ class Medication extends DataClass implements Insertable<Medication> {
       notes: data.notes.present ? data.notes.value : this.notes,
       isPreloaded:
           data.isPreloaded.present ? data.isPreloaded.value : this.isPreloaded,
+      isSteroid: data.isSteroid.present ? data.isSteroid.value : this.isSteroid,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -1500,6 +1526,7 @@ class Medication extends DataClass implements Insertable<Medication> {
           ..write('sideEffects: $sideEffects, ')
           ..write('notes: $notes, ')
           ..write('isPreloaded: $isPreloaded, ')
+          ..write('isSteroid: $isSteroid, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -1519,6 +1546,7 @@ class Medication extends DataClass implements Insertable<Medication> {
       sideEffects,
       notes,
       isPreloaded,
+      isSteroid,
       createdAt,
       updatedAt);
   @override
@@ -1536,6 +1564,7 @@ class Medication extends DataClass implements Insertable<Medication> {
           other.sideEffects == this.sideEffects &&
           other.notes == this.notes &&
           other.isPreloaded == this.isPreloaded &&
+          other.isSteroid == this.isSteroid &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -1552,6 +1581,7 @@ class MedicationsCompanion extends UpdateCompanion<Medication> {
   final Value<String?> sideEffects;
   final Value<String?> notes;
   final Value<bool> isPreloaded;
+  final Value<bool> isSteroid;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<int> rowid;
@@ -1567,6 +1597,7 @@ class MedicationsCompanion extends UpdateCompanion<Medication> {
     this.sideEffects = const Value.absent(),
     this.notes = const Value.absent(),
     this.isPreloaded = const Value.absent(),
+    this.isSteroid = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -1583,6 +1614,7 @@ class MedicationsCompanion extends UpdateCompanion<Medication> {
     this.sideEffects = const Value.absent(),
     this.notes = const Value.absent(),
     this.isPreloaded = const Value.absent(),
+    this.isSteroid = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
     this.rowid = const Value.absent(),
@@ -1606,6 +1638,7 @@ class MedicationsCompanion extends UpdateCompanion<Medication> {
     Expression<String>? sideEffects,
     Expression<String>? notes,
     Expression<bool>? isPreloaded,
+    Expression<bool>? isSteroid,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<int>? rowid,
@@ -1622,6 +1655,7 @@ class MedicationsCompanion extends UpdateCompanion<Medication> {
       if (sideEffects != null) 'side_effects': sideEffects,
       if (notes != null) 'notes': notes,
       if (isPreloaded != null) 'is_preloaded': isPreloaded,
+      if (isSteroid != null) 'is_steroid': isSteroid,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
@@ -1640,6 +1674,7 @@ class MedicationsCompanion extends UpdateCompanion<Medication> {
       Value<String?>? sideEffects,
       Value<String?>? notes,
       Value<bool>? isPreloaded,
+      Value<bool>? isSteroid,
       Value<DateTime>? createdAt,
       Value<DateTime>? updatedAt,
       Value<int>? rowid}) {
@@ -1655,6 +1690,7 @@ class MedicationsCompanion extends UpdateCompanion<Medication> {
       sideEffects: sideEffects ?? this.sideEffects,
       notes: notes ?? this.notes,
       isPreloaded: isPreloaded ?? this.isPreloaded,
+      isSteroid: isSteroid ?? this.isSteroid,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
@@ -1697,6 +1733,9 @@ class MedicationsCompanion extends UpdateCompanion<Medication> {
     if (isPreloaded.present) {
       map['is_preloaded'] = Variable<bool>(isPreloaded.value);
     }
+    if (isSteroid.present) {
+      map['is_steroid'] = Variable<bool>(isSteroid.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -1723,6 +1762,7 @@ class MedicationsCompanion extends UpdateCompanion<Medication> {
           ..write('sideEffects: $sideEffects, ')
           ..write('notes: $notes, ')
           ..write('isPreloaded: $isPreloaded, ')
+          ..write('isSteroid: $isSteroid, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
@@ -4836,6 +4876,7 @@ typedef $$MedicationsTableCreateCompanionBuilder = MedicationsCompanion
   Value<String?> sideEffects,
   Value<String?> notes,
   Value<bool> isPreloaded,
+  Value<bool> isSteroid,
   required DateTime createdAt,
   required DateTime updatedAt,
   Value<int> rowid,
@@ -4853,6 +4894,7 @@ typedef $$MedicationsTableUpdateCompanionBuilder = MedicationsCompanion
   Value<String?> sideEffects,
   Value<String?> notes,
   Value<bool> isPreloaded,
+  Value<bool> isSteroid,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
   Value<int> rowid,
@@ -4935,6 +4977,9 @@ class $$MedicationsTableFilterComposer
 
   ColumnFilters<bool> get isPreloaded => $composableBuilder(
       column: $table.isPreloaded, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isSteroid => $composableBuilder(
+      column: $table.isSteroid, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnFilters(column));
@@ -5026,6 +5071,9 @@ class $$MedicationsTableOrderingComposer
   ColumnOrderings<bool> get isPreloaded => $composableBuilder(
       column: $table.isPreloaded, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<bool> get isSteroid => $composableBuilder(
+      column: $table.isSteroid, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnOrderings(column));
 
@@ -5091,6 +5139,9 @@ class $$MedicationsTableAnnotationComposer
 
   GeneratedColumn<bool> get isPreloaded => $composableBuilder(
       column: $table.isPreloaded, builder: (column) => column);
+
+  GeneratedColumn<bool> get isSteroid =>
+      $composableBuilder(column: $table.isSteroid, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -5176,6 +5227,7 @@ class $$MedicationsTableTableManager extends RootTableManager<
             Value<String?> sideEffects = const Value.absent(),
             Value<String?> notes = const Value.absent(),
             Value<bool> isPreloaded = const Value.absent(),
+            Value<bool> isSteroid = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
@@ -5192,6 +5244,7 @@ class $$MedicationsTableTableManager extends RootTableManager<
             sideEffects: sideEffects,
             notes: notes,
             isPreloaded: isPreloaded,
+            isSteroid: isSteroid,
             createdAt: createdAt,
             updatedAt: updatedAt,
             rowid: rowid,
@@ -5208,6 +5261,7 @@ class $$MedicationsTableTableManager extends RootTableManager<
             Value<String?> sideEffects = const Value.absent(),
             Value<String?> notes = const Value.absent(),
             Value<bool> isPreloaded = const Value.absent(),
+            Value<bool> isSteroid = const Value.absent(),
             required DateTime createdAt,
             required DateTime updatedAt,
             Value<int> rowid = const Value.absent(),
@@ -5224,6 +5278,7 @@ class $$MedicationsTableTableManager extends RootTableManager<
             sideEffects: sideEffects,
             notes: notes,
             isPreloaded: isPreloaded,
+            isSteroid: isSteroid,
             createdAt: createdAt,
             updatedAt: updatedAt,
             rowid: rowid,

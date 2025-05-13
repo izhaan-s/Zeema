@@ -37,6 +37,7 @@ class Medications extends Table {
   TextColumn get sideEffects => text().nullable()(); // JSON string
   TextColumn get notes => text().nullable()(); // JSON string
   BoolColumn get isPreloaded => boolean().withDefault(const Constant(false))();
+  BoolColumn get isSteroid => boolean().withDefault(const Constant(false))();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
   @override

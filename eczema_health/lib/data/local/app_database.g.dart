@@ -1150,6 +1150,16 @@ class $MedicationsTable extends Medications
   late final GeneratedColumn<String> notes = GeneratedColumn<String>(
       'notes', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _isPreloadedMeta =
+      const VerificationMeta('isPreloaded');
+  @override
+  late final GeneratedColumn<bool> isPreloaded = GeneratedColumn<bool>(
+      'is_preloaded', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("is_preloaded" IN (0, 1))'),
+      defaultValue: const Constant(false));
   static const VerificationMeta _createdAtMeta =
       const VerificationMeta('createdAt');
   @override
@@ -1174,6 +1184,7 @@ class $MedicationsTable extends Medications
         effectiveness,
         sideEffects,
         notes,
+        isPreloaded,
         createdAt,
         updatedAt
       ];
@@ -1242,6 +1253,12 @@ class $MedicationsTable extends Medications
       context.handle(
           _notesMeta, notes.isAcceptableOrUnknown(data['notes']!, _notesMeta));
     }
+    if (data.containsKey('is_preloaded')) {
+      context.handle(
+          _isPreloadedMeta,
+          isPreloaded.isAcceptableOrUnknown(
+              data['is_preloaded']!, _isPreloadedMeta));
+    }
     if (data.containsKey('created_at')) {
       context.handle(_createdAtMeta,
           createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
@@ -1283,6 +1300,8 @@ class $MedicationsTable extends Medications
           .read(DriftSqlType.string, data['${effectivePrefix}side_effects']),
       notes: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}notes']),
+      isPreloaded: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_preloaded'])!,
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
       updatedAt: attachedDatabase.typeMapping
@@ -1307,6 +1326,7 @@ class Medication extends DataClass implements Insertable<Medication> {
   final int? effectiveness;
   final String? sideEffects;
   final String? notes;
+  final bool isPreloaded;
   final DateTime createdAt;
   final DateTime updatedAt;
   const Medication(
@@ -1320,6 +1340,7 @@ class Medication extends DataClass implements Insertable<Medication> {
       this.effectiveness,
       this.sideEffects,
       this.notes,
+      required this.isPreloaded,
       required this.createdAt,
       required this.updatedAt});
   @override
@@ -1343,6 +1364,7 @@ class Medication extends DataClass implements Insertable<Medication> {
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
     }
+    map['is_preloaded'] = Variable<bool>(isPreloaded);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
@@ -1367,6 +1389,7 @@ class Medication extends DataClass implements Insertable<Medication> {
           : Value(sideEffects),
       notes:
           notes == null && nullToAbsent ? const Value.absent() : Value(notes),
+      isPreloaded: Value(isPreloaded),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -1386,6 +1409,7 @@ class Medication extends DataClass implements Insertable<Medication> {
       effectiveness: serializer.fromJson<int?>(json['effectiveness']),
       sideEffects: serializer.fromJson<String?>(json['sideEffects']),
       notes: serializer.fromJson<String?>(json['notes']),
+      isPreloaded: serializer.fromJson<bool>(json['isPreloaded']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -1404,6 +1428,7 @@ class Medication extends DataClass implements Insertable<Medication> {
       'effectiveness': serializer.toJson<int?>(effectiveness),
       'sideEffects': serializer.toJson<String?>(sideEffects),
       'notes': serializer.toJson<String?>(notes),
+      'isPreloaded': serializer.toJson<bool>(isPreloaded),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
@@ -1420,6 +1445,7 @@ class Medication extends DataClass implements Insertable<Medication> {
           Value<int?> effectiveness = const Value.absent(),
           Value<String?> sideEffects = const Value.absent(),
           Value<String?> notes = const Value.absent(),
+          bool? isPreloaded,
           DateTime? createdAt,
           DateTime? updatedAt}) =>
       Medication(
@@ -1434,6 +1460,7 @@ class Medication extends DataClass implements Insertable<Medication> {
             effectiveness.present ? effectiveness.value : this.effectiveness,
         sideEffects: sideEffects.present ? sideEffects.value : this.sideEffects,
         notes: notes.present ? notes.value : this.notes,
+        isPreloaded: isPreloaded ?? this.isPreloaded,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
       );
@@ -1452,6 +1479,8 @@ class Medication extends DataClass implements Insertable<Medication> {
       sideEffects:
           data.sideEffects.present ? data.sideEffects.value : this.sideEffects,
       notes: data.notes.present ? data.notes.value : this.notes,
+      isPreloaded:
+          data.isPreloaded.present ? data.isPreloaded.value : this.isPreloaded,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -1470,6 +1499,7 @@ class Medication extends DataClass implements Insertable<Medication> {
           ..write('effectiveness: $effectiveness, ')
           ..write('sideEffects: $sideEffects, ')
           ..write('notes: $notes, ')
+          ..write('isPreloaded: $isPreloaded, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -1488,6 +1518,7 @@ class Medication extends DataClass implements Insertable<Medication> {
       effectiveness,
       sideEffects,
       notes,
+      isPreloaded,
       createdAt,
       updatedAt);
   @override
@@ -1504,6 +1535,7 @@ class Medication extends DataClass implements Insertable<Medication> {
           other.effectiveness == this.effectiveness &&
           other.sideEffects == this.sideEffects &&
           other.notes == this.notes &&
+          other.isPreloaded == this.isPreloaded &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -1519,6 +1551,7 @@ class MedicationsCompanion extends UpdateCompanion<Medication> {
   final Value<int?> effectiveness;
   final Value<String?> sideEffects;
   final Value<String?> notes;
+  final Value<bool> isPreloaded;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<int> rowid;
@@ -1533,6 +1566,7 @@ class MedicationsCompanion extends UpdateCompanion<Medication> {
     this.effectiveness = const Value.absent(),
     this.sideEffects = const Value.absent(),
     this.notes = const Value.absent(),
+    this.isPreloaded = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -1548,6 +1582,7 @@ class MedicationsCompanion extends UpdateCompanion<Medication> {
     this.effectiveness = const Value.absent(),
     this.sideEffects = const Value.absent(),
     this.notes = const Value.absent(),
+    this.isPreloaded = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
     this.rowid = const Value.absent(),
@@ -1570,6 +1605,7 @@ class MedicationsCompanion extends UpdateCompanion<Medication> {
     Expression<int>? effectiveness,
     Expression<String>? sideEffects,
     Expression<String>? notes,
+    Expression<bool>? isPreloaded,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<int>? rowid,
@@ -1585,6 +1621,7 @@ class MedicationsCompanion extends UpdateCompanion<Medication> {
       if (effectiveness != null) 'effectiveness': effectiveness,
       if (sideEffects != null) 'side_effects': sideEffects,
       if (notes != null) 'notes': notes,
+      if (isPreloaded != null) 'is_preloaded': isPreloaded,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
@@ -1602,6 +1639,7 @@ class MedicationsCompanion extends UpdateCompanion<Medication> {
       Value<int?>? effectiveness,
       Value<String?>? sideEffects,
       Value<String?>? notes,
+      Value<bool>? isPreloaded,
       Value<DateTime>? createdAt,
       Value<DateTime>? updatedAt,
       Value<int>? rowid}) {
@@ -1616,6 +1654,7 @@ class MedicationsCompanion extends UpdateCompanion<Medication> {
       effectiveness: effectiveness ?? this.effectiveness,
       sideEffects: sideEffects ?? this.sideEffects,
       notes: notes ?? this.notes,
+      isPreloaded: isPreloaded ?? this.isPreloaded,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
@@ -1655,6 +1694,9 @@ class MedicationsCompanion extends UpdateCompanion<Medication> {
     if (notes.present) {
       map['notes'] = Variable<String>(notes.value);
     }
+    if (isPreloaded.present) {
+      map['is_preloaded'] = Variable<bool>(isPreloaded.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -1680,6 +1722,7 @@ class MedicationsCompanion extends UpdateCompanion<Medication> {
           ..write('effectiveness: $effectiveness, ')
           ..write('sideEffects: $sideEffects, ')
           ..write('notes: $notes, ')
+          ..write('isPreloaded: $isPreloaded, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
@@ -3294,324 +3337,12 @@ class SymptomEntriesCompanion extends UpdateCompanion<SymptomEntry> {
   }
 }
 
-class $TreatmentsTable extends Treatments
-    with TableInfo<$TreatmentsTable, Treatment> {
+class $SymptomMedicationLinksTable extends SymptomMedicationLinks
+    with TableInfo<$SymptomMedicationLinksTable, SymptomMedicationLink> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $TreatmentsTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<String> id = GeneratedColumn<String>(
-      'id', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
-  @override
-  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
-      'user_id', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL REFERENCES profiles(id) ON DELETE CASCADE');
-  static const VerificationMeta _nameMeta = const VerificationMeta('name');
-  @override
-  late final GeneratedColumn<String> name = GeneratedColumn<String>(
-      'name', aliasedName, false,
-      additionalChecks:
-          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 50),
-      type: DriftSqlType.string,
-      requiredDuringInsert: true);
-  static const VerificationMeta _createdAtMeta =
-      const VerificationMeta('createdAt');
-  @override
-  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
-      'created_at', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
-  static const VerificationMeta _updatedAtMeta =
-      const VerificationMeta('updatedAt');
-  @override
-  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
-      'updated_at', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
-  @override
-  List<GeneratedColumn> get $columns =>
-      [id, userId, name, createdAt, updatedAt];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'treatments';
-  @override
-  VerificationContext validateIntegrity(Insertable<Treatment> instance,
-      {bool isInserting = false}) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    } else if (isInserting) {
-      context.missing(_idMeta);
-    }
-    if (data.containsKey('user_id')) {
-      context.handle(_userIdMeta,
-          userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta));
-    } else if (isInserting) {
-      context.missing(_userIdMeta);
-    }
-    if (data.containsKey('name')) {
-      context.handle(
-          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
-    } else if (isInserting) {
-      context.missing(_nameMeta);
-    }
-    if (data.containsKey('created_at')) {
-      context.handle(_createdAtMeta,
-          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
-    } else if (isInserting) {
-      context.missing(_createdAtMeta);
-    }
-    if (data.containsKey('updated_at')) {
-      context.handle(_updatedAtMeta,
-          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
-    } else if (isInserting) {
-      context.missing(_updatedAtMeta);
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  Treatment map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return Treatment(
-      id: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
-      userId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}user_id'])!,
-      name: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
-      createdAt: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
-      updatedAt: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
-    );
-  }
-
-  @override
-  $TreatmentsTable createAlias(String alias) {
-    return $TreatmentsTable(attachedDatabase, alias);
-  }
-}
-
-class Treatment extends DataClass implements Insertable<Treatment> {
-  final String id;
-  final String userId;
-  final String name;
-  final DateTime createdAt;
-  final DateTime updatedAt;
-  const Treatment(
-      {required this.id,
-      required this.userId,
-      required this.name,
-      required this.createdAt,
-      required this.updatedAt});
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['id'] = Variable<String>(id);
-    map['user_id'] = Variable<String>(userId);
-    map['name'] = Variable<String>(name);
-    map['created_at'] = Variable<DateTime>(createdAt);
-    map['updated_at'] = Variable<DateTime>(updatedAt);
-    return map;
-  }
-
-  TreatmentsCompanion toCompanion(bool nullToAbsent) {
-    return TreatmentsCompanion(
-      id: Value(id),
-      userId: Value(userId),
-      name: Value(name),
-      createdAt: Value(createdAt),
-      updatedAt: Value(updatedAt),
-    );
-  }
-
-  factory Treatment.fromJson(Map<String, dynamic> json,
-      {ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return Treatment(
-      id: serializer.fromJson<String>(json['id']),
-      userId: serializer.fromJson<String>(json['userId']),
-      name: serializer.fromJson<String>(json['name']),
-      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
-      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'id': serializer.toJson<String>(id),
-      'userId': serializer.toJson<String>(userId),
-      'name': serializer.toJson<String>(name),
-      'createdAt': serializer.toJson<DateTime>(createdAt),
-      'updatedAt': serializer.toJson<DateTime>(updatedAt),
-    };
-  }
-
-  Treatment copyWith(
-          {String? id,
-          String? userId,
-          String? name,
-          DateTime? createdAt,
-          DateTime? updatedAt}) =>
-      Treatment(
-        id: id ?? this.id,
-        userId: userId ?? this.userId,
-        name: name ?? this.name,
-        createdAt: createdAt ?? this.createdAt,
-        updatedAt: updatedAt ?? this.updatedAt,
-      );
-  Treatment copyWithCompanion(TreatmentsCompanion data) {
-    return Treatment(
-      id: data.id.present ? data.id.value : this.id,
-      userId: data.userId.present ? data.userId.value : this.userId,
-      name: data.name.present ? data.name.value : this.name,
-      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
-      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('Treatment(')
-          ..write('id: $id, ')
-          ..write('userId: $userId, ')
-          ..write('name: $name, ')
-          ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(id, userId, name, createdAt, updatedAt);
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is Treatment &&
-          other.id == this.id &&
-          other.userId == this.userId &&
-          other.name == this.name &&
-          other.createdAt == this.createdAt &&
-          other.updatedAt == this.updatedAt);
-}
-
-class TreatmentsCompanion extends UpdateCompanion<Treatment> {
-  final Value<String> id;
-  final Value<String> userId;
-  final Value<String> name;
-  final Value<DateTime> createdAt;
-  final Value<DateTime> updatedAt;
-  final Value<int> rowid;
-  const TreatmentsCompanion({
-    this.id = const Value.absent(),
-    this.userId = const Value.absent(),
-    this.name = const Value.absent(),
-    this.createdAt = const Value.absent(),
-    this.updatedAt = const Value.absent(),
-    this.rowid = const Value.absent(),
-  });
-  TreatmentsCompanion.insert({
-    required String id,
-    required String userId,
-    required String name,
-    required DateTime createdAt,
-    required DateTime updatedAt,
-    this.rowid = const Value.absent(),
-  })  : id = Value(id),
-        userId = Value(userId),
-        name = Value(name),
-        createdAt = Value(createdAt),
-        updatedAt = Value(updatedAt);
-  static Insertable<Treatment> custom({
-    Expression<String>? id,
-    Expression<String>? userId,
-    Expression<String>? name,
-    Expression<DateTime>? createdAt,
-    Expression<DateTime>? updatedAt,
-    Expression<int>? rowid,
-  }) {
-    return RawValuesInsertable({
-      if (id != null) 'id': id,
-      if (userId != null) 'user_id': userId,
-      if (name != null) 'name': name,
-      if (createdAt != null) 'created_at': createdAt,
-      if (updatedAt != null) 'updated_at': updatedAt,
-      if (rowid != null) 'rowid': rowid,
-    });
-  }
-
-  TreatmentsCompanion copyWith(
-      {Value<String>? id,
-      Value<String>? userId,
-      Value<String>? name,
-      Value<DateTime>? createdAt,
-      Value<DateTime>? updatedAt,
-      Value<int>? rowid}) {
-    return TreatmentsCompanion(
-      id: id ?? this.id,
-      userId: userId ?? this.userId,
-      name: name ?? this.name,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-      rowid: rowid ?? this.rowid,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<String>(id.value);
-    }
-    if (userId.present) {
-      map['user_id'] = Variable<String>(userId.value);
-    }
-    if (name.present) {
-      map['name'] = Variable<String>(name.value);
-    }
-    if (createdAt.present) {
-      map['created_at'] = Variable<DateTime>(createdAt.value);
-    }
-    if (updatedAt.present) {
-      map['updated_at'] = Variable<DateTime>(updatedAt.value);
-    }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('TreatmentsCompanion(')
-          ..write('id: $id, ')
-          ..write('userId: $userId, ')
-          ..write('name: $name, ')
-          ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt, ')
-          ..write('rowid: $rowid')
-          ..write(')'))
-        .toString();
-  }
-}
-
-class $SymptomTreatmentLinksTable extends SymptomTreatmentLinks
-    with TableInfo<$SymptomTreatmentLinksTable, SymptomTreatmentLink> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $SymptomTreatmentLinksTable(this.attachedDatabase, [this._alias]);
+  $SymptomMedicationLinksTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
@@ -3626,15 +3357,15 @@ class $SymptomTreatmentLinksTable extends SymptomTreatmentLinks
       requiredDuringInsert: true,
       $customConstraints:
           'NOT NULL REFERENCES symptom_entries(id) ON DELETE CASCADE');
-  static const VerificationMeta _treatmentIdMeta =
-      const VerificationMeta('treatmentId');
+  static const VerificationMeta _medicationIdMeta =
+      const VerificationMeta('medicationId');
   @override
-  late final GeneratedColumn<String> treatmentId = GeneratedColumn<String>(
-      'treatment_id', aliasedName, false,
+  late final GeneratedColumn<String> medicationId = GeneratedColumn<String>(
+      'medication_id', aliasedName, false,
       type: DriftSqlType.string,
       requiredDuringInsert: true,
       $customConstraints:
-          'NOT NULL REFERENCES treatments(id) ON DELETE CASCADE');
+          'NOT NULL REFERENCES medications(id) ON DELETE CASCADE');
   static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
   @override
   late final GeneratedColumn<String> userId = GeneratedColumn<String>(
@@ -3650,15 +3381,15 @@ class $SymptomTreatmentLinksTable extends SymptomTreatmentLinks
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns =>
-      [id, symptomId, treatmentId, userId, createdAt];
+      [id, symptomId, medicationId, userId, createdAt];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'symptom_treatment_links';
+  static const String $name = 'symptom_medication_links';
   @override
   VerificationContext validateIntegrity(
-      Insertable<SymptomTreatmentLink> instance,
+      Insertable<SymptomMedicationLink> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -3673,13 +3404,13 @@ class $SymptomTreatmentLinksTable extends SymptomTreatmentLinks
     } else if (isInserting) {
       context.missing(_symptomIdMeta);
     }
-    if (data.containsKey('treatment_id')) {
+    if (data.containsKey('medication_id')) {
       context.handle(
-          _treatmentIdMeta,
-          treatmentId.isAcceptableOrUnknown(
-              data['treatment_id']!, _treatmentIdMeta));
+          _medicationIdMeta,
+          medicationId.isAcceptableOrUnknown(
+              data['medication_id']!, _medicationIdMeta));
     } else if (isInserting) {
-      context.missing(_treatmentIdMeta);
+      context.missing(_medicationIdMeta);
     }
     if (data.containsKey('user_id')) {
       context.handle(_userIdMeta,
@@ -3699,15 +3430,15 @@ class $SymptomTreatmentLinksTable extends SymptomTreatmentLinks
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  SymptomTreatmentLink map(Map<String, dynamic> data, {String? tablePrefix}) {
+  SymptomMedicationLink map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return SymptomTreatmentLink(
+    return SymptomMedicationLink(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       symptomId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}symptom_id'])!,
-      treatmentId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}treatment_id'])!,
+      medicationId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}medication_id'])!,
       userId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}user_id'])!,
       createdAt: attachedDatabase.typeMapping
@@ -3716,22 +3447,22 @@ class $SymptomTreatmentLinksTable extends SymptomTreatmentLinks
   }
 
   @override
-  $SymptomTreatmentLinksTable createAlias(String alias) {
-    return $SymptomTreatmentLinksTable(attachedDatabase, alias);
+  $SymptomMedicationLinksTable createAlias(String alias) {
+    return $SymptomMedicationLinksTable(attachedDatabase, alias);
   }
 }
 
-class SymptomTreatmentLink extends DataClass
-    implements Insertable<SymptomTreatmentLink> {
+class SymptomMedicationLink extends DataClass
+    implements Insertable<SymptomMedicationLink> {
   final String id;
   final String symptomId;
-  final String treatmentId;
+  final String medicationId;
   final String userId;
   final DateTime createdAt;
-  const SymptomTreatmentLink(
+  const SymptomMedicationLink(
       {required this.id,
       required this.symptomId,
-      required this.treatmentId,
+      required this.medicationId,
       required this.userId,
       required this.createdAt});
   @override
@@ -3739,29 +3470,29 @@ class SymptomTreatmentLink extends DataClass
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['symptom_id'] = Variable<String>(symptomId);
-    map['treatment_id'] = Variable<String>(treatmentId);
+    map['medication_id'] = Variable<String>(medicationId);
     map['user_id'] = Variable<String>(userId);
     map['created_at'] = Variable<DateTime>(createdAt);
     return map;
   }
 
-  SymptomTreatmentLinksCompanion toCompanion(bool nullToAbsent) {
-    return SymptomTreatmentLinksCompanion(
+  SymptomMedicationLinksCompanion toCompanion(bool nullToAbsent) {
+    return SymptomMedicationLinksCompanion(
       id: Value(id),
       symptomId: Value(symptomId),
-      treatmentId: Value(treatmentId),
+      medicationId: Value(medicationId),
       userId: Value(userId),
       createdAt: Value(createdAt),
     );
   }
 
-  factory SymptomTreatmentLink.fromJson(Map<String, dynamic> json,
+  factory SymptomMedicationLink.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return SymptomTreatmentLink(
+    return SymptomMedicationLink(
       id: serializer.fromJson<String>(json['id']),
       symptomId: serializer.fromJson<String>(json['symptomId']),
-      treatmentId: serializer.fromJson<String>(json['treatmentId']),
+      medicationId: serializer.fromJson<String>(json['medicationId']),
       userId: serializer.fromJson<String>(json['userId']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
@@ -3772,31 +3503,33 @@ class SymptomTreatmentLink extends DataClass
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'symptomId': serializer.toJson<String>(symptomId),
-      'treatmentId': serializer.toJson<String>(treatmentId),
+      'medicationId': serializer.toJson<String>(medicationId),
       'userId': serializer.toJson<String>(userId),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
   }
 
-  SymptomTreatmentLink copyWith(
+  SymptomMedicationLink copyWith(
           {String? id,
           String? symptomId,
-          String? treatmentId,
+          String? medicationId,
           String? userId,
           DateTime? createdAt}) =>
-      SymptomTreatmentLink(
+      SymptomMedicationLink(
         id: id ?? this.id,
         symptomId: symptomId ?? this.symptomId,
-        treatmentId: treatmentId ?? this.treatmentId,
+        medicationId: medicationId ?? this.medicationId,
         userId: userId ?? this.userId,
         createdAt: createdAt ?? this.createdAt,
       );
-  SymptomTreatmentLink copyWithCompanion(SymptomTreatmentLinksCompanion data) {
-    return SymptomTreatmentLink(
+  SymptomMedicationLink copyWithCompanion(
+      SymptomMedicationLinksCompanion data) {
+    return SymptomMedicationLink(
       id: data.id.present ? data.id.value : this.id,
       symptomId: data.symptomId.present ? data.symptomId.value : this.symptomId,
-      treatmentId:
-          data.treatmentId.present ? data.treatmentId.value : this.treatmentId,
+      medicationId: data.medicationId.present
+          ? data.medicationId.value
+          : this.medicationId,
       userId: data.userId.present ? data.userId.value : this.userId,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
@@ -3804,10 +3537,10 @@ class SymptomTreatmentLink extends DataClass
 
   @override
   String toString() {
-    return (StringBuffer('SymptomTreatmentLink(')
+    return (StringBuffer('SymptomMedicationLink(')
           ..write('id: $id, ')
           ..write('symptomId: $symptomId, ')
-          ..write('treatmentId: $treatmentId, ')
+          ..write('medicationId: $medicationId, ')
           ..write('userId: $userId, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
@@ -3816,50 +3549,50 @@ class SymptomTreatmentLink extends DataClass
 
   @override
   int get hashCode =>
-      Object.hash(id, symptomId, treatmentId, userId, createdAt);
+      Object.hash(id, symptomId, medicationId, userId, createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is SymptomTreatmentLink &&
+      (other is SymptomMedicationLink &&
           other.id == this.id &&
           other.symptomId == this.symptomId &&
-          other.treatmentId == this.treatmentId &&
+          other.medicationId == this.medicationId &&
           other.userId == this.userId &&
           other.createdAt == this.createdAt);
 }
 
-class SymptomTreatmentLinksCompanion
-    extends UpdateCompanion<SymptomTreatmentLink> {
+class SymptomMedicationLinksCompanion
+    extends UpdateCompanion<SymptomMedicationLink> {
   final Value<String> id;
   final Value<String> symptomId;
-  final Value<String> treatmentId;
+  final Value<String> medicationId;
   final Value<String> userId;
   final Value<DateTime> createdAt;
   final Value<int> rowid;
-  const SymptomTreatmentLinksCompanion({
+  const SymptomMedicationLinksCompanion({
     this.id = const Value.absent(),
     this.symptomId = const Value.absent(),
-    this.treatmentId = const Value.absent(),
+    this.medicationId = const Value.absent(),
     this.userId = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
-  SymptomTreatmentLinksCompanion.insert({
+  SymptomMedicationLinksCompanion.insert({
     required String id,
     required String symptomId,
-    required String treatmentId,
+    required String medicationId,
     required String userId,
     required DateTime createdAt,
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         symptomId = Value(symptomId),
-        treatmentId = Value(treatmentId),
+        medicationId = Value(medicationId),
         userId = Value(userId),
         createdAt = Value(createdAt);
-  static Insertable<SymptomTreatmentLink> custom({
+  static Insertable<SymptomMedicationLink> custom({
     Expression<String>? id,
     Expression<String>? symptomId,
-    Expression<String>? treatmentId,
+    Expression<String>? medicationId,
     Expression<String>? userId,
     Expression<DateTime>? createdAt,
     Expression<int>? rowid,
@@ -3867,24 +3600,24 @@ class SymptomTreatmentLinksCompanion
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (symptomId != null) 'symptom_id': symptomId,
-      if (treatmentId != null) 'treatment_id': treatmentId,
+      if (medicationId != null) 'medication_id': medicationId,
       if (userId != null) 'user_id': userId,
       if (createdAt != null) 'created_at': createdAt,
       if (rowid != null) 'rowid': rowid,
     });
   }
 
-  SymptomTreatmentLinksCompanion copyWith(
+  SymptomMedicationLinksCompanion copyWith(
       {Value<String>? id,
       Value<String>? symptomId,
-      Value<String>? treatmentId,
+      Value<String>? medicationId,
       Value<String>? userId,
       Value<DateTime>? createdAt,
       Value<int>? rowid}) {
-    return SymptomTreatmentLinksCompanion(
+    return SymptomMedicationLinksCompanion(
       id: id ?? this.id,
       symptomId: symptomId ?? this.symptomId,
-      treatmentId: treatmentId ?? this.treatmentId,
+      medicationId: medicationId ?? this.medicationId,
       userId: userId ?? this.userId,
       createdAt: createdAt ?? this.createdAt,
       rowid: rowid ?? this.rowid,
@@ -3900,8 +3633,8 @@ class SymptomTreatmentLinksCompanion
     if (symptomId.present) {
       map['symptom_id'] = Variable<String>(symptomId.value);
     }
-    if (treatmentId.present) {
-      map['treatment_id'] = Variable<String>(treatmentId.value);
+    if (medicationId.present) {
+      map['medication_id'] = Variable<String>(medicationId.value);
     }
     if (userId.present) {
       map['user_id'] = Variable<String>(userId.value);
@@ -3917,10 +3650,10 @@ class SymptomTreatmentLinksCompanion
 
   @override
   String toString() {
-    return (StringBuffer('SymptomTreatmentLinksCompanion(')
+    return (StringBuffer('SymptomMedicationLinksCompanion(')
           ..write('id: $id, ')
           ..write('symptomId: $symptomId, ')
-          ..write('treatmentId: $treatmentId, ')
+          ..write('medicationId: $medicationId, ')
           ..write('userId: $userId, ')
           ..write('createdAt: $createdAt, ')
           ..write('rowid: $rowid')
@@ -3939,9 +3672,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $LifestyleEntriesTable lifestyleEntries =
       $LifestyleEntriesTable(this);
   late final $SymptomEntriesTable symptomEntries = $SymptomEntriesTable(this);
-  late final $TreatmentsTable treatments = $TreatmentsTable(this);
-  late final $SymptomTreatmentLinksTable symptomTreatmentLinks =
-      $SymptomTreatmentLinksTable(this);
+  late final $SymptomMedicationLinksTable symptomMedicationLinks =
+      $SymptomMedicationLinksTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -3953,8 +3685,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         photos,
         lifestyleEntries,
         symptomEntries,
-        treatments,
-        symptomTreatmentLinks
+        symptomMedicationLinks
       ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules(
@@ -3995,31 +3726,24 @@ abstract class _$AppDatabase extends GeneratedDatabase {
             ],
           ),
           WritePropagation(
-            on: TableUpdateQuery.onTableName('profiles',
-                limitUpdateKind: UpdateKind.delete),
-            result: [
-              TableUpdate('treatments', kind: UpdateKind.delete),
-            ],
-          ),
-          WritePropagation(
             on: TableUpdateQuery.onTableName('symptom_entries',
                 limitUpdateKind: UpdateKind.delete),
             result: [
-              TableUpdate('symptom_treatment_links', kind: UpdateKind.delete),
+              TableUpdate('symptom_medication_links', kind: UpdateKind.delete),
             ],
           ),
           WritePropagation(
-            on: TableUpdateQuery.onTableName('treatments',
+            on: TableUpdateQuery.onTableName('medications',
                 limitUpdateKind: UpdateKind.delete),
             result: [
-              TableUpdate('symptom_treatment_links', kind: UpdateKind.delete),
+              TableUpdate('symptom_medication_links', kind: UpdateKind.delete),
             ],
           ),
           WritePropagation(
             on: TableUpdateQuery.onTableName('profiles',
                 limitUpdateKind: UpdateKind.delete),
             result: [
-              TableUpdate('symptom_treatment_links', kind: UpdateKind.delete),
+              TableUpdate('symptom_medication_links', kind: UpdateKind.delete),
             ],
           ),
         ],
@@ -4134,36 +3858,21 @@ final class $$ProfilesTableReferences
         manager.$state.copyWith(prefetchedData: cache));
   }
 
-  static MultiTypedResultKey<$TreatmentsTable, List<Treatment>>
-      _treatmentsRefsTable(_$AppDatabase db) =>
-          MultiTypedResultKey.fromTable(db.treatments,
-              aliasName:
-                  $_aliasNameGenerator(db.profiles.id, db.treatments.userId));
-
-  $$TreatmentsTableProcessedTableManager get treatmentsRefs {
-    final manager = $$TreatmentsTableTableManager($_db, $_db.treatments)
-        .filter((f) => f.userId.id.sqlEquals($_itemColumn<String>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(_treatmentsRefsTable($_db));
-    return ProcessedTableManager(
-        manager.$state.copyWith(prefetchedData: cache));
-  }
-
-  static MultiTypedResultKey<$SymptomTreatmentLinksTable,
-      List<SymptomTreatmentLink>> _symptomTreatmentLinksRefsTable(
+  static MultiTypedResultKey<$SymptomMedicationLinksTable,
+      List<SymptomMedicationLink>> _symptomMedicationLinksRefsTable(
           _$AppDatabase db) =>
-      MultiTypedResultKey.fromTable(db.symptomTreatmentLinks,
+      MultiTypedResultKey.fromTable(db.symptomMedicationLinks,
           aliasName: $_aliasNameGenerator(
-              db.profiles.id, db.symptomTreatmentLinks.userId));
+              db.profiles.id, db.symptomMedicationLinks.userId));
 
-  $$SymptomTreatmentLinksTableProcessedTableManager
-      get symptomTreatmentLinksRefs {
-    final manager = $$SymptomTreatmentLinksTableTableManager(
-            $_db, $_db.symptomTreatmentLinks)
+  $$SymptomMedicationLinksTableProcessedTableManager
+      get symptomMedicationLinksRefs {
+    final manager = $$SymptomMedicationLinksTableTableManager(
+            $_db, $_db.symptomMedicationLinks)
         .filter((f) => f.userId.id.sqlEquals($_itemColumn<String>('id')!));
 
     final cache =
-        $_typedResult.readTableOrNull(_symptomTreatmentLinksRefsTable($_db));
+        $_typedResult.readTableOrNull(_symptomMedicationLinksRefsTable($_db));
     return ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: cache));
   }
@@ -4317,42 +4026,21 @@ class $$ProfilesTableFilterComposer
     return f(composer);
   }
 
-  Expression<bool> treatmentsRefs(
-      Expression<bool> Function($$TreatmentsTableFilterComposer f) f) {
-    final $$TreatmentsTableFilterComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.id,
-        referencedTable: $db.treatments,
-        getReferencedColumn: (t) => t.userId,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$TreatmentsTableFilterComposer(
-              $db: $db,
-              $table: $db.treatments,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return f(composer);
-  }
-
-  Expression<bool> symptomTreatmentLinksRefs(
-      Expression<bool> Function($$SymptomTreatmentLinksTableFilterComposer f)
+  Expression<bool> symptomMedicationLinksRefs(
+      Expression<bool> Function($$SymptomMedicationLinksTableFilterComposer f)
           f) {
-    final $$SymptomTreatmentLinksTableFilterComposer composer =
+    final $$SymptomMedicationLinksTableFilterComposer composer =
         $composerBuilder(
             composer: this,
             getCurrentColumn: (t) => t.id,
-            referencedTable: $db.symptomTreatmentLinks,
+            referencedTable: $db.symptomMedicationLinks,
             getReferencedColumn: (t) => t.userId,
             builder: (joinBuilder,
                     {$addJoinBuilderToRootComposer,
                     $removeJoinBuilderFromRootComposer}) =>
-                $$SymptomTreatmentLinksTableFilterComposer(
+                $$SymptomMedicationLinksTableFilterComposer(
                   $db: $db,
-                  $table: $db.symptomTreatmentLinks,
+                  $table: $db.symptomMedicationLinks,
                   $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
                   joinBuilder: joinBuilder,
                   $removeJoinBuilderFromRootComposer:
@@ -4554,42 +4242,21 @@ class $$ProfilesTableAnnotationComposer
     return f(composer);
   }
 
-  Expression<T> treatmentsRefs<T extends Object>(
-      Expression<T> Function($$TreatmentsTableAnnotationComposer a) f) {
-    final $$TreatmentsTableAnnotationComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.id,
-        referencedTable: $db.treatments,
-        getReferencedColumn: (t) => t.userId,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$TreatmentsTableAnnotationComposer(
-              $db: $db,
-              $table: $db.treatments,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return f(composer);
-  }
-
-  Expression<T> symptomTreatmentLinksRefs<T extends Object>(
-      Expression<T> Function($$SymptomTreatmentLinksTableAnnotationComposer a)
+  Expression<T> symptomMedicationLinksRefs<T extends Object>(
+      Expression<T> Function($$SymptomMedicationLinksTableAnnotationComposer a)
           f) {
-    final $$SymptomTreatmentLinksTableAnnotationComposer composer =
+    final $$SymptomMedicationLinksTableAnnotationComposer composer =
         $composerBuilder(
             composer: this,
             getCurrentColumn: (t) => t.id,
-            referencedTable: $db.symptomTreatmentLinks,
+            referencedTable: $db.symptomMedicationLinks,
             getReferencedColumn: (t) => t.userId,
             builder: (joinBuilder,
                     {$addJoinBuilderToRootComposer,
                     $removeJoinBuilderFromRootComposer}) =>
-                $$SymptomTreatmentLinksTableAnnotationComposer(
+                $$SymptomMedicationLinksTableAnnotationComposer(
                   $db: $db,
-                  $table: $db.symptomTreatmentLinks,
+                  $table: $db.symptomMedicationLinks,
                   $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
                   joinBuilder: joinBuilder,
                   $removeJoinBuilderFromRootComposer:
@@ -4616,8 +4283,7 @@ class $$ProfilesTableTableManager extends RootTableManager<
         bool photosRefs,
         bool lifestyleEntriesRefs,
         bool symptomEntriesRefs,
-        bool treatmentsRefs,
-        bool symptomTreatmentLinksRefs})> {
+        bool symptomMedicationLinksRefs})> {
   $$ProfilesTableTableManager(_$AppDatabase db, $ProfilesTable table)
       : super(TableManagerState(
           db: db,
@@ -4694,8 +4360,7 @@ class $$ProfilesTableTableManager extends RootTableManager<
               photosRefs = false,
               lifestyleEntriesRefs = false,
               symptomEntriesRefs = false,
-              treatmentsRefs = false,
-              symptomTreatmentLinksRefs = false}) {
+              symptomMedicationLinksRefs = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [
@@ -4704,8 +4369,7 @@ class $$ProfilesTableTableManager extends RootTableManager<
                 if (photosRefs) db.photos,
                 if (lifestyleEntriesRefs) db.lifestyleEntries,
                 if (symptomEntriesRefs) db.symptomEntries,
-                if (treatmentsRefs) db.treatments,
-                if (symptomTreatmentLinksRefs) db.symptomTreatmentLinks
+                if (symptomMedicationLinksRefs) db.symptomMedicationLinks
               ],
               addJoins: null,
               getPrefetchedDataCallback: (items) async {
@@ -4773,28 +4437,15 @@ class $$ProfilesTableTableManager extends RootTableManager<
                                 referencedItems) =>
                             referencedItems.where((e) => e.userId == item.id),
                         typedResults: items),
-                  if (treatmentsRefs)
+                  if (symptomMedicationLinksRefs)
                     await $_getPrefetchedData<Profile, $ProfilesTable,
-                            Treatment>(
-                        currentTable: table,
-                        referencedTable:
-                            $$ProfilesTableReferences._treatmentsRefsTable(db),
-                        managerFromTypedResult: (p0) =>
-                            $$ProfilesTableReferences(db, table, p0)
-                                .treatmentsRefs,
-                        referencedItemsForCurrentItem: (item,
-                                referencedItems) =>
-                            referencedItems.where((e) => e.userId == item.id),
-                        typedResults: items),
-                  if (symptomTreatmentLinksRefs)
-                    await $_getPrefetchedData<Profile, $ProfilesTable,
-                            SymptomTreatmentLink>(
+                            SymptomMedicationLink>(
                         currentTable: table,
                         referencedTable: $$ProfilesTableReferences
-                            ._symptomTreatmentLinksRefsTable(db),
+                            ._symptomMedicationLinksRefsTable(db),
                         managerFromTypedResult: (p0) =>
                             $$ProfilesTableReferences(db, table, p0)
-                                .symptomTreatmentLinksRefs,
+                                .symptomMedicationLinksRefs,
                         referencedItemsForCurrentItem: (item,
                                 referencedItems) =>
                             referencedItems.where((e) => e.userId == item.id),
@@ -4823,8 +4474,7 @@ typedef $$ProfilesTableProcessedTableManager = ProcessedTableManager<
         bool photosRefs,
         bool lifestyleEntriesRefs,
         bool symptomEntriesRefs,
-        bool treatmentsRefs,
-        bool symptomTreatmentLinksRefs})>;
+        bool symptomMedicationLinksRefs})>;
 typedef $$RemindersTableCreateCompanionBuilder = RemindersCompanion Function({
   required String id,
   required String userId,
@@ -5185,6 +4835,7 @@ typedef $$MedicationsTableCreateCompanionBuilder = MedicationsCompanion
   Value<int?> effectiveness,
   Value<String?> sideEffects,
   Value<String?> notes,
+  Value<bool> isPreloaded,
   required DateTime createdAt,
   required DateTime updatedAt,
   Value<int> rowid,
@@ -5201,6 +4852,7 @@ typedef $$MedicationsTableUpdateCompanionBuilder = MedicationsCompanion
   Value<int?> effectiveness,
   Value<String?> sideEffects,
   Value<String?> notes,
+  Value<bool> isPreloaded,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
   Value<int> rowid,
@@ -5222,6 +4874,26 @@ final class $$MedicationsTableReferences
     if (item == null) return manager;
     return ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: [item]));
+  }
+
+  static MultiTypedResultKey<$SymptomMedicationLinksTable,
+      List<SymptomMedicationLink>> _symptomMedicationLinksRefsTable(
+          _$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(db.symptomMedicationLinks,
+          aliasName: $_aliasNameGenerator(
+              db.medications.id, db.symptomMedicationLinks.medicationId));
+
+  $$SymptomMedicationLinksTableProcessedTableManager
+      get symptomMedicationLinksRefs {
+    final manager = $$SymptomMedicationLinksTableTableManager(
+            $_db, $_db.symptomMedicationLinks)
+        .filter(
+            (f) => f.medicationId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache =
+        $_typedResult.readTableOrNull(_symptomMedicationLinksRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
   }
 }
 
@@ -5261,6 +4933,9 @@ class $$MedicationsTableFilterComposer
   ColumnFilters<String> get notes => $composableBuilder(
       column: $table.notes, builder: (column) => ColumnFilters(column));
 
+  ColumnFilters<bool> get isPreloaded => $composableBuilder(
+      column: $table.isPreloaded, builder: (column) => ColumnFilters(column));
+
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnFilters(column));
 
@@ -5285,6 +4960,29 @@ class $$MedicationsTableFilterComposer
                   $removeJoinBuilderFromRootComposer,
             ));
     return composer;
+  }
+
+  Expression<bool> symptomMedicationLinksRefs(
+      Expression<bool> Function($$SymptomMedicationLinksTableFilterComposer f)
+          f) {
+    final $$SymptomMedicationLinksTableFilterComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.id,
+            referencedTable: $db.symptomMedicationLinks,
+            getReferencedColumn: (t) => t.medicationId,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$SymptomMedicationLinksTableFilterComposer(
+                  $db: $db,
+                  $table: $db.symptomMedicationLinks,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return f(composer);
   }
 }
 
@@ -5324,6 +5022,9 @@ class $$MedicationsTableOrderingComposer
 
   ColumnOrderings<String> get notes => $composableBuilder(
       column: $table.notes, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isPreloaded => $composableBuilder(
+      column: $table.isPreloaded, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnOrderings(column));
@@ -5388,6 +5089,9 @@ class $$MedicationsTableAnnotationComposer
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
 
+  GeneratedColumn<bool> get isPreloaded => $composableBuilder(
+      column: $table.isPreloaded, builder: (column) => column);
+
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
@@ -5413,6 +5117,29 @@ class $$MedicationsTableAnnotationComposer
             ));
     return composer;
   }
+
+  Expression<T> symptomMedicationLinksRefs<T extends Object>(
+      Expression<T> Function($$SymptomMedicationLinksTableAnnotationComposer a)
+          f) {
+    final $$SymptomMedicationLinksTableAnnotationComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.id,
+            referencedTable: $db.symptomMedicationLinks,
+            getReferencedColumn: (t) => t.medicationId,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$SymptomMedicationLinksTableAnnotationComposer(
+                  $db: $db,
+                  $table: $db.symptomMedicationLinks,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return f(composer);
+  }
 }
 
 class $$MedicationsTableTableManager extends RootTableManager<
@@ -5426,7 +5153,7 @@ class $$MedicationsTableTableManager extends RootTableManager<
     $$MedicationsTableUpdateCompanionBuilder,
     (Medication, $$MedicationsTableReferences),
     Medication,
-    PrefetchHooks Function({bool userId})> {
+    PrefetchHooks Function({bool userId, bool symptomMedicationLinksRefs})> {
   $$MedicationsTableTableManager(_$AppDatabase db, $MedicationsTable table)
       : super(TableManagerState(
           db: db,
@@ -5448,6 +5175,7 @@ class $$MedicationsTableTableManager extends RootTableManager<
             Value<int?> effectiveness = const Value.absent(),
             Value<String?> sideEffects = const Value.absent(),
             Value<String?> notes = const Value.absent(),
+            Value<bool> isPreloaded = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
@@ -5463,6 +5191,7 @@ class $$MedicationsTableTableManager extends RootTableManager<
             effectiveness: effectiveness,
             sideEffects: sideEffects,
             notes: notes,
+            isPreloaded: isPreloaded,
             createdAt: createdAt,
             updatedAt: updatedAt,
             rowid: rowid,
@@ -5478,6 +5207,7 @@ class $$MedicationsTableTableManager extends RootTableManager<
             Value<int?> effectiveness = const Value.absent(),
             Value<String?> sideEffects = const Value.absent(),
             Value<String?> notes = const Value.absent(),
+            Value<bool> isPreloaded = const Value.absent(),
             required DateTime createdAt,
             required DateTime updatedAt,
             Value<int> rowid = const Value.absent(),
@@ -5493,6 +5223,7 @@ class $$MedicationsTableTableManager extends RootTableManager<
             effectiveness: effectiveness,
             sideEffects: sideEffects,
             notes: notes,
+            isPreloaded: isPreloaded,
             createdAt: createdAt,
             updatedAt: updatedAt,
             rowid: rowid,
@@ -5503,10 +5234,13 @@ class $$MedicationsTableTableManager extends RootTableManager<
                     $$MedicationsTableReferences(db, table, e)
                   ))
               .toList(),
-          prefetchHooksCallback: ({userId = false}) {
+          prefetchHooksCallback: (
+              {userId = false, symptomMedicationLinksRefs = false}) {
             return PrefetchHooks(
               db: db,
-              explicitlyWatchedTables: [],
+              explicitlyWatchedTables: [
+                if (symptomMedicationLinksRefs) db.symptomMedicationLinks
+              ],
               addJoins: <
                   T extends TableManagerState<
                       dynamic,
@@ -5534,7 +5268,21 @@ class $$MedicationsTableTableManager extends RootTableManager<
                 return state;
               },
               getPrefetchedDataCallback: (items) async {
-                return [];
+                return [
+                  if (symptomMedicationLinksRefs)
+                    await $_getPrefetchedData<Medication, $MedicationsTable,
+                            SymptomMedicationLink>(
+                        currentTable: table,
+                        referencedTable: $$MedicationsTableReferences
+                            ._symptomMedicationLinksRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$MedicationsTableReferences(db, table, p0)
+                                .symptomMedicationLinksRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.medicationId == item.id),
+                        typedResults: items)
+                ];
               },
             );
           },
@@ -5552,7 +5300,7 @@ typedef $$MedicationsTableProcessedTableManager = ProcessedTableManager<
     $$MedicationsTableUpdateCompanionBuilder,
     (Medication, $$MedicationsTableReferences),
     Medication,
-    PrefetchHooks Function({bool userId})>;
+    PrefetchHooks Function({bool userId, bool symptomMedicationLinksRefs})>;
 typedef $$PhotosTableCreateCompanionBuilder = PhotosCompanion Function({
   required String id,
   required String userId,
@@ -6322,21 +6070,21 @@ final class $$SymptomEntriesTableReferences
         manager.$state.copyWith(prefetchedData: [item]));
   }
 
-  static MultiTypedResultKey<$SymptomTreatmentLinksTable,
-      List<SymptomTreatmentLink>> _symptomTreatmentLinksRefsTable(
+  static MultiTypedResultKey<$SymptomMedicationLinksTable,
+      List<SymptomMedicationLink>> _symptomMedicationLinksRefsTable(
           _$AppDatabase db) =>
-      MultiTypedResultKey.fromTable(db.symptomTreatmentLinks,
+      MultiTypedResultKey.fromTable(db.symptomMedicationLinks,
           aliasName: $_aliasNameGenerator(
-              db.symptomEntries.id, db.symptomTreatmentLinks.symptomId));
+              db.symptomEntries.id, db.symptomMedicationLinks.symptomId));
 
-  $$SymptomTreatmentLinksTableProcessedTableManager
-      get symptomTreatmentLinksRefs {
-    final manager = $$SymptomTreatmentLinksTableTableManager(
-            $_db, $_db.symptomTreatmentLinks)
+  $$SymptomMedicationLinksTableProcessedTableManager
+      get symptomMedicationLinksRefs {
+    final manager = $$SymptomMedicationLinksTableTableManager(
+            $_db, $_db.symptomMedicationLinks)
         .filter((f) => f.symptomId.id.sqlEquals($_itemColumn<String>('id')!));
 
     final cache =
-        $_typedResult.readTableOrNull(_symptomTreatmentLinksRefsTable($_db));
+        $_typedResult.readTableOrNull(_symptomMedicationLinksRefsTable($_db));
     return ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: cache));
   }
@@ -6398,21 +6146,21 @@ class $$SymptomEntriesTableFilterComposer
     return composer;
   }
 
-  Expression<bool> symptomTreatmentLinksRefs(
-      Expression<bool> Function($$SymptomTreatmentLinksTableFilterComposer f)
+  Expression<bool> symptomMedicationLinksRefs(
+      Expression<bool> Function($$SymptomMedicationLinksTableFilterComposer f)
           f) {
-    final $$SymptomTreatmentLinksTableFilterComposer composer =
+    final $$SymptomMedicationLinksTableFilterComposer composer =
         $composerBuilder(
             composer: this,
             getCurrentColumn: (t) => t.id,
-            referencedTable: $db.symptomTreatmentLinks,
+            referencedTable: $db.symptomMedicationLinks,
             getReferencedColumn: (t) => t.symptomId,
             builder: (joinBuilder,
                     {$addJoinBuilderToRootComposer,
                     $removeJoinBuilderFromRootComposer}) =>
-                $$SymptomTreatmentLinksTableFilterComposer(
+                $$SymptomMedicationLinksTableFilterComposer(
                   $db: $db,
-                  $table: $db.symptomTreatmentLinks,
+                  $table: $db.symptomMedicationLinks,
                   $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
                   joinBuilder: joinBuilder,
                   $removeJoinBuilderFromRootComposer:
@@ -6536,21 +6284,21 @@ class $$SymptomEntriesTableAnnotationComposer
     return composer;
   }
 
-  Expression<T> symptomTreatmentLinksRefs<T extends Object>(
-      Expression<T> Function($$SymptomTreatmentLinksTableAnnotationComposer a)
+  Expression<T> symptomMedicationLinksRefs<T extends Object>(
+      Expression<T> Function($$SymptomMedicationLinksTableAnnotationComposer a)
           f) {
-    final $$SymptomTreatmentLinksTableAnnotationComposer composer =
+    final $$SymptomMedicationLinksTableAnnotationComposer composer =
         $composerBuilder(
             composer: this,
             getCurrentColumn: (t) => t.id,
-            referencedTable: $db.symptomTreatmentLinks,
+            referencedTable: $db.symptomMedicationLinks,
             getReferencedColumn: (t) => t.symptomId,
             builder: (joinBuilder,
                     {$addJoinBuilderToRootComposer,
                     $removeJoinBuilderFromRootComposer}) =>
-                $$SymptomTreatmentLinksTableAnnotationComposer(
+                $$SymptomMedicationLinksTableAnnotationComposer(
                   $db: $db,
-                  $table: $db.symptomTreatmentLinks,
+                  $table: $db.symptomMedicationLinks,
                   $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
                   joinBuilder: joinBuilder,
                   $removeJoinBuilderFromRootComposer:
@@ -6571,7 +6319,7 @@ class $$SymptomEntriesTableTableManager extends RootTableManager<
     $$SymptomEntriesTableUpdateCompanionBuilder,
     (SymptomEntry, $$SymptomEntriesTableReferences),
     SymptomEntry,
-    PrefetchHooks Function({bool userId, bool symptomTreatmentLinksRefs})> {
+    PrefetchHooks Function({bool userId, bool symptomMedicationLinksRefs})> {
   $$SymptomEntriesTableTableManager(
       _$AppDatabase db, $SymptomEntriesTable table)
       : super(TableManagerState(
@@ -6642,11 +6390,11 @@ class $$SymptomEntriesTableTableManager extends RootTableManager<
                   ))
               .toList(),
           prefetchHooksCallback: (
-              {userId = false, symptomTreatmentLinksRefs = false}) {
+              {userId = false, symptomMedicationLinksRefs = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [
-                if (symptomTreatmentLinksRefs) db.symptomTreatmentLinks
+                if (symptomMedicationLinksRefs) db.symptomMedicationLinks
               ],
               addJoins: <
                   T extends TableManagerState<
@@ -6676,15 +6424,15 @@ class $$SymptomEntriesTableTableManager extends RootTableManager<
               },
               getPrefetchedDataCallback: (items) async {
                 return [
-                  if (symptomTreatmentLinksRefs)
+                  if (symptomMedicationLinksRefs)
                     await $_getPrefetchedData<SymptomEntry,
-                            $SymptomEntriesTable, SymptomTreatmentLink>(
+                            $SymptomEntriesTable, SymptomMedicationLink>(
                         currentTable: table,
                         referencedTable: $$SymptomEntriesTableReferences
-                            ._symptomTreatmentLinksRefsTable(db),
+                            ._symptomMedicationLinksRefsTable(db),
                         managerFromTypedResult: (p0) =>
                             $$SymptomEntriesTableReferences(db, table, p0)
-                                .symptomTreatmentLinksRefs,
+                                .symptomMedicationLinksRefs,
                         referencedItemsForCurrentItem:
                             (item, referencedItems) => referencedItems
                                 .where((e) => e.symptomId == item.id),
@@ -6707,387 +6455,34 @@ typedef $$SymptomEntriesTableProcessedTableManager = ProcessedTableManager<
     $$SymptomEntriesTableUpdateCompanionBuilder,
     (SymptomEntry, $$SymptomEntriesTableReferences),
     SymptomEntry,
-    PrefetchHooks Function({bool userId, bool symptomTreatmentLinksRefs})>;
-typedef $$TreatmentsTableCreateCompanionBuilder = TreatmentsCompanion Function({
-  required String id,
-  required String userId,
-  required String name,
-  required DateTime createdAt,
-  required DateTime updatedAt,
-  Value<int> rowid,
-});
-typedef $$TreatmentsTableUpdateCompanionBuilder = TreatmentsCompanion Function({
-  Value<String> id,
-  Value<String> userId,
-  Value<String> name,
-  Value<DateTime> createdAt,
-  Value<DateTime> updatedAt,
-  Value<int> rowid,
-});
-
-final class $$TreatmentsTableReferences
-    extends BaseReferences<_$AppDatabase, $TreatmentsTable, Treatment> {
-  $$TreatmentsTableReferences(super.$_db, super.$_table, super.$_typedResult);
-
-  static $ProfilesTable _userIdTable(_$AppDatabase db) => db.profiles
-      .createAlias($_aliasNameGenerator(db.treatments.userId, db.profiles.id));
-
-  $$ProfilesTableProcessedTableManager get userId {
-    final $_column = $_itemColumn<String>('user_id')!;
-
-    final manager = $$ProfilesTableTableManager($_db, $_db.profiles)
-        .filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_userIdTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-        manager.$state.copyWith(prefetchedData: [item]));
-  }
-
-  static MultiTypedResultKey<$SymptomTreatmentLinksTable,
-      List<SymptomTreatmentLink>> _symptomTreatmentLinksRefsTable(
-          _$AppDatabase db) =>
-      MultiTypedResultKey.fromTable(db.symptomTreatmentLinks,
-          aliasName: $_aliasNameGenerator(
-              db.treatments.id, db.symptomTreatmentLinks.treatmentId));
-
-  $$SymptomTreatmentLinksTableProcessedTableManager
-      get symptomTreatmentLinksRefs {
-    final manager = $$SymptomTreatmentLinksTableTableManager(
-            $_db, $_db.symptomTreatmentLinks)
-        .filter((f) => f.treatmentId.id.sqlEquals($_itemColumn<String>('id')!));
-
-    final cache =
-        $_typedResult.readTableOrNull(_symptomTreatmentLinksRefsTable($_db));
-    return ProcessedTableManager(
-        manager.$state.copyWith(prefetchedData: cache));
-  }
-}
-
-class $$TreatmentsTableFilterComposer
-    extends Composer<_$AppDatabase, $TreatmentsTable> {
-  $$TreatmentsTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<String> get id => $composableBuilder(
-      column: $table.id, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get name => $composableBuilder(
-      column: $table.name, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<DateTime> get createdAt => $composableBuilder(
-      column: $table.createdAt, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
-      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
-
-  $$ProfilesTableFilterComposer get userId {
-    final $$ProfilesTableFilterComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.userId,
-        referencedTable: $db.profiles,
-        getReferencedColumn: (t) => t.id,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$ProfilesTableFilterComposer(
-              $db: $db,
-              $table: $db.profiles,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return composer;
-  }
-
-  Expression<bool> symptomTreatmentLinksRefs(
-      Expression<bool> Function($$SymptomTreatmentLinksTableFilterComposer f)
-          f) {
-    final $$SymptomTreatmentLinksTableFilterComposer composer =
-        $composerBuilder(
-            composer: this,
-            getCurrentColumn: (t) => t.id,
-            referencedTable: $db.symptomTreatmentLinks,
-            getReferencedColumn: (t) => t.treatmentId,
-            builder: (joinBuilder,
-                    {$addJoinBuilderToRootComposer,
-                    $removeJoinBuilderFromRootComposer}) =>
-                $$SymptomTreatmentLinksTableFilterComposer(
-                  $db: $db,
-                  $table: $db.symptomTreatmentLinks,
-                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-                  joinBuilder: joinBuilder,
-                  $removeJoinBuilderFromRootComposer:
-                      $removeJoinBuilderFromRootComposer,
-                ));
-    return f(composer);
-  }
-}
-
-class $$TreatmentsTableOrderingComposer
-    extends Composer<_$AppDatabase, $TreatmentsTable> {
-  $$TreatmentsTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<String> get id => $composableBuilder(
-      column: $table.id, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get name => $composableBuilder(
-      column: $table.name, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
-      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
-      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
-
-  $$ProfilesTableOrderingComposer get userId {
-    final $$ProfilesTableOrderingComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.userId,
-        referencedTable: $db.profiles,
-        getReferencedColumn: (t) => t.id,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$ProfilesTableOrderingComposer(
-              $db: $db,
-              $table: $db.profiles,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return composer;
-  }
-}
-
-class $$TreatmentsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $TreatmentsTable> {
-  $$TreatmentsTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<String> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<String> get name =>
-      $composableBuilder(column: $table.name, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get createdAt =>
-      $composableBuilder(column: $table.createdAt, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get updatedAt =>
-      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
-
-  $$ProfilesTableAnnotationComposer get userId {
-    final $$ProfilesTableAnnotationComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.userId,
-        referencedTable: $db.profiles,
-        getReferencedColumn: (t) => t.id,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$ProfilesTableAnnotationComposer(
-              $db: $db,
-              $table: $db.profiles,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return composer;
-  }
-
-  Expression<T> symptomTreatmentLinksRefs<T extends Object>(
-      Expression<T> Function($$SymptomTreatmentLinksTableAnnotationComposer a)
-          f) {
-    final $$SymptomTreatmentLinksTableAnnotationComposer composer =
-        $composerBuilder(
-            composer: this,
-            getCurrentColumn: (t) => t.id,
-            referencedTable: $db.symptomTreatmentLinks,
-            getReferencedColumn: (t) => t.treatmentId,
-            builder: (joinBuilder,
-                    {$addJoinBuilderToRootComposer,
-                    $removeJoinBuilderFromRootComposer}) =>
-                $$SymptomTreatmentLinksTableAnnotationComposer(
-                  $db: $db,
-                  $table: $db.symptomTreatmentLinks,
-                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-                  joinBuilder: joinBuilder,
-                  $removeJoinBuilderFromRootComposer:
-                      $removeJoinBuilderFromRootComposer,
-                ));
-    return f(composer);
-  }
-}
-
-class $$TreatmentsTableTableManager extends RootTableManager<
-    _$AppDatabase,
-    $TreatmentsTable,
-    Treatment,
-    $$TreatmentsTableFilterComposer,
-    $$TreatmentsTableOrderingComposer,
-    $$TreatmentsTableAnnotationComposer,
-    $$TreatmentsTableCreateCompanionBuilder,
-    $$TreatmentsTableUpdateCompanionBuilder,
-    (Treatment, $$TreatmentsTableReferences),
-    Treatment,
-    PrefetchHooks Function({bool userId, bool symptomTreatmentLinksRefs})> {
-  $$TreatmentsTableTableManager(_$AppDatabase db, $TreatmentsTable table)
-      : super(TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$TreatmentsTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$TreatmentsTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$TreatmentsTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback: ({
-            Value<String> id = const Value.absent(),
-            Value<String> userId = const Value.absent(),
-            Value<String> name = const Value.absent(),
-            Value<DateTime> createdAt = const Value.absent(),
-            Value<DateTime> updatedAt = const Value.absent(),
-            Value<int> rowid = const Value.absent(),
-          }) =>
-              TreatmentsCompanion(
-            id: id,
-            userId: userId,
-            name: name,
-            createdAt: createdAt,
-            updatedAt: updatedAt,
-            rowid: rowid,
-          ),
-          createCompanionCallback: ({
-            required String id,
-            required String userId,
-            required String name,
-            required DateTime createdAt,
-            required DateTime updatedAt,
-            Value<int> rowid = const Value.absent(),
-          }) =>
-              TreatmentsCompanion.insert(
-            id: id,
-            userId: userId,
-            name: name,
-            createdAt: createdAt,
-            updatedAt: updatedAt,
-            rowid: rowid,
-          ),
-          withReferenceMapper: (p0) => p0
-              .map((e) => (
-                    e.readTable(table),
-                    $$TreatmentsTableReferences(db, table, e)
-                  ))
-              .toList(),
-          prefetchHooksCallback: (
-              {userId = false, symptomTreatmentLinksRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [
-                if (symptomTreatmentLinksRefs) db.symptomTreatmentLinks
-              ],
-              addJoins: <
-                  T extends TableManagerState<
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic>>(state) {
-                if (userId) {
-                  state = state.withJoin(
-                    currentTable: table,
-                    currentColumn: table.userId,
-                    referencedTable:
-                        $$TreatmentsTableReferences._userIdTable(db),
-                    referencedColumn:
-                        $$TreatmentsTableReferences._userIdTable(db).id,
-                  ) as T;
-                }
-
-                return state;
-              },
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (symptomTreatmentLinksRefs)
-                    await $_getPrefetchedData<Treatment, $TreatmentsTable, SymptomTreatmentLink>(
-                        currentTable: table,
-                        referencedTable: $$TreatmentsTableReferences
-                            ._symptomTreatmentLinksRefsTable(db),
-                        managerFromTypedResult: (p0) =>
-                            $$TreatmentsTableReferences(db, table, p0)
-                                .symptomTreatmentLinksRefs,
-                        referencedItemsForCurrentItem:
-                            (item, referencedItems) => referencedItems
-                                .where((e) => e.treatmentId == item.id),
-                        typedResults: items)
-                ];
-              },
-            );
-          },
-        ));
-}
-
-typedef $$TreatmentsTableProcessedTableManager = ProcessedTableManager<
-    _$AppDatabase,
-    $TreatmentsTable,
-    Treatment,
-    $$TreatmentsTableFilterComposer,
-    $$TreatmentsTableOrderingComposer,
-    $$TreatmentsTableAnnotationComposer,
-    $$TreatmentsTableCreateCompanionBuilder,
-    $$TreatmentsTableUpdateCompanionBuilder,
-    (Treatment, $$TreatmentsTableReferences),
-    Treatment,
-    PrefetchHooks Function({bool userId, bool symptomTreatmentLinksRefs})>;
-typedef $$SymptomTreatmentLinksTableCreateCompanionBuilder
-    = SymptomTreatmentLinksCompanion Function({
+    PrefetchHooks Function({bool userId, bool symptomMedicationLinksRefs})>;
+typedef $$SymptomMedicationLinksTableCreateCompanionBuilder
+    = SymptomMedicationLinksCompanion Function({
   required String id,
   required String symptomId,
-  required String treatmentId,
+  required String medicationId,
   required String userId,
   required DateTime createdAt,
   Value<int> rowid,
 });
-typedef $$SymptomTreatmentLinksTableUpdateCompanionBuilder
-    = SymptomTreatmentLinksCompanion Function({
+typedef $$SymptomMedicationLinksTableUpdateCompanionBuilder
+    = SymptomMedicationLinksCompanion Function({
   Value<String> id,
   Value<String> symptomId,
-  Value<String> treatmentId,
+  Value<String> medicationId,
   Value<String> userId,
   Value<DateTime> createdAt,
   Value<int> rowid,
 });
 
-final class $$SymptomTreatmentLinksTableReferences extends BaseReferences<
-    _$AppDatabase, $SymptomTreatmentLinksTable, SymptomTreatmentLink> {
-  $$SymptomTreatmentLinksTableReferences(
+final class $$SymptomMedicationLinksTableReferences extends BaseReferences<
+    _$AppDatabase, $SymptomMedicationLinksTable, SymptomMedicationLink> {
+  $$SymptomMedicationLinksTableReferences(
       super.$_db, super.$_table, super.$_typedResult);
 
   static $SymptomEntriesTable _symptomIdTable(_$AppDatabase db) =>
       db.symptomEntries.createAlias($_aliasNameGenerator(
-          db.symptomTreatmentLinks.symptomId, db.symptomEntries.id));
+          db.symptomMedicationLinks.symptomId, db.symptomEntries.id));
 
   $$SymptomEntriesTableProcessedTableManager get symptomId {
     final $_column = $_itemColumn<String>('symptom_id')!;
@@ -7100,16 +6495,16 @@ final class $$SymptomTreatmentLinksTableReferences extends BaseReferences<
         manager.$state.copyWith(prefetchedData: [item]));
   }
 
-  static $TreatmentsTable _treatmentIdTable(_$AppDatabase db) =>
-      db.treatments.createAlias($_aliasNameGenerator(
-          db.symptomTreatmentLinks.treatmentId, db.treatments.id));
+  static $MedicationsTable _medicationIdTable(_$AppDatabase db) =>
+      db.medications.createAlias($_aliasNameGenerator(
+          db.symptomMedicationLinks.medicationId, db.medications.id));
 
-  $$TreatmentsTableProcessedTableManager get treatmentId {
-    final $_column = $_itemColumn<String>('treatment_id')!;
+  $$MedicationsTableProcessedTableManager get medicationId {
+    final $_column = $_itemColumn<String>('medication_id')!;
 
-    final manager = $$TreatmentsTableTableManager($_db, $_db.treatments)
+    final manager = $$MedicationsTableTableManager($_db, $_db.medications)
         .filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_treatmentIdTable($_db));
+    final item = $_typedResult.readTableOrNull(_medicationIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: [item]));
@@ -7117,7 +6512,7 @@ final class $$SymptomTreatmentLinksTableReferences extends BaseReferences<
 
   static $ProfilesTable _userIdTable(_$AppDatabase db) =>
       db.profiles.createAlias($_aliasNameGenerator(
-          db.symptomTreatmentLinks.userId, db.profiles.id));
+          db.symptomMedicationLinks.userId, db.profiles.id));
 
   $$ProfilesTableProcessedTableManager get userId {
     final $_column = $_itemColumn<String>('user_id')!;
@@ -7131,9 +6526,9 @@ final class $$SymptomTreatmentLinksTableReferences extends BaseReferences<
   }
 }
 
-class $$SymptomTreatmentLinksTableFilterComposer
-    extends Composer<_$AppDatabase, $SymptomTreatmentLinksTable> {
-  $$SymptomTreatmentLinksTableFilterComposer({
+class $$SymptomMedicationLinksTableFilterComposer
+    extends Composer<_$AppDatabase, $SymptomMedicationLinksTable> {
+  $$SymptomMedicationLinksTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -7166,18 +6561,18 @@ class $$SymptomTreatmentLinksTableFilterComposer
     return composer;
   }
 
-  $$TreatmentsTableFilterComposer get treatmentId {
-    final $$TreatmentsTableFilterComposer composer = $composerBuilder(
+  $$MedicationsTableFilterComposer get medicationId {
+    final $$MedicationsTableFilterComposer composer = $composerBuilder(
         composer: this,
-        getCurrentColumn: (t) => t.treatmentId,
-        referencedTable: $db.treatments,
+        getCurrentColumn: (t) => t.medicationId,
+        referencedTable: $db.medications,
         getReferencedColumn: (t) => t.id,
         builder: (joinBuilder,
                 {$addJoinBuilderToRootComposer,
                 $removeJoinBuilderFromRootComposer}) =>
-            $$TreatmentsTableFilterComposer(
+            $$MedicationsTableFilterComposer(
               $db: $db,
-              $table: $db.treatments,
+              $table: $db.medications,
               $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
               joinBuilder: joinBuilder,
               $removeJoinBuilderFromRootComposer:
@@ -7207,9 +6602,9 @@ class $$SymptomTreatmentLinksTableFilterComposer
   }
 }
 
-class $$SymptomTreatmentLinksTableOrderingComposer
-    extends Composer<_$AppDatabase, $SymptomTreatmentLinksTable> {
-  $$SymptomTreatmentLinksTableOrderingComposer({
+class $$SymptomMedicationLinksTableOrderingComposer
+    extends Composer<_$AppDatabase, $SymptomMedicationLinksTable> {
+  $$SymptomMedicationLinksTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -7242,18 +6637,18 @@ class $$SymptomTreatmentLinksTableOrderingComposer
     return composer;
   }
 
-  $$TreatmentsTableOrderingComposer get treatmentId {
-    final $$TreatmentsTableOrderingComposer composer = $composerBuilder(
+  $$MedicationsTableOrderingComposer get medicationId {
+    final $$MedicationsTableOrderingComposer composer = $composerBuilder(
         composer: this,
-        getCurrentColumn: (t) => t.treatmentId,
-        referencedTable: $db.treatments,
+        getCurrentColumn: (t) => t.medicationId,
+        referencedTable: $db.medications,
         getReferencedColumn: (t) => t.id,
         builder: (joinBuilder,
                 {$addJoinBuilderToRootComposer,
                 $removeJoinBuilderFromRootComposer}) =>
-            $$TreatmentsTableOrderingComposer(
+            $$MedicationsTableOrderingComposer(
               $db: $db,
-              $table: $db.treatments,
+              $table: $db.medications,
               $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
               joinBuilder: joinBuilder,
               $removeJoinBuilderFromRootComposer:
@@ -7283,9 +6678,9 @@ class $$SymptomTreatmentLinksTableOrderingComposer
   }
 }
 
-class $$SymptomTreatmentLinksTableAnnotationComposer
-    extends Composer<_$AppDatabase, $SymptomTreatmentLinksTable> {
-  $$SymptomTreatmentLinksTableAnnotationComposer({
+class $$SymptomMedicationLinksTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SymptomMedicationLinksTable> {
+  $$SymptomMedicationLinksTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -7318,18 +6713,18 @@ class $$SymptomTreatmentLinksTableAnnotationComposer
     return composer;
   }
 
-  $$TreatmentsTableAnnotationComposer get treatmentId {
-    final $$TreatmentsTableAnnotationComposer composer = $composerBuilder(
+  $$MedicationsTableAnnotationComposer get medicationId {
+    final $$MedicationsTableAnnotationComposer composer = $composerBuilder(
         composer: this,
-        getCurrentColumn: (t) => t.treatmentId,
-        referencedTable: $db.treatments,
+        getCurrentColumn: (t) => t.medicationId,
+        referencedTable: $db.medications,
         getReferencedColumn: (t) => t.id,
         builder: (joinBuilder,
                 {$addJoinBuilderToRootComposer,
                 $removeJoinBuilderFromRootComposer}) =>
-            $$TreatmentsTableAnnotationComposer(
+            $$MedicationsTableAnnotationComposer(
               $db: $db,
-              $table: $db.treatments,
+              $table: $db.medications,
               $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
               joinBuilder: joinBuilder,
               $removeJoinBuilderFromRootComposer:
@@ -7359,44 +6754,44 @@ class $$SymptomTreatmentLinksTableAnnotationComposer
   }
 }
 
-class $$SymptomTreatmentLinksTableTableManager extends RootTableManager<
+class $$SymptomMedicationLinksTableTableManager extends RootTableManager<
     _$AppDatabase,
-    $SymptomTreatmentLinksTable,
-    SymptomTreatmentLink,
-    $$SymptomTreatmentLinksTableFilterComposer,
-    $$SymptomTreatmentLinksTableOrderingComposer,
-    $$SymptomTreatmentLinksTableAnnotationComposer,
-    $$SymptomTreatmentLinksTableCreateCompanionBuilder,
-    $$SymptomTreatmentLinksTableUpdateCompanionBuilder,
-    (SymptomTreatmentLink, $$SymptomTreatmentLinksTableReferences),
-    SymptomTreatmentLink,
-    PrefetchHooks Function({bool symptomId, bool treatmentId, bool userId})> {
-  $$SymptomTreatmentLinksTableTableManager(
-      _$AppDatabase db, $SymptomTreatmentLinksTable table)
+    $SymptomMedicationLinksTable,
+    SymptomMedicationLink,
+    $$SymptomMedicationLinksTableFilterComposer,
+    $$SymptomMedicationLinksTableOrderingComposer,
+    $$SymptomMedicationLinksTableAnnotationComposer,
+    $$SymptomMedicationLinksTableCreateCompanionBuilder,
+    $$SymptomMedicationLinksTableUpdateCompanionBuilder,
+    (SymptomMedicationLink, $$SymptomMedicationLinksTableReferences),
+    SymptomMedicationLink,
+    PrefetchHooks Function({bool symptomId, bool medicationId, bool userId})> {
+  $$SymptomMedicationLinksTableTableManager(
+      _$AppDatabase db, $SymptomMedicationLinksTable table)
       : super(TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$SymptomTreatmentLinksTableFilterComposer(
+              $$SymptomMedicationLinksTableFilterComposer(
                   $db: db, $table: table),
           createOrderingComposer: () =>
-              $$SymptomTreatmentLinksTableOrderingComposer(
+              $$SymptomMedicationLinksTableOrderingComposer(
                   $db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$SymptomTreatmentLinksTableAnnotationComposer(
+              $$SymptomMedicationLinksTableAnnotationComposer(
                   $db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
             Value<String> symptomId = const Value.absent(),
-            Value<String> treatmentId = const Value.absent(),
+            Value<String> medicationId = const Value.absent(),
             Value<String> userId = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
-              SymptomTreatmentLinksCompanion(
+              SymptomMedicationLinksCompanion(
             id: id,
             symptomId: symptomId,
-            treatmentId: treatmentId,
+            medicationId: medicationId,
             userId: userId,
             createdAt: createdAt,
             rowid: rowid,
@@ -7404,15 +6799,15 @@ class $$SymptomTreatmentLinksTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             required String id,
             required String symptomId,
-            required String treatmentId,
+            required String medicationId,
             required String userId,
             required DateTime createdAt,
             Value<int> rowid = const Value.absent(),
           }) =>
-              SymptomTreatmentLinksCompanion.insert(
+              SymptomMedicationLinksCompanion.insert(
             id: id,
             symptomId: symptomId,
-            treatmentId: treatmentId,
+            medicationId: medicationId,
             userId: userId,
             createdAt: createdAt,
             rowid: rowid,
@@ -7420,11 +6815,11 @@ class $$SymptomTreatmentLinksTableTableManager extends RootTableManager<
           withReferenceMapper: (p0) => p0
               .map((e) => (
                     e.readTable(table),
-                    $$SymptomTreatmentLinksTableReferences(db, table, e)
+                    $$SymptomMedicationLinksTableReferences(db, table, e)
                   ))
               .toList(),
           prefetchHooksCallback: (
-              {symptomId = false, treatmentId = false, userId = false}) {
+              {symptomId = false, medicationId = false, userId = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [],
@@ -7445,21 +6840,21 @@ class $$SymptomTreatmentLinksTableTableManager extends RootTableManager<
                   state = state.withJoin(
                     currentTable: table,
                     currentColumn: table.symptomId,
-                    referencedTable: $$SymptomTreatmentLinksTableReferences
+                    referencedTable: $$SymptomMedicationLinksTableReferences
                         ._symptomIdTable(db),
-                    referencedColumn: $$SymptomTreatmentLinksTableReferences
+                    referencedColumn: $$SymptomMedicationLinksTableReferences
                         ._symptomIdTable(db)
                         .id,
                   ) as T;
                 }
-                if (treatmentId) {
+                if (medicationId) {
                   state = state.withJoin(
                     currentTable: table,
-                    currentColumn: table.treatmentId,
-                    referencedTable: $$SymptomTreatmentLinksTableReferences
-                        ._treatmentIdTable(db),
-                    referencedColumn: $$SymptomTreatmentLinksTableReferences
-                        ._treatmentIdTable(db)
+                    currentColumn: table.medicationId,
+                    referencedTable: $$SymptomMedicationLinksTableReferences
+                        ._medicationIdTable(db),
+                    referencedColumn: $$SymptomMedicationLinksTableReferences
+                        ._medicationIdTable(db)
                         .id,
                   ) as T;
                 }
@@ -7467,9 +6862,9 @@ class $$SymptomTreatmentLinksTableTableManager extends RootTableManager<
                   state = state.withJoin(
                     currentTable: table,
                     currentColumn: table.userId,
-                    referencedTable:
-                        $$SymptomTreatmentLinksTableReferences._userIdTable(db),
-                    referencedColumn: $$SymptomTreatmentLinksTableReferences
+                    referencedTable: $$SymptomMedicationLinksTableReferences
+                        ._userIdTable(db),
+                    referencedColumn: $$SymptomMedicationLinksTableReferences
                         ._userIdTable(db)
                         .id,
                   ) as T;
@@ -7485,20 +6880,20 @@ class $$SymptomTreatmentLinksTableTableManager extends RootTableManager<
         ));
 }
 
-typedef $$SymptomTreatmentLinksTableProcessedTableManager
+typedef $$SymptomMedicationLinksTableProcessedTableManager
     = ProcessedTableManager<
         _$AppDatabase,
-        $SymptomTreatmentLinksTable,
-        SymptomTreatmentLink,
-        $$SymptomTreatmentLinksTableFilterComposer,
-        $$SymptomTreatmentLinksTableOrderingComposer,
-        $$SymptomTreatmentLinksTableAnnotationComposer,
-        $$SymptomTreatmentLinksTableCreateCompanionBuilder,
-        $$SymptomTreatmentLinksTableUpdateCompanionBuilder,
-        (SymptomTreatmentLink, $$SymptomTreatmentLinksTableReferences),
-        SymptomTreatmentLink,
+        $SymptomMedicationLinksTable,
+        SymptomMedicationLink,
+        $$SymptomMedicationLinksTableFilterComposer,
+        $$SymptomMedicationLinksTableOrderingComposer,
+        $$SymptomMedicationLinksTableAnnotationComposer,
+        $$SymptomMedicationLinksTableCreateCompanionBuilder,
+        $$SymptomMedicationLinksTableUpdateCompanionBuilder,
+        (SymptomMedicationLink, $$SymptomMedicationLinksTableReferences),
+        SymptomMedicationLink,
         PrefetchHooks Function(
-            {bool symptomId, bool treatmentId, bool userId})>;
+            {bool symptomId, bool medicationId, bool userId})>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -7515,8 +6910,7 @@ class $AppDatabaseManager {
       $$LifestyleEntriesTableTableManager(_db, _db.lifestyleEntries);
   $$SymptomEntriesTableTableManager get symptomEntries =>
       $$SymptomEntriesTableTableManager(_db, _db.symptomEntries);
-  $$TreatmentsTableTableManager get treatments =>
-      $$TreatmentsTableTableManager(_db, _db.treatments);
-  $$SymptomTreatmentLinksTableTableManager get symptomTreatmentLinks =>
-      $$SymptomTreatmentLinksTableTableManager(_db, _db.symptomTreatmentLinks);
+  $$SymptomMedicationLinksTableTableManager get symptomMedicationLinks =>
+      $$SymptomMedicationLinksTableTableManager(
+          _db, _db.symptomMedicationLinks);
 }

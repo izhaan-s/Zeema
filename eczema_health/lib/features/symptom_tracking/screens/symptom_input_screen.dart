@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../data/models/symptom_entry_model.dart';
 import '../../../data/repositories/local_storage/symptom_repository.dart';
+import '../widgets/medication_selection_dialog.dart';
+import 'dart:convert';
+import 'package:flutter/services.dart';
 
 class SymptomInputScreen extends StatefulWidget {
   const SymptomInputScreen({super.key});
@@ -27,7 +30,51 @@ class _SymptomInputScreenState extends State<SymptomInputScreen> {
     'Crusting'
   ];
   final Set<String> selectedSymptoms = {};
+  final Set<String> selectedMedications = {};
   final TextEditingController notesController = TextEditingController();
+  Map<String, String> medicationNames = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPreloadedMedications();
+  }
+
+  Future<void> _loadPreloadedMedications() async {
+    try {
+      final String jsonString =
+          await rootBundle.loadString('assets/preloaded_medications.json');
+      print('Raw JSON string: $jsonString');
+
+      final dynamic decodedJson = json.decode(jsonString);
+      print('Decoded JSON type: ${decodedJson.runtimeType}');
+
+      if (decodedJson is List) {
+        final List<dynamic> medications = decodedJson;
+        print('Number of medications: ${medications.length}');
+
+        final Map<String, String> names = {};
+        for (var med in medications) {
+          print('Medication type: ${med.runtimeType}');
+          if (med is Map) {
+            print('Medication data: $med');
+            if (med.containsKey('id') && med.containsKey('name')) {
+              names[med['id'].toString()] = med['name'].toString();
+            }
+          }
+        }
+
+        setState(() {
+          medicationNames = names;
+        });
+      } else {
+        print('Error: Expected List but got ${decodedJson.runtimeType}');
+      }
+    } catch (e, stackTrace) {
+      print('Error loading preloaded medications: $e');
+      print('Stack trace: $stackTrace');
+    }
+  }
 
   Future<void> _selectDate(BuildContext context) async {
     final picked = await showDatePicker(
@@ -39,6 +86,21 @@ class _SymptomInputScreenState extends State<SymptomInputScreen> {
     if (picked != null) {
       setState(() => selectedDate = picked);
     }
+  }
+
+  void _showMedicationDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => MedicationSelectionDialog(
+        selectedMedications: selectedMedications,
+        onMedicationsSelected: (medications) {
+          setState(() {
+            selectedMedications.clear();
+            selectedMedications.addAll(medications);
+          });
+        },
+      ),
+    );
   }
 
   @override
@@ -62,6 +124,9 @@ class _SymptomInputScreenState extends State<SymptomInputScreen> {
                   severity: intensity.toInt().toString(),
                   affectedAreas: selectedSymptoms.toList(),
                   symptoms: selectedSymptoms.toList(),
+                  medications: selectedMedications.isNotEmpty
+                      ? selectedMedications.toList()
+                      : null,
                   notes: notesController.text.isNotEmpty
                       ? [notesController.text]
                       : null,
@@ -154,6 +219,37 @@ class _SymptomInputScreenState extends State<SymptomInputScreen> {
                   );
                 }).toList(),
               ),
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text("Medications",
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  TextButton.icon(
+                    onPressed: _showMedicationDialog,
+                    icon: const Icon(Icons.add),
+                    label: const Text("Add Medications"),
+                  ),
+                ],
+              ),
+              if (selectedMedications.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: selectedMedications.map((medicationId) {
+                    return Chip(
+                      label:
+                          Text(medicationNames[medicationId] ?? medicationId),
+                      onDeleted: () {
+                        setState(() {
+                          selectedMedications.remove(medicationId);
+                        });
+                      },
+                    );
+                  }).toList(),
+                ),
+              ],
               const SizedBox(height: 24),
               const Text("Notes (Optional)",
                   style: TextStyle(fontWeight: FontWeight.bold)),

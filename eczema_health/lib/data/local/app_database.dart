@@ -36,6 +36,7 @@ class Medications extends Table {
   IntColumn get effectiveness => integer().nullable()();
   TextColumn get sideEffects => text().nullable()(); // JSON string
   TextColumn get notes => text().nullable()(); // JSON string
+  BoolColumn get isPreloaded => boolean().withDefault(const Constant(false))();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
   @override
@@ -107,23 +108,12 @@ class SymptomEntries extends Table {
   Set<Column> get primaryKey => {id};
 }
 
-class Treatments extends Table {
-  TextColumn get id => text()();
-  TextColumn get userId => text()
-      .customConstraint('NOT NULL REFERENCES profiles(id) ON DELETE CASCADE')();
-  TextColumn get name => text().withLength(min: 1, max: 50)();
-  DateTimeColumn get createdAt => dateTime()();
-  DateTimeColumn get updatedAt => dateTime()();
-  @override
-  Set<Column> get primaryKey => {id};
-}
-
-class SymptomTreatmentLinks extends Table {
+class SymptomMedicationLinks extends Table {
   TextColumn get id => text()();
   TextColumn get symptomId => text().customConstraint(
       'NOT NULL REFERENCES symptom_entries(id) ON DELETE CASCADE')();
-  TextColumn get treatmentId => text().customConstraint(
-      'NOT NULL REFERENCES treatments(id) ON DELETE CASCADE')();
+  TextColumn get medicationId => text().customConstraint(
+      'NOT NULL REFERENCES medications(id) ON DELETE CASCADE')();
   TextColumn get userId => text()
       .customConstraint('NOT NULL REFERENCES profiles(id) ON DELETE CASCADE')();
   DateTimeColumn get createdAt => dateTime()();
@@ -141,8 +131,7 @@ class SymptomTreatmentLinks extends Table {
     Profiles,
     LifestyleEntries,
     SymptomEntries,
-    Treatments,
-    SymptomTreatmentLinks,
+    SymptomMedicationLinks,
   ],
 )
 class AppDatabase extends _$AppDatabase {

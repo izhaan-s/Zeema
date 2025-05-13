@@ -1,0 +1,71 @@
+[
+    {
+      "id": "hc_1",
+      "userId": "system",
+      "name": "Hydrocortisone",
+      "dosage": "1%",
+      "frequency": "as needed",
+      "startDate": null,
+      "endDate": null,
+      "effectiveness": null,
+      "sideEffects": ["Anti-inflammatory"],
+      "notes": {
+        "form": "Cream",
+        "brand": "Generic"
+      },
+      "isPreloaded": true,
+      "isSteroid": true
+    },
+    {
+      "id": "ep_2",
+      "userId": "system",
+      "name": "Epaderm",
+      "dosage": null,
+      "frequency": "as needed",
+      "startDate": null,
+      "endDate": null,
+      "effectiveness": null,
+      "sideEffects": ["Emollient"],
+      "notes": {
+        "form": "Ointment",
+        "brand": "Epaderm"
+      },
+      "isPreloaded": true,
+      "isSteroid": false
+    },
+    {
+      "id": "bm_5",
+      "userId": "system",
+      "name": "Betamethasone valerate",
+      "dosage": "0.1%",
+      "frequency": "once daily",
+      "startDate": null,
+      "endDate": null,
+      "effectiveness": null,
+      "sideEffects": ["Potent corticosteroid"],
+      "notes": {
+        "form": "Cream",
+        "brand": "Betnovate"
+      },
+      "isPreloaded": true,
+      "isSteroid": true
+    },
+    {
+      "id": "ct_21",
+      "userId": "system",
+      "name": "Cetirizine",
+      "dosage": "10mg",
+      "frequency": "once daily",
+      "startDate": null,
+      "endDate": null,
+      "effectiveness": null,
+      "sideEffects": ["Antihistamine"],
+      "notes": {
+        "form": "Tablet",
+        "brand": "Zirtek"
+      },
+      "isPreloaded": true,
+      "isSteroid": false
+    }
+  ]
+  

@@ -63,11 +63,23 @@ lib/
 ├── navigation/           # Routing setup
 └── utils/                # Helpers and validators
 ```
+## 🚀 Future Goals
+- 🧠 **AI-Powered Flare Predictions** – Use ML to analyze patterns and predict potential flare-ups
+- 🗂️ **Data Export** – Allow users to export symptom and photo logs as PDF for doctor visits
+- 🌙 **Dark Mode** – Improve usability for night-time logging
+- 🔄 **Cloud Sync Improvements** – Real-time sync across devices
+- 🛡️ **Enhanced Privacy** – End-to-end encryption and advanced consent settings
+- 🔔 **Smarter Notifications** – Adaptive reminders based on historical behavior
+- 📊 **Deeper Insights** – Correlation graphs between lifestyle choices and symptom severity
+- 🧪 **A/B Testing Engine** – For personal treatment experiments and journaling
+
+"""
 
 ## Tech Stack
 - **Flutter & Dart**
 - **Drift** (local database)
 - **Supabase** (authentication & backend)
 - **TableCalendar**, **Image Picker**, and other Flutter packages
+
 
 

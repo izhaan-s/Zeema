@@ -73,7 +73,7 @@ lib/
 - 📊 **Deeper Insights** – Correlation graphs between lifestyle choices and symptom severity
 - 🧪 **A/B Testing Engine** – For personal treatment experiments and journaling
 
-"""
+
 
 ## Tech Stack
 - **Flutter & Dart**

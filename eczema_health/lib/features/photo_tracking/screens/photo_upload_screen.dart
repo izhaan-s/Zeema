@@ -15,11 +15,12 @@ class PhotoUploadScreen extends StatefulWidget {
 
 class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
   final ImagePicker _picker = ImagePicker();
-  late final PhotoRepository photoRepository;
+  late final PhotoRepository photoRepository = PhotoRepository();
   File? _selectedImage;
-  bool _isLoading = false;
+  bool _isPickingImage = false;
   String? _selectedBodyPart;
   final _notesController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   final List<String> bodyParts = [
     'Face',
@@ -34,70 +35,268 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
   ];
 
   Future<void> _pickImage(ImageSource source) async {
+    if (_isPickingImage) return;
+    setState(() => _isPickingImage = true);
     try {
-      setState(() => _isLoading = true);
-      final XFile? image =
-          await _picker.pickImage(source: source, imageQuality: 80);
-
+      final XFile? image = await _picker.pickImage(
+          source: source, imageQuality: 80, maxHeight: 1024, maxWidth: 1024);
       if (image != null) {
         setState(() {
           _selectedImage = File(image.path);
-          _isLoading = false;
         });
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to pick image: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to pick image: ${e.toString()}'),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isPickingImage = false);
+      }
     }
+  }
+
+  void _clearImage() {
+    setState(() {
+      _selectedImage = null;
+    });
+  }
+
+  void _submitPhoto() {
+    if (_selectedImage == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Please select an image.'),
+            backgroundColor: Colors.orangeAccent),
+      );
+      return;
+    }
+    if (_selectedBodyPart == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Please select a body part.'),
+            backgroundColor: Colors.orangeAccent),
+      );
+      return;
+    }
+
+    print('Uploading photo...');
+    print('Image: ${_selectedImage!.path}');
+    print('Body Part: $_selectedBodyPart');
+    print('Notes: ${_notesController.text}');
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+          content: Text('Photo submitted (simulated)'),
+          backgroundColor: Colors.green),
+    );
+    Navigator.of(context).pop();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // Add action button when image is selected
+        title: const Text('Upload Photo'),
         actions: [
-          if (_selectedImage != null)
-            IconButton(
-              icon: const Icon(Icons.check),
-              onPressed: () {
-                photoRepository = PhotoRepository();
-                photoRepository.uploadPhoto(
-                  photoFile: _selectedImage!,
-                  bodyPart: "test data replace later",
-                  itchIntensity: 2,
-                  notes: ["test data replace later"],
-                );
-                print('Ready to upload: ${_selectedImage?.path}');
-              },
+          if (_selectedImage != null && _selectedBodyPart != null)
+            Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: TextButton(
+                onPressed: _submitPhoto,
+                style: TextButton.styleFrom(
+                    foregroundColor: Theme.of(context).colorScheme.primary,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8))),
+                child: const Text('SAVE',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+              ),
             ),
         ],
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            BodyPartSelector(
-              selectedBodyPart: _selectedBodyPart,
-              onSelected: (bodyPart) =>
-                  setState(() => _selectedBodyPart = bodyPart),
-            ),
-            const SizedBox(height: 20),
-            ImagePickerSection(
-              selectedImage: _selectedImage,
-              isLoading: _isLoading,
-              onPickGallery: () => _pickImage(ImageSource.gallery),
-              onPickCamera: () => _pickImage(ImageSource.camera),
-            ),
-            const SizedBox(height: 20),
-            NotesInput(controller: _notesController),
-          ],
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _buildImagePickerSection(),
+              const SizedBox(height: 24),
+              Text('Body Part',
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(fontWeight: FontWeight.w600)),
+              const SizedBox(height: 8),
+              BodyPartSelector(
+                selectedBodyPart: _selectedBodyPart,
+                onSelected: (bodyPart) =>
+                    setState(() => _selectedBodyPart = bodyPart),
+              ),
+              const SizedBox(height: 24),
+              Text('Notes (Optional)',
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(fontWeight: FontWeight.w600)),
+              const SizedBox(height: 8),
+              NotesInput(controller: _notesController),
+              const SizedBox(height: 30),
+            ],
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _buildImagePickerSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text('Photo',
+            style: Theme.of(context)
+                .textTheme
+                .titleMedium
+                ?.copyWith(fontWeight: FontWeight.w600)),
+        const SizedBox(height: 12),
+        if (_selectedImage == null)
+          AspectRatio(
+            aspectRatio: 16 / 10,
+            child: Material(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(12),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: () => _pickImageDialog(),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.add_a_photo_outlined,
+                        size: 50, color: Colors.grey[600]),
+                    const SizedBox(height: 8),
+                    Text('Tap to select a photo',
+                        style: TextStyle(color: Colors.grey[700])),
+                  ],
+                ),
+              ),
+            ),
+          )
+        else
+          Stack(
+            alignment: Alignment.topRight,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.file(
+                  _selectedImage!,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: 250,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: CircleAvatar(
+                  radius: 16,
+                  backgroundColor: Colors.black54,
+                  child: IconButton(
+                    icon:
+                        const Icon(Icons.close, size: 16, color: Colors.white),
+                    onPressed: _clearImage,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        const SizedBox(height: 12),
+        if (_selectedImage == null || _isPickingImage)
+          _isPickingImage
+              ? const Center(
+                  child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20.0),
+                  child: CircularProgressIndicator(),
+                ))
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        icon: const Icon(Icons.photo_library_outlined),
+                        label: const Text('Gallery'),
+                        onPressed: () => _pickImage(ImageSource.gallery),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8)),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        icon: const Icon(Icons.camera_alt_outlined),
+                        label: const Text('Camera'),
+                        onPressed: () => _pickImage(ImageSource.camera),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8)),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+        if (_selectedImage != null && !_isPickingImage)
+          OutlinedButton.icon(
+              icon: const Icon(Icons.edit_outlined, size: 18),
+              label: const Text('Change Photo'),
+              onPressed: () => _pickImageDialog(),
+              style: OutlinedButton.styleFrom(
+                side: BorderSide(
+                    color:
+                        Theme.of(context).colorScheme.outline.withOpacity(0.5)),
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
+              )),
+      ],
+    );
+  }
+
+  void _pickImageDialog() {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext bc) {
+        return SafeArea(
+          child: Wrap(
+            children: <Widget>[
+              ListTile(
+                  leading: const Icon(Icons.photo_library_outlined),
+                  title: const Text('Photo Library'),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    _pickImage(ImageSource.gallery);
+                  }),
+              ListTile(
+                leading: const Icon(Icons.camera_alt_outlined),
+                title: const Text('Camera'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _pickImage(ImageSource.camera);
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

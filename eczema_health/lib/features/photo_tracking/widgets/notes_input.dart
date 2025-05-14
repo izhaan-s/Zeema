@@ -10,10 +10,14 @@ class NotesInput extends StatelessWidget {
     return TextField(
       controller: controller,
       decoration: InputDecoration(
-        labelText: "Notes (optional)",
-        border: OutlineInputBorder(),
+        hintText: "Add more details about your photo...",
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+        filled: true,
+        fillColor: Theme.of(context).colorScheme.surfaceContainerLowest,
       ),
-      maxLines: 2,
+      maxLines: 3,
     );
   }
 }

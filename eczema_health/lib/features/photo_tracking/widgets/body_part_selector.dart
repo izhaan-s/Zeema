@@ -25,23 +25,15 @@ class BodyPartSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 2,
+      elevation: 0,
+      color: Theme.of(context).colorScheme.surfaceContainerLowest,
       margin: const EdgeInsets.symmetric(vertical: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
-        padding: const EdgeInsets.all(12.0),
+        padding: const EdgeInsets.symmetric(horizontal: 6),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              "Select Body Part",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-            ),
-            const SizedBox(height: 10),
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
@@ -61,6 +53,7 @@ class BodyPartSelector extends StatelessWidget {
                       ),
                       label: Text(bodyPart),
                       selected: isSelected,
+                      showCheckmark: false,
                       selectedColor: Theme.of(context).colorScheme.primary,
                       backgroundColor: Colors.grey[200],
                       labelStyle: TextStyle(

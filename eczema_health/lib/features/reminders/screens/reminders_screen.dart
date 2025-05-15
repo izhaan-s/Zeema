@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../navigation/app_router.dart';
 import '../controllers/reminder_controller.dart';
-import '../widgets/reminder_card.dart';
+import '../../../data/models/reminder_model.dart';
+import '../widgets/reminder_section_card.dart';
 import '../widgets/empty_reminders_view.dart';
+import '../widgets/custom_reminder_card.dart';
 
 class RemindersScreen extends StatefulWidget {
   const RemindersScreen({super.key});
@@ -15,6 +17,16 @@ class RemindersScreen extends StatefulWidget {
 class _RemindersScreenState extends State<RemindersScreen> {
   late final ReminderController _controller;
 
+  static const List<String> daysOfWeek = [
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday'
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -22,50 +34,72 @@ class _RemindersScreenState extends State<RemindersScreen> {
     _controller.loadReminders();
   }
 
+  String frequencyLabel(ReminderModel reminder) {
+    final days = reminder.repeatDays;
+    final activeDays = days.where((d) => d == 'true' || d == true).length;
+    if (activeDays == 7) {
+      return 'Daily';
+    } else if (activeDays == 1) {
+      return 'Weekly';
+    } else {
+      return 'Custom';
+    }
+  }
+
+  Map<String, List<ReminderModel>> groupByFrequency(
+      List<ReminderModel> reminders) {
+    final Map<String, List<ReminderModel>> grouped = {
+      'Daily': [],
+      'Weekly': [],
+      'Custom': [],
+    };
+    for (final reminder in reminders) {
+      final label = frequencyLabel(reminder);
+      grouped[label]!.add(reminder);
+    }
+    return grouped;
+  }
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
       value: _controller,
       child: Scaffold(
+        backgroundColor: const Color(0xFFF8FAFC),
         appBar: AppBar(
-          title: const Text(
-            'Reminders',
-            style: TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          actions: [
-            Padding(
-              padding: const EdgeInsets.only(right: 16.0),
-              child: ElevatedButton.icon(
+          backgroundColor: const Color(0xFFF8FAFC),
+          elevation: 0,
+          title: Row(
+            children: [
+              const Text(
+                'Reminders',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 26,
+                ),
+              ),
+              const Spacer(),
+              ElevatedButton.icon(
                 onPressed: () {
                   Navigator.pushNamed(context, AppRouter.addReminder);
                 },
-                icon: const Icon(
-                  Icons.add,
-                  color: Colors.white,
-                  size: 18.0,
-                ),
-                label: const Text(
-                  'Add',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18.0,
-                  ),
-                ),
+                icon: const Icon(Icons.add, size: 18),
+                label: const Text('Add'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF3b82f6),
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 12.0, vertical: 8.0),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
+                    borderRadius: BorderRadius.circular(12),
                   ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  textStyle: const TextStyle(fontWeight: FontWeight.bold),
+                  elevation: 0,
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -88,26 +122,32 @@ class _RemindersScreenState extends State<RemindersScreen> {
                   if (controller.isLoading) {
                     return const Center(child: CircularProgressIndicator());
                   }
-
                   if (controller.reminders.isEmpty) {
                     return const EmptyRemindersView();
                   }
-
-                  return RefreshIndicator(
-                    onRefresh: controller.loadReminders,
-                    child: ListView.builder(
-                      itemCount: controller.reminders.length,
-                      itemBuilder: (context, index) {
-                        final reminder = controller.reminders[index];
-                        return ReminderCard(
-                          reminder: reminder,
-                          onDelete: () =>
-                              controller.deleteReminder(reminder.id),
-                          onToggleStatus: (value) => controller
-                              .toggleReminderStatus(reminder.id, value),
-                        );
-                      },
-                    ),
+                  final grouped = groupByFrequency(controller.reminders);
+                  return ListView(
+                    padding: const EdgeInsets.all(16),
+                    children: [
+                      if (grouped['Daily']!.isNotEmpty)
+                        ReminderSectionCard(
+                          title: 'Daily',
+                          reminders: grouped['Daily']!,
+                          color: Colors.blue,
+                        ),
+                      if (grouped['Weekly']!.isNotEmpty)
+                        ReminderSectionCard(
+                          title: 'Weekly',
+                          reminders: grouped['Weekly']!,
+                          color: Colors.green,
+                        ),
+                      if (grouped['Custom']!.isNotEmpty)
+                        ReminderSectionCard(
+                          title: 'Custom',
+                          reminders: grouped['Custom']!,
+                          color: Colors.purple,
+                        ),
+                    ],
                   );
                 },
               ),

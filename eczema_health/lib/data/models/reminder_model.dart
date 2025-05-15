@@ -68,8 +68,8 @@ class ReminderModel {
 
   Map<String, dynamic> toMap() {
     final map = <String, dynamic>{
-      'id': "b5dddb02-ce34-4098-a20e-ebb6ea6e634d", // HARD CODED FOR NOW
-      'user_id': userId,
+      'id': id,
+      'user_id': "b5dddb02-ce34-4098-a20e-ebb6ea6e634d", // HARD CODED FOR NOW
       'title': title,
       'description': description,
       'reminder_type': reminderType,

@@ -6,7 +6,7 @@ List<String> bottomNavItems = [
   'Photos',
   'Symptoms',
   'Lifestyle',
-  'Reminders'
+  'Reminders',
 ];
 
 List<IconData> bottomNavIcons = [
@@ -14,7 +14,7 @@ List<IconData> bottomNavIcons = [
   Icons.camera_alt,
   Icons.show_chart_rounded,
   Icons.event,
-  Icons.notifications
+  Icons.notifications,
 ];
 
 class BottomNav extends StatelessWidget {

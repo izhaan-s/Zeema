@@ -49,6 +49,11 @@ dependencies:
   shared_preferences: ^2.2.2
   url_launcher: ^6.2.4
   provider: ^6.1.2
+  # Removing problematic flutter_local_notifications
+  # flutter_local_notifications: ^9.9.1
+  # timezone: ^0.8.0
+  # Adding a more compatible notifications package
+  awesome_notifications: ^0.10.1
 
 dev_dependencies:
   flutter_test:

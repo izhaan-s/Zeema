@@ -23,6 +23,32 @@ class ReminderModel {
     required this.updatedAt,
   });
 
+  ReminderModel copyWith({
+    String? id,
+    String? userId,
+    String? title,
+    String? description,
+    String? reminderType,
+    DateTime? dateTime,
+    List<String>? repeatDays,
+    bool? isActive,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return ReminderModel(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      reminderType: reminderType ?? this.reminderType,
+      dateTime: dateTime ?? this.dateTime,
+      repeatDays: repeatDays ?? this.repeatDays,
+      isActive: isActive ?? this.isActive,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
   factory ReminderModel.fromMap(Map<String, dynamic> map) {
     return ReminderModel(
       id: map['id'] as String,

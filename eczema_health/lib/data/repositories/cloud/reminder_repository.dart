@@ -119,4 +119,24 @@ class ReminderRepository {
       rethrow;
     }
   }
+
+  Future<void> deleteReminder(String id) async {
+    try {
+      await _supabase.from('reminders').delete().eq('id', id);
+    } catch (e) {
+      print("Error in ReminderRepository.deleteReminder: $e");
+      rethrow;
+    }
+  }
+
+  Future<void> updateReminderStatus(String id, bool isActive) async {
+    try {
+      await _supabase
+          .from('reminders')
+          .update({'is_active': isActive}).eq('id', id);
+    } catch (e) {
+      print("Error in ReminderRepository.updateReminderStatus: $e");
+      rethrow;
+    }
+  }
 }

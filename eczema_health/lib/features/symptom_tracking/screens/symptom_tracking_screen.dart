@@ -43,7 +43,7 @@ class _SymptomTrackingScreenState extends State<SymptomTrackingScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 12.0),
             child: TextButton.icon(
               style: TextButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.primary,
+                backgroundColor: const Color(0xFF3b82f6),
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),

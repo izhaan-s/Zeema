@@ -30,8 +30,10 @@ class ReminderModel {
       title: map['title'] as String,
       description: map['description'] as String?,
       reminderType: map['reminder_type'] as String?,
-      dateTime: DateTime.parse(map['date_time'] as String),
-      repeatDays: List<String>.from(map['repeat_days'] ?? []),
+      dateTime: DateTime.parse("1970-01-01T${map['time']}"), // placeholder date
+      repeatDays: (map['repeat_days'] as List<dynamic>)
+          .map((e) => e.toString())
+          .toList(),
       isActive: map['is_active'] as bool,
       createdAt: DateTime.parse(map['created_at'] as String),
       updatedAt: DateTime.parse(map['updated_at'] as String),
@@ -40,12 +42,12 @@ class ReminderModel {
 
   Map<String, dynamic> toMap() {
     final map = <String, dynamic>{
-      'id': id,
+      'id': "b5dddb02-ce34-4098-a20e-ebb6ea6e634d", // HARD CODED FOR NOW
       'user_id': userId,
       'title': title,
       'description': description,
       'reminder_type': reminderType,
-      'date_time': dateTime.toIso8601String(),
+      'time': dateTime.toIso8601String(),
       'repeat_days': repeatDays,
       'is_active': isActive,
       'created_at': createdAt.toIso8601String(),

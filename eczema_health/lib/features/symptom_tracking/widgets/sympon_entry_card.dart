@@ -35,7 +35,7 @@ class SymptomEntryCard extends StatelessWidget {
       color: Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: Colors.grey.withOpacity(0.08), width: 0.5),
+        side: BorderSide(color: Colors.grey.shade200, width: 0.5),
       ),
       child: Padding(
         padding: const EdgeInsets.all(20),

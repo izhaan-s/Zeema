@@ -109,7 +109,7 @@ class _RemindersScreenState extends State<RemindersScreen> {
                 ),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
+                backgroundColor: const Color(0xFF3b82f6),
                 foregroundColor: Colors.white,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
@@ -124,13 +124,14 @@ class _RemindersScreenState extends State<RemindersScreen> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const SizedBox(height: 2),
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text(
               'Set up reminders for medications and tracking.',
               style: TextStyle(
-                color: const Color(0xFFB6BCC3),
-                fontSize: 14,
+                color: const Color(0xFF6a717d),
+                fontSize: 15,
                 fontWeight: FontWeight.normal,
               ),
             ),
@@ -143,16 +144,16 @@ class _RemindersScreenState extends State<RemindersScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final result =
-              await Navigator.pushNamed(context, AppRouter.addReminder);
-          if (result != null) {
-            getReminders(); // Refresh the list when returning from add screen
-          }
-        },
-        child: const Icon(Icons.add),
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () async {
+      //     final result =
+      //         await Navigator.pushNamed(context, AppRouter.addReminder);
+      //     if (result != null) {
+      //       getReminders(); // Refresh the list when returning from add screen
+      //     }
+      //   },
+      //   child: const Icon(Icons.add),
+      // ),
     );
   }
 

@@ -228,11 +228,11 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     Expanded(
-                      child: ElevatedButton.icon(
+                      child: FilledButton.icon(
                         icon: const Icon(Icons.photo_library_outlined),
                         label: const Text('Gallery'),
                         onPressed: () => _pickImage(ImageSource.gallery),
-                        style: ElevatedButton.styleFrom(
+                        style: FilledButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8)),
@@ -241,11 +241,11 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
                     ),
                     const SizedBox(width: 16),
                     Expanded(
-                      child: ElevatedButton.icon(
+                      child: FilledButton.icon(
                         icon: const Icon(Icons.camera_alt_outlined),
                         label: const Text('Camera'),
                         onPressed: () => _pickImage(ImageSource.camera),
-                        style: ElevatedButton.styleFrom(
+                        style: FilledButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8)),

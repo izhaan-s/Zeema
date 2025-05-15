@@ -1,7 +1,7 @@
-import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
-import '../../../data/models/reminder_model.dart';
-import '../../../data/repositories/cloud/reminder_repository.dart';
+import 'package:provider/provider.dart';
+import '../controllers/reminder_controller.dart';
+import '../widgets/day_selector.dart';
 
 class AddReminderScreen extends StatefulWidget {
   const AddReminderScreen({super.key});
@@ -12,24 +12,11 @@ class AddReminderScreen extends StatefulWidget {
 
 class _AddReminderScreenState extends State<AddReminderScreen> {
   final _formKey = GlobalKey<FormState>();
-
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _dosageController = TextEditingController();
   final TextEditingController _notesController = TextEditingController();
-
   TimeOfDay _selectedTime = TimeOfDay.now();
-
-  final List<bool> selectedDays = List.generate(7, (_) => false);
-  final List<String> daysOfWeek = [
-    'Mon',
-    'Tue',
-    'Wed',
-    'Thu',
-    'Fri',
-    'Sat',
-    'Sun'
-  ];
-
+  final List<bool> _selectedDays = List.generate(7, (_) => false);
   bool _isLoading = false;
 
   @override
@@ -53,12 +40,13 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
     }
   }
 
-  void _saveReminder() async {
+  Future<void> _saveReminder() async {
     if (_formKey.currentState?.validate() ?? false) {
-      if (!selectedDays.contains(true)) {
+      if (!_selectedDays.contains(true)) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text('Please select at least one day of the week')),
+            content: Text('Please select at least one day of the week'),
+          ),
         );
         return;
       }
@@ -68,50 +56,19 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
       });
 
       try {
-        final now = DateTime.now();
-        final dateTime = DateTime(
-          now.year,
-          now.month,
-          now.day,
-          _selectedTime.hour,
-          _selectedTime.minute,
-        );
-
-        // Create reminder object to be able to add to supabase
-        final reminder = ReminderModel(
-          id: DateTime.now().millisecondsSinceEpoch.toString(),
-          userId: 'user123', // Change to user ID later on not rn
+        final controller = context.read<ReminderController>();
+        await controller.createReminder(
           title: _titleController.text,
           description:
               _notesController.text.isNotEmpty ? _notesController.text : null,
-          reminderType:
-              'medication', // Maybe change this up later to different reminder types
-          dateTime: dateTime,
-          repeatDays: [
-            for (int i = 0; i < selectedDays.length; i++)
-              if (selectedDays[i]) daysOfWeek[i]
-          ],
-          isActive: true,
-          createdAt: DateTime.now(),
-          updatedAt: DateTime.now(),
-        );
-
-        // Sve reminder here to DB
-        final reminderRepository = ReminderRepository();
-        final savedReminder = await reminderRepository.createReminder(
-          title: reminder.title,
-          description: reminder.description,
           time: _selectedTime,
-          repeatDays: selectedDays,
+          repeatDays: _selectedDays,
           dosage:
               _dosageController.text.isNotEmpty ? _dosageController.text : null,
         );
 
-        print(savedReminder);
-
-        // Go back to previous screen
         if (mounted) {
-          Navigator.pop(context, reminder);
+          Navigator.pop(context);
         }
       } catch (e) {
         if (mounted) {
@@ -173,7 +130,6 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            // Title field
             TextFormField(
               controller: _titleController,
               decoration: const InputDecoration(
@@ -189,7 +145,6 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
               },
             ),
             const SizedBox(height: 20),
-
             TextFormField(
               controller: _dosageController,
               decoration: const InputDecoration(
@@ -200,8 +155,6 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
               ),
             ),
             const SizedBox(height: 20),
-
-            // Time picker
             GestureDetector(
               onTap: _selectTime,
               child: Container(
@@ -226,84 +179,23 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
               ),
             ),
             const SizedBox(height: 20),
-
-            // Days of week
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Repeat on:',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                SizedBox(
-                  height: 50,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: 7,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                        child: FilterChip(
-                          label: Text(daysOfWeek[index]),
-                          selected: selectedDays[index],
-                          onSelected: (bool selected) {
-                            setState(() {
-                              selectedDays[index] = selected;
-                            });
-                          },
-                          selectedColor: Colors.blue.withOpacity(0.2),
-                          checkmarkColor: Colors.blue,
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
+            DaySelector(
+              selectedDays: _selectedDays,
+              onDaySelected: (index) {
+                setState(() {
+                  _selectedDays[index] = !_selectedDays[index];
+                });
+              },
             ),
             const SizedBox(height: 20),
-
-            // Notes field
             TextFormField(
               controller: _notesController,
               decoration: const InputDecoration(
-                labelText: 'Notes',
-                hintText: 'Add any additional instructions',
+                labelText: 'Notes (Optional)',
                 border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.notes),
-                alignLabelWithHint: true,
+                prefixIcon: Icon(Icons.note),
               ),
               maxLines: 3,
-            ),
-            const SizedBox(height: 40),
-
-            // Save button
-            ElevatedButton(
-              onPressed: _isLoading ? null : _saveReminder,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 15),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: _isLoading
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
-                    )
-                  : const Text(
-                      'Save Reminder',
-                      style: TextStyle(fontSize: 16),
-                    ),
             ),
           ],
         ),

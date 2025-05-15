@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:provider/provider.dart';
 import 'config/supabase_secrets.dart';
 import 'features/auth/screens/login_screen.dart';
 import 'navigation/app_router.dart';
 import 'features/dashboard/screens/dashboard_screen.dart';
 import 'features/photo_tracking/screens/photo_gallery_screen.dart';
 import 'features/reminders/screens/reminders_screen.dart';
+import 'features/reminders/controllers/reminder_controller.dart';
 import 'utils/nav_bar.dart';
 import 'features/symptom_tracking/screens/symptom_tracking_screen.dart';
 
@@ -26,15 +28,20 @@ class EczemaHealthApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Eczema Health',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ReminderController()),
+      ],
+      child: MaterialApp(
+        title: 'Eczema Health',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+          useMaterial3: true,
+        ),
+        home: const MainScreen(),
+        // Keep onGenerateRoute for auth and deep links
+        onGenerateRoute: AppRouter.generateRoute,
       ),
-      home: const MainScreen(),
-      // Keep onGenerateRoute for auth and deep links
-      onGenerateRoute: AppRouter.generateRoute,
     );
   }
 }

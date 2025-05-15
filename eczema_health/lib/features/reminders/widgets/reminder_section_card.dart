@@ -20,6 +20,8 @@ class ReminderSectionCard extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 1,
+      color: Theme.of(context).cardColor,
       child: Padding(
         padding: const EdgeInsets.all(18.0),
         child: Column(

@@ -84,7 +84,7 @@ class _RemindersScreenState extends State<RemindersScreen> {
                 onPressed: () {
                   Navigator.pushNamed(context, AppRouter.addReminder);
                 },
-                icon: const Icon(Icons.add, size: 18),
+                icon: const Icon(Icons.add, size: 18, color: Colors.white),
                 label: const Text('Add'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF3b82f6),

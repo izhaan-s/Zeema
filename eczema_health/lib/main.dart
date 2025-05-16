@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:awesome_notifications/awesome_notifications.dart';
 import 'config/supabase_secrets.dart';
 import 'features/auth/screens/login_screen.dart';
 import 'navigation/app_router.dart';
@@ -20,20 +19,11 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize the notification service
+  // Initialize the notification service (now a stub implementation)
   await NotificationService.init();
 
-  // Listen for notification actions
-  AwesomeNotifications().setListeners(
-    onActionReceivedMethod: NotificationController.onActionReceivedMethod,
-    onNotificationCreatedMethod:
-        NotificationController.onNotificationCreatedMethod,
-    onNotificationDisplayedMethod:
-        NotificationController.onNotificationDisplayedMethod,
-    onDismissActionReceivedMethod:
-        NotificationController.onDismissActionReceivedMethod,
-  );
-
+  // Notification listeners removed temporarily
+  
   await Supabase.initialize(
     url: SupabaseSecrets.supabaseUrl,
     anonKey: SupabaseSecrets.supabaseKey,
@@ -41,36 +31,32 @@ Future<void> main() async {
   runApp(const EczemaHealthApp());
 }
 
-// This class handles notification actions
+// Simplified notification controller - stub implementation
 class NotificationController {
-  /// method to detect when a new notification or a schedule is created
+  /// Stub implementation for notification creation
   @pragma("vm:entry-point")
-  static Future<void> onNotificationCreatedMethod(
-      ReceivedNotification receivedNotification) async {
-    debugPrint('Notification created: ${receivedNotification.id}');
+  static Future<void> onNotificationCreatedMethod(dynamic receivedNotification) async {
+    debugPrint('[STUB] Notification created');
   }
 
-  /// method to detect every time a new notification is displayed
+  /// Stub implementation for notification display
   @pragma("vm:entry-point")
-  static Future<void> onNotificationDisplayedMethod(
-      ReceivedNotification receivedNotification) async {
-    debugPrint('Notification displayed: ${receivedNotification.id}');
+  static Future<void> onNotificationDisplayedMethod(dynamic receivedNotification) async {
+    debugPrint('[STUB] Notification displayed');
   }
 
-  /// method to detect if the user dismissed a notification
+  /// Stub implementation for notification dismissal
   @pragma("vm:entry-point")
-  static Future<void> onDismissActionReceivedMethod(
-      ReceivedAction receivedAction) async {
-    debugPrint('Notification dismissed: ${receivedAction.id}');
+  static Future<void> onDismissActionReceivedMethod(dynamic receivedAction) async {
+    debugPrint('[STUB] Notification dismissed');
   }
 
-  /// method to detect when the user taps on a notification or action button
+  /// Stub implementation for notification action
   @pragma("vm:entry-point")
-  static Future<void> onActionReceivedMethod(
-      ReceivedAction receivedAction) async {
-    debugPrint('Notification action received: ${receivedAction.id}');
+  static Future<void> onActionReceivedMethod(dynamic receivedAction) async {
+    debugPrint('[STUB] Notification action received');
 
-    // Navigate to reminders screen when a notification is tapped
+    // Keep navigation functionality
     if (navigatorKey.currentContext != null) {
       // Navigate to the reminders screen
       navigatorKey.currentState?.pushNamed(AppRouter.reminder);

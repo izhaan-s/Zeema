@@ -55,4 +55,24 @@ class AnalysisRepository {
       throw Exception('Failed to get flare clusters: ${response.body}');
     }
   }
+
+  // flare/preflare endpoint
+  Future<Map<String, int>> getFlarePreflare(
+      List<Map<String, dynamic>> symptomEntries) async {
+    final body = jsonEncode(symptomEntries);
+
+    final response = await http.post(
+      Uri.parse('$baseUrl/flare/preflare'),
+      headers: {'Content-Type': 'application/json'},
+      body: body,
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> jsonMap = jsonDecode(response.body);
+      return jsonMap.map((key, value) => MapEntry(key, value as int));
+    } else {
+      print('Error response: ${response.body}'); // Debug print
+      throw Exception('Failed to get flare preflare: ${response.body}');
+    }
+  }
 }

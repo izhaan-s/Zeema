@@ -75,4 +75,48 @@ class AnalysisRepository {
       throw Exception('Failed to get flare preflare: ${response.body}');
     }
   }
+
+  // symptom/matrix endpoint
+  Future<List<Map<String, double>>> getSymptomMatrix(
+      List<Map<String, dynamic>> symptomEntries) async {
+    final body = jsonEncode(symptomEntries);
+
+    final response = await http.post(
+      Uri.parse('$baseUrl/symptom/matrix'),
+      headers: {'Content-Type': 'application/json'},
+      body: body,
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonList = jsonDecode(response.body);
+      return jsonList.map((e) => Map<String, double>.from(e)).toList();
+    } else {
+      print('Error response: ${response.body}'); // Debug print
+      throw Exception('Failed to get symptom matrix: ${response.body}');
+    }
+  }
+
+  // symptom/impact endpoint
+  Future<Map<int, double>> getSymptomImpact(
+      List<Map<String, dynamic>> symptomEntries, String medication) async {
+    final body = jsonEncode({
+      'entries': symptomEntries,
+      'medication': medication,
+    });
+
+    final response = await http.post(
+      Uri.parse('$baseUrl/symptom/impact'),
+      headers: {'Content-Type': 'application/json'},
+      body: body,
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> jsonMap = jsonDecode(response.body);
+      return jsonMap
+          .map((key, value) => MapEntry(int.parse(key), value as double));
+    } else {
+      print('Error response: ${response.body}'); // Debug print
+      throw Exception('Failed to get symptom impact: ${response.body}');
+    }
+  }
 }

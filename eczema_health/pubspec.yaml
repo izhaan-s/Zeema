@@ -52,6 +52,7 @@ dependencies:
   provider: ^6.1.2
   http: ^1.4.0
   tuple: ^2.0.2
+  fl_chart: ^1.0.0
   # Removing problematic flutter_local_notifications
   # flutter_local_notifications: ^9.9.1
   # timezone: ^0.8.0

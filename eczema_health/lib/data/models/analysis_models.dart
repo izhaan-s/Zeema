@@ -17,3 +17,13 @@ class FlareCluster {
     );
   }
 }
+
+class SeverityPoint {
+  final DateTime date;
+  final int severity;
+
+  SeverityPoint({
+    required this.date,
+    required this.severity,
+  });
+}

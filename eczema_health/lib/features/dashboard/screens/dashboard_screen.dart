@@ -7,6 +7,7 @@ import 'package:eczema_health/features/dashboard/providers/dashboard_provider.da
 import 'package:eczema_health/features/dashboard/services/dashboard_service.dart';
 import 'package:eczema_health/features/dashboard/widgets/flare_cluster_chart.dart';
 import 'package:eczema_health/features/dashboard/widgets/symptom_matrix_chart.dart';
+import 'package:eczema_health/features/symptom_tracking/widgets/flare_up_card.dart';
 import 'package:eczema_health/data/models/analysis_models.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -20,7 +21,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   late final DashboardProvider _provider;
   int _currentChartIndex = 0;
   final PageController _chartPageController = PageController();
-  bool _showGridView = false; // Toggle between list and grid view
 
   @override
   void initState() {
@@ -65,14 +65,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
           actions: [
             IconButton(
-              icon: Icon(_showGridView ? Icons.view_list : Icons.grid_view),
-              onPressed: () {
-                setState(() {
-                  _showGridView = !_showGridView;
-                });
-              },
-            ),
-            IconButton(
               icon: const Icon(Icons.refresh),
               onPressed: () =>
                   _provider.loadDashboardData('1', forceRefresh: true),
@@ -113,11 +105,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    _buildFlareUpStatus(dashboardData.flares),
                     _buildChartCarousel(dashboardData),
-                    _buildInsightsSummary(dashboardData),
-                    _showGridView
-                        ? _buildQuickActionsGrid()
-                        : _buildQuickActions(),
+                    _buildQuickActions(),
                   ],
                 ),
               ),
@@ -128,195 +118,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildQuickActions() {
-    // Get quick actions from provider
-    final quickActions = _provider.getQuickActions(context);
+  Widget _buildFlareUpStatus(List<FlareCluster> flares) {
+    // If no flare data is available
+    if (flares.isEmpty) {
+      return FlareUpCard();
+    }
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          // Display all actions from provider
-          for (int i = 0; i < quickActions.length; i++)
-            Column(
-              children: [
-                if (i > 0) const Divider(height: 1, indent: 70),
-                _buildActionListItem(
-                  icon: quickActions[i].icon,
-                  backgroundColor: quickActions[i].backgroundColor,
-                  iconColor: quickActions[i].iconColor,
-                  title: quickActions[i].title,
-                  subtitle: quickActions[i].subtitle,
-                  onTap: quickActions[i].onTap,
-                ),
-              ],
-            ),
-        ],
-      ),
-    );
-  }
+    // Sort flares by start date (newest first)
+    final sortedFlares = List<FlareCluster>.from(flares)
+      ..sort((a, b) => b.start.compareTo(a.start));
 
-  Widget _buildQuickActionsGrid() {
-    // Get quick actions from provider
-    final quickActions = _provider.getQuickActions(context);
+    // Get the most recent flare
+    final mostRecentFlare = sortedFlares.first;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            childAspectRatio: 1.0,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-          ),
-          itemCount: quickActions.length,
-          itemBuilder: (context, index) {
-            final action = quickActions[index];
-            return _buildGridItem(
-              icon: action.icon,
-              backgroundColor: action.backgroundColor,
-              iconColor: action.iconColor,
-              title: action.title,
-              onTap: action.onTap,
-            );
-          },
-        ),
-      ),
-    );
-  }
+    // Check if this is an active flare (end date is today or in the future)
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final isActive = mostRecentFlare.end.isAfter(today) ||
+        mostRecentFlare.end.isAtSameMomentAs(today);
 
-  Widget _buildGridItem({
-    required IconData icon,
-    required Color backgroundColor,
-    required Color iconColor,
-    required String title,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        decoration: BoxDecoration(
-          color: backgroundColor.withOpacity(0.2),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 60,
-              height: 60,
-              decoration: BoxDecoration(
-                color: backgroundColor,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Icon(
-                icon,
-                color: iconColor,
-                size: 30,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF2E3E5C),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActionListItem({
-    required IconData icon,
-    required Color backgroundColor,
-    required Color iconColor,
-    required String title,
-    required String subtitle,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-        child: Row(
-          children: [
-            Container(
-              width: 46,
-              height: 46,
-              decoration: BoxDecoration(
-                color: backgroundColor,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(
-                icon,
-                color: iconColor,
-                size: 24,
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF2E3E5C),
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Icon(
-              Icons.chevron_right,
-              color: Colors.grey[400],
-            ),
-          ],
-        ),
-      ),
-    );
+    if (isActive) {
+      return FlareUpCard(
+        currentFlare: mostRecentFlare,
+        isActiveFlare: true,
+      );
+    } else {
+      return FlareUpCard(
+        lastFlare: mostRecentFlare,
+        isActiveFlare: false,
+      );
+    }
   }
 
   Widget _buildChartCarousel(dashboardData) {
@@ -427,54 +258,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildInsightsSummary(dashboardData) {
-    // Extract data for insights
-    final flares = dashboardData.flares;
-    final severityData = dashboardData.severityData;
-
-    // Calculate days since last flare
-    final daysSinceLastFlare = flares.isNotEmpty
-        ? DateTime.now().difference(flares.last.start).inDays
-        : 0;
-
-    // Calculate current severity
-    final currentSeverity =
-        severityData.isNotEmpty ? severityData.last.severity : 0;
-
-    // Calculate severity trend (last 7 days or less)
-    String trend = 'Stable';
-    Color trendColor = Colors.blue;
-    IconData trendIcon = Icons.trending_flat;
-
-    if (severityData.length > 1) {
-      // Get data points from last 7 days
-      final now = DateTime.now();
-      final lastWeekData = severityData.where((point) {
-        return now.difference(point.date).inDays <= 7;
-      }).toList();
-
-      if (lastWeekData.length > 1) {
-        // Sort by date with explicit typing
-        lastWeekData.sort(
-            (SeverityPoint a, SeverityPoint b) => a.date.compareTo(b.date));
-
-        // Calculate trend
-        final oldestSeverity = lastWeekData.first.severity;
-        final newestSeverity = lastWeekData.last.severity;
-        final difference = newestSeverity - oldestSeverity;
-
-        if (difference < 0) {
-          trend = 'Improving';
-          trendColor = Colors.green;
-          trendIcon = Icons.trending_down;
-        } else if (difference > 0) {
-          trend = 'Worsening';
-          trendColor = Colors.red;
-          trendIcon = Icons.trending_up;
-        }
-      }
-    }
-
+  Widget _buildQuickActions() {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -489,104 +273,113 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Row(
-              children: [
-                const Icon(Icons.insights, size: 20, color: Color(0xFF1A3A6D)),
-                const SizedBox(width: 8),
-                const Text(
-                  'Insights Summary',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF1A3A6D),
-                  ),
-                ),
-                const Spacer(),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: trendColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(trendIcon, size: 16, color: trendColor),
-                      const SizedBox(width: 4),
-                      Text(
-                        trend,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: trendColor,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+          _buildActionListItem(
+            icon: Icons.calendar_today,
+            backgroundColor: const Color(0xFFE1F5FE),
+            iconColor: const Color(0xFF039BE5),
+            title: 'Flare Cycle Analysis',
+            subtitle: 'Learn more',
+            onTap: () {
+              // Navigate to flare analysis
+            },
           ),
-          const Divider(),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildInsightItem(
-                  value: '$daysSinceLastFlare',
-                  label: 'Days since\nlast flare',
-                  icon: Icons.calendar_today,
-                ),
-                _buildInsightItem(
-                  value: '$currentSeverity',
-                  label: 'Current\nseverity',
-                  icon: Icons.show_chart,
-                ),
-                _buildInsightItem(
-                  value: '${flares.length}',
-                  label: 'Flares\nrecorded',
-                  icon: Icons.event_busy,
-                ),
-              ],
-            ),
+          const Divider(height: 1, indent: 70),
+          _buildActionListItem(
+            icon: Icons.grid_4x4,
+            backgroundColor: const Color(0xFFFFF8E1),
+            iconColor: const Color(0xFFFFB300),
+            title: 'Symptom Heatmap',
+            subtitle: 'Track patterns',
+            onTap: () {
+              // Navigate to symptom heatmap
+            },
+          ),
+          const Divider(height: 1, indent: 70),
+          _buildActionListItem(
+            icon: Icons.medication_outlined,
+            backgroundColor: const Color(0xFFE0F2F1),
+            iconColor: const Color(0xFF00897B),
+            title: 'Medication Tracking',
+            subtitle: 'Manage treatments',
+            onTap: () {
+              // Navigate to medication tracking
+            },
+          ),
+          const Divider(height: 1, indent: 70),
+          _buildActionListItem(
+            icon: Icons.notifications_active,
+            backgroundColor: const Color(0xFFF3E5F5),
+            iconColor: const Color(0xFF9C27B0),
+            title: 'Notification Settings',
+            subtitle: 'Manage alerts',
+            onTap: () {
+              // Navigate to notification settings
+            },
           ),
         ],
       ),
     );
   }
 
-  Widget _buildInsightItem({
-    required String value,
-    required String label,
+  Widget _buildActionListItem({
     required IconData icon,
+    required Color backgroundColor,
+    required Color iconColor,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
   }) {
-    return Column(
-      children: [
-        Icon(icon, color: const Color(0xFF4A8AF4), size: 22),
-        const SizedBox(height: 8),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF1A3A6D),
-          ),
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        child: Row(
+          children: [
+            Container(
+              width: 46,
+              height: 46,
+              decoration: BoxDecoration(
+                color: backgroundColor,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                icon,
+                color: iconColor,
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF2E3E5C),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.chevron_right,
+              color: Colors.grey[400],
+            ),
+          ],
         ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey[600],
-          ),
-        ),
-      ],
+      ),
     );
   }
 }

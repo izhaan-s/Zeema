@@ -83,6 +83,7 @@ class DashboardService {
 
     // Get flare clusters from the cloud API
     final clusters = await _cloudRepo.getFlareClusters(formatted);
+    final symptomMatrix = await _cloudRepo.getSymptomMatrix(formatted);
 
     // Create severity data points
     final severityData = entries
@@ -96,6 +97,7 @@ class DashboardService {
     _cachedData = DashboardData(
       severityData: severityData,
       flares: clusters,
+      symptomMatrix: symptomMatrix,
       lastUpdated: DateTime.now(),
     );
 

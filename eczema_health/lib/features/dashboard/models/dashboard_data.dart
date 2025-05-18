@@ -5,11 +5,13 @@ class DashboardData {
   final List<SeverityPoint> severityData;
   final List<FlareCluster> flares;
   final DateTime lastUpdated;
+  final List<Map<String, double>> symptomMatrix;
 
   DashboardData({
     required this.severityData,
     required this.flares,
     required this.lastUpdated,
+    required this.symptomMatrix,
   });
 
   // Check if data is stale (older than the specified duration)

@@ -1,4 +1,4 @@
-import 'package:eczema_health/main2.dart';
+import 'package:eczema_health/main.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../models/photo_entry_model.dart';
 import 'package:uuid/uuid.dart';

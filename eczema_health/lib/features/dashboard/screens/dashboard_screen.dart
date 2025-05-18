@@ -6,6 +6,7 @@ import 'package:eczema_health/data/repositories/local_storage/symptom_repository
 import 'package:eczema_health/features/dashboard/providers/dashboard_provider.dart';
 import 'package:eczema_health/features/dashboard/services/dashboard_service.dart';
 import 'package:eczema_health/features/dashboard/widgets/flare_cluster_chart.dart';
+import 'package:eczema_health/features/dashboard/widgets/symptom_matrix_chart.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -91,6 +92,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     child: FlareClusterChart(
                       severityData: dashboardData.severityData,
                       flares: dashboardData.flares,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    height: 350,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 16),
+                    child: SymptomMatrixChart(
+                      matrixData: dashboardData.symptomMatrix,
                     ),
                   ),
                 ],

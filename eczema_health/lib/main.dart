@@ -1,107 +1,150 @@
 import 'package:flutter/material.dart';
-import 'package:eczema_health/data/local/app_database.dart';
-import 'package:eczema_health/data/repositories/local_storage/symptom_repository.dart';
-import 'package:eczema_health/data/repositories/cloud/analysis_repository.dart';
-import 'package:eczema_health/data/models/analysis_models.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:provider/provider.dart';
+import 'config/supabase_secrets.dart';
+import 'features/auth/screens/login_screen.dart';
+import 'navigation/app_router.dart';
+import 'features/dashboard/screens/dashboard_screen.dart';
+import 'features/photo_tracking/screens/photo_gallery_screen.dart';
+import 'features/reminders/screens/reminders_screen.dart';
+import 'features/reminders/controllers/reminder_controller.dart';
+import 'features/reminders/services/notification_service.dart';
+import 'utils/nav_bar.dart';
+import 'features/symptom_tracking/screens/symptom_tracking_screen.dart';
 
-void main() {
-  runApp(MaterialApp(home: FlareClusterTestScreen()));
+final supabase = Supabase.instance.client;
+// Global navigator key to use for navigation from anywhere
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize the notification service (now a stub implementation)
+  await NotificationService.init();
+
+  // Notification listeners removed temporarily
+
+  await Supabase.initialize(
+    url: SupabaseSecrets.supabaseUrl,
+    anonKey: SupabaseSecrets.supabaseKey,
+  );
+  runApp(const EczemaHealthApp());
 }
 
-class FlareClusterTestScreen extends StatefulWidget {
-  @override
-  _FlareClusterTestScreenState createState() => _FlareClusterTestScreenState();
-}
-
-class _FlareClusterTestScreenState extends State<FlareClusterTestScreen> {
-  final repo = AnalysisRepository();
-  final db = AppDatabase();
-  late final LocalSymptomRepository localRepo;
-  List<FlareCluster> clusters = [];
-  bool loading = false;
-  String? error;
-
-  @override
-  void initState() {
-    super.initState();
-    localRepo = LocalSymptomRepository(db);
-    fetchRealSymptomData();
+// Simplified notification controller - stub implementation
+class NotificationController {
+  /// Stub implementation for notification creation
+  @pragma("vm:entry-point")
+  static Future<void> onNotificationCreatedMethod(
+      dynamic receivedNotification) async {
+    debugPrint('[STUB] Notification created');
   }
 
-  Future<void> fetchRealSymptomData() async {
-    setState(() => loading = true);
+  /// Stub implementation for notification display
+  @pragma("vm:entry-point")
+  static Future<void> onNotificationDisplayedMethod(
+      dynamic receivedNotification) async {
+    debugPrint('[STUB] Notification displayed');
+  }
 
-    try {
-      final entries = await localRepo.getSymptomEntries('1');
+  /// Stub implementation for notification dismissal
+  @pragma("vm:entry-point")
+  static Future<void> onDismissActionReceivedMethod(
+      dynamic receivedAction) async {
+    debugPrint('[STUB] Notification dismissed');
+  }
 
-      final formatted = entries
-          .map((entry) => {
-                'id': entry.id,
-                'user_id': entry.userId,
-                'date': entry.date.toIso8601String(),
-                'is_flareup': entry.isFlareup,
-                'severity': entry.severity,
-                'affected_areas': entry.affectedAreas,
-                'symptoms': entry.symptoms ?? [],
-                'medications': entry.medications ?? [],
-                'notes': entry.notes ?? [],
-                'created_at': entry.createdAt.toIso8601String(),
-                'updated_at': entry.updatedAt.toIso8601String(),
-              })
-          .toList();
+  /// Stub implementation for notification action
+  @pragma("vm:entry-point")
+  static Future<void> onActionReceivedMethod(dynamic receivedAction) async {
+    debugPrint('[STUB] Notification action received');
 
-      // Debug prints
-      print('Number of entries: ${formatted.length}');
-      if (formatted.isNotEmpty) {
-        print('First entry keys: ${formatted.first.keys.toList()}');
-        print('First entry date: ${formatted.first['date']}');
-      }
-
-      final result = await repo.getFlareClusters(formatted);
-      setState(() {
-        clusters = result;
-        loading = false;
-      });
-    } catch (e) {
-      print('Error details: $e'); // Debug print
-      setState(() {
-        error = e.toString();
-        loading = false;
-      });
+    // Keep navigation functionality
+    if (navigatorKey.currentContext != null) {
+      // Navigate to the reminders screen
+      navigatorKey.currentState?.pushNamed(AppRouter.reminder);
     }
+  }
+}
+
+class EczemaHealthApp extends StatelessWidget {
+  const EczemaHealthApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ReminderController()),
+      ],
+      child: MaterialApp(
+        title: 'Eczema Health',
+        navigatorKey: navigatorKey,
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+          useMaterial3: true,
+        ),
+        home: const MainScreen(),
+        // Keep onGenerateRoute for auth and deep links
+        onGenerateRoute: AppRouter.generateRoute,
+      ),
+    );
+  }
+}
+
+class MainScreen extends StatefulWidget {
+  const MainScreen({super.key});
+
+  @override
+  State<MainScreen> createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
+  int _selectedIndex = 0;
+
+  static final List<Widget> _pages = [
+    DashboardScreen(),
+    PhotoGalleryScreen(),
+    SymptomTrackingScreen(),
+    // Replace with your Lifestyle screen widget
+    Center(child: Text('Lifestyle')),
+    RemindersScreen(),
+  ];
+
+  void _onTabSelected(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    if (loading) {
-      return Scaffold(
-        appBar: AppBar(title: Text("Flare Cluster Results")),
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
-
-    if (error != null) {
-      return Scaffold(
-        appBar: AppBar(title: Text("Flare Cluster Results")),
-        body: Center(child: Text("Error: $error")),
-      );
-    }
-
     return Scaffold(
-      appBar: AppBar(title: Text("Flare Cluster Results")),
-      body: clusters.isEmpty
-          ? Center(child: Text("No clusters found"))
-          : ListView.builder(
-              itemCount: clusters.length,
-              itemBuilder: (context, index) {
-                final c = clusters[index];
-                return ListTile(
-                  title: Text(
-                      "From ${c.start.toIso8601String()} to ${c.end.toIso8601String()}"),
-                  subtitle: Text("Duration: ${c.duration} days"),
-                );
-              },
-            ),
+      body: _pages[_selectedIndex],
+      bottomNavigationBar: BottomNav(
+        selectedIndex: _selectedIndex,
+        onTabSelected: _onTabSelected,
+      ),
     );
+  }
+}
+
+// Can ignore class below
+class AuthRedirect extends StatefulWidget {
+  const AuthRedirect({super.key});
+
+  @override
+  State<AuthRedirect> createState() => _AuthRedirectState();
+}
+
+class _AuthRedirectState extends State<AuthRedirect> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Always redirects to login for now adjust later
+    return const LoginScreen();
   }
 }

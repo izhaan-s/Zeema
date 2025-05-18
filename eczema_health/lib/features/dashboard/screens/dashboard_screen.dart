@@ -46,7 +46,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
       value: _provider,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Dashboard'),
+          title: const Text(
+            'Dashboard',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           actions: [
             IconButton(
               icon: const Icon(Icons.refresh),

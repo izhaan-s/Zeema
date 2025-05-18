@@ -35,9 +35,9 @@ class FlareClusterChart extends StatelessWidget {
     final minX = firstDate.millisecondsSinceEpoch.toDouble();
     final maxX = lastDate.millisecondsSinceEpoch.toDouble();
 
-    // Only show a few dates (first, last, and middle)
-    final middleDate =
-        DateTime.fromMillisecondsSinceEpoch(((minX + maxX) / 2).toInt());
+    // Calculate date intervals for x-axis labels
+    final dateRange = lastDate.difference(firstDate).inDays;
+    final interval = (dateRange / 5).ceil();
 
     // Create flare bars
     final flareBars = <LineChartBarData>[];
@@ -77,221 +77,143 @@ class FlareClusterChart extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Text(
-              'Severity Trends',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: LineChart(
+          LineChartData(
+            backgroundColor: const Color(0xFFF8F9FA),
+            gridData: FlGridData(
+              show: true,
+              drawHorizontalLine: true,
+              drawVerticalLine: true,
+              horizontalInterval: 1,
+              verticalInterval: (maxX - minX) / 6,
+              getDrawingHorizontalLine: (value) => FlLine(
+                color: Colors.grey.withOpacity(0.15),
+                strokeWidth: 1,
+                dashArray: [5, 5],
+              ),
+              getDrawingVerticalLine: (value) => FlLine(
+                color: Colors.grey.withOpacity(0.15),
+                strokeWidth: 1,
+                dashArray: [5, 5],
+              ),
             ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(8, 0, 16, 8),
-              child: LineChart(
-                LineChartData(
-                  gridData: FlGridData(
-                    show: true,
-                    drawHorizontalLine: true,
-                    drawVerticalLine: false,
-                    horizontalInterval: 1,
-                    getDrawingHorizontalLine: (value) => FlLine(
-                      color: Colors.grey.withOpacity(0.15),
-                      strokeWidth: 1,
-                    ),
-                  ),
-                  titlesData: FlTitlesData(
-                    rightTitles: AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
-                    ),
-                    topTitles: AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
-                    ),
-                    bottomTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        reservedSize: 30,
-                        getTitlesWidget: (value, meta) {
-                          // Only show 3 labels: start, middle, end
-                          String text = '';
-                          if (value.toInt() == minX.toInt()) {
-                            text = DateFormat('MM/dd').format(firstDate);
-                          } else if (value.toInt() == maxX.toInt()) {
-                            text = DateFormat('MM/dd').format(lastDate);
-                          } else if ((value - minX).abs() < 86400000 &&
-                              (value - maxX).abs() > 86400000 &&
-                              (maxX - minX) > 86400000 * 5) {
-                            text = DateFormat('MM/dd').format(middleDate);
-                          }
+            titlesData: FlTitlesData(
+              rightTitles: const AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ),
+              topTitles: const AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ),
+              bottomTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  reservedSize: 30,
+                  getTitlesWidget: (value, meta) {
+                    // Show dates at regular intervals
+                    if (value < minX || value > maxX) {
+                      return const SizedBox.shrink();
+                    }
 
-                          if (text.isEmpty) {
-                            return const SizedBox.shrink();
-                          }
+                    final date =
+                        DateTime.fromMillisecondsSinceEpoch(value.toInt());
+                    final format = dateRange > 30 ? 'MMM d' : 'MMM dd';
+                    final text = DateFormat(format).format(date);
 
-                          return Text(
-                            text,
-                            style: const TextStyle(
-                              color: Colors.black87,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          );
-                        },
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Text(
+                        text,
+                        style: const TextStyle(
+                          color: Colors.black54,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                    ),
-                    leftTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        interval: 1,
-                        reservedSize: 35,
-                        getTitlesWidget: (value, meta) {
-                          if (value % 1 != 0 || value < 0 || value > 5) {
-                            return const SizedBox.shrink();
-                          }
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 8),
-                            child: Text(
-                              value.toInt().toString(),
-                              style: const TextStyle(
-                                color: Colors.black87,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          );
-                        },
+                    );
+                  },
+                  interval: (maxX - minX) / 4,
+                ),
+              ),
+              leftTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  interval: 1,
+                  reservedSize: 35,
+                  getTitlesWidget: (value, meta) {
+                    if (value % 1 != 0 || value < 0 || value > 5) {
+                      return const SizedBox.shrink();
+                    }
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: Text(
+                        value.toInt().toString(),
+                        style: const TextStyle(
+                          color: Colors.black54,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                    ),
-                  ),
-                  borderData: FlBorderData(
-                    show: true,
-                    border: Border(
-                      bottom: BorderSide(
-                        color: Colors.grey.withOpacity(0.4),
-                        width: 1,
-                      ),
-                      left: BorderSide(
-                        color: Colors.grey.withOpacity(0.4),
-                        width: 1,
-                      ),
-                    ),
-                  ),
-                  minX: minX,
-                  maxX: maxX,
-                  minY: 0,
-                  maxY: 5.5,
-                  lineTouchData: LineTouchData(
-                    enabled: true,
-                    touchTooltipData: LineTouchTooltipData(
-                      fitInsideHorizontally: true,
-                      getTooltipItems: (touchedSpots) {
-                        return touchedSpots.map((LineBarSpot touchedSpot) {
-                          final date = DateTime.fromMillisecondsSinceEpoch(
-                            touchedSpot.x.toInt(),
-                          );
-                          return LineTooltipItem(
-                            '${DateFormat('MM/dd').format(date)}\nSeverity: ${touchedSpot.y.toInt()}',
-                            const TextStyle(color: Colors.white),
-                          );
-                        }).toList();
-                      },
-                    ),
-                  ),
-                  lineBarsData: [
-                    // Main data line
-                    LineChartBarData(
-                      spots: spots,
-                      isCurved: true,
-                      curveSmoothness: 0.3,
-                      color: Colors.blue,
-                      barWidth: 3,
-                      isStrokeCapRound: true,
-                      dotData: FlDotData(
-                        show: true,
-                        getDotPainter: (spot, percent, barData, index) {
-                          return FlDotCirclePainter(
-                            radius: 4,
-                            color: Colors.blue,
-                            strokeWidth: 1,
-                            strokeColor: Colors.white,
-                          );
-                        },
-                      ),
-                      belowBarData: BarAreaData(
-                        show: true,
-                        color: Colors.blue.withOpacity(0.1),
-                      ),
-                    ),
-                    // Horizontal bars for flares
-                    ...flareBars,
-                  ],
+                    );
+                  },
                 ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _legendItem(
-                  color: Colors.blue,
-                  label: 'Severity',
-                  isLine: true,
-                ),
-                const SizedBox(width: 24),
-                _legendItem(
-                  color: Colors.red.withOpacity(0.6),
-                  label: 'Flare period',
-                  isLine: false,
-                ),
-              ],
+            borderData: FlBorderData(
+              show: false,
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _legendItem({
-    required Color color,
-    required String label,
-    required bool isLine,
-  }) {
-    return Row(
-      children: [
-        isLine
-            ? Container(
-                width: 14,
-                height: 3,
-                decoration: BoxDecoration(
-                  color: color,
-                  borderRadius: BorderRadius.circular(0),
+            minX: minX,
+            maxX: maxX,
+            minY: 0,
+            maxY: 5.5,
+            lineTouchData: LineTouchData(
+              enabled: true,
+              touchTooltipData: LineTouchTooltipData(
+                fitInsideHorizontally: true,
+                getTooltipItems: (touchedSpots) {
+                  return touchedSpots.map((LineBarSpot touchedSpot) {
+                    final date = DateTime.fromMillisecondsSinceEpoch(
+                      touchedSpot.x.toInt(),
+                    );
+                    return LineTooltipItem(
+                      '${DateFormat('MMM d').format(date)}\nSeverity: ${touchedSpot.y.toInt()}',
+                      const TextStyle(color: Colors.white, fontSize: 12),
+                    );
+                  }).toList();
+                },
+              ),
+            ),
+            lineBarsData: [
+              // Main data line
+              LineChartBarData(
+                spots: spots,
+                isCurved: true,
+                curveSmoothness: 0.2,
+                color: const Color(0xFF2196F3), // Blue line color
+                barWidth: 2.5,
+                isStrokeCapRound: true,
+                dotData: FlDotData(
+                  show: true,
+                  getDotPainter: (spot, percent, barData, index) {
+                    return FlDotCirclePainter(
+                      radius: 4,
+                      color: const Color(0xFF2196F3), // Blue dot color
+                      strokeWidth: 2,
+                      strokeColor: Colors.white,
+                    );
+                  },
                 ),
-              )
-            : Container(
-                width: 14,
-                height: 14,
-                decoration: BoxDecoration(
-                  color: Colors.red.withOpacity(0.15),
-                  border:
-                      Border.all(color: Colors.red.withOpacity(0.3), width: 1),
-                  borderRadius: BorderRadius.circular(2),
+                belowBarData: BarAreaData(
+                  show: false,
                 ),
               ),
-        const SizedBox(width: 4),
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.w500,
+              // Flare period bars
+              ...flareBars,
+            ],
           ),
         ),
-      ],
+      ),
     );
   }
 }

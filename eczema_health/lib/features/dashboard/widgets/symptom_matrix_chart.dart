@@ -14,19 +14,89 @@ class SymptomMatrixChart extends StatefulWidget {
 
 class _SymptomMatrixChartState extends State<SymptomMatrixChart> {
   late List<String> symptoms;
+  List<String> importantSymptoms = [];
+
+  // The key symptoms to focus on
+  final Set<String> keySymptoms = {
+    'Itching',
+    'Redness',
+    'Flaking',
+    'Dryness',
+    'Swelling',
+    'Pain',
+    'Burning',
+  };
 
   @override
   void initState() {
     super.initState();
-    // Extract the symptom names from the matrix data
+    // Extract all symptom names from the matrix data
     symptoms = widget.matrixData.isNotEmpty
         ? widget.matrixData.first.keys.toList()
         : [];
+
+    _filterImportantSymptoms();
+  }
+
+  // Filter to only important symptoms based on correlation strength
+  // or the predefined key symptoms list
+  void _filterImportantSymptoms() {
+    try {
+      if (symptoms.isEmpty || widget.matrixData.isEmpty) {
+        importantSymptoms = [];
+        return;
+      }
+
+      // First check for our predefined key symptoms
+      final keyFound = symptoms.where((s) => keySymptoms.contains(s)).toList();
+
+      if (keyFound.isNotEmpty) {
+        // Use our key symptoms that are present in the data
+        importantSymptoms = keyFound;
+      } else {
+        // If no key symptoms match, use the top 5 symptoms with strongest correlations
+        final correlationStrengths = <String, double>{};
+
+        // Calculate average correlation strength for each symptom
+        for (int i = 0; i < symptoms.length; i++) {
+          final symptom = symptoms[i];
+          double totalCorrelation = 0;
+
+          // Sum the absolute correlation values for this symptom
+          for (int j = 0; j < symptoms.length; j++) {
+            if (i != j) {
+              final value =
+                  (i < widget.matrixData.length && j < symptoms.length)
+                      ? widget.matrixData[i][symptoms[j]] ?? 0.0
+                      : 0.0;
+              totalCorrelation += value.abs();
+            }
+          }
+
+          // Store the average correlation
+          correlationStrengths[symptom] = symptoms.length > 1
+              ? totalCorrelation / (symptoms.length - 1)
+              : 0.0;
+        }
+
+        // Sort symptoms by correlation strength
+        final sortedSymptoms = symptoms.toList()
+          ..sort((a, b) => (correlationStrengths[b] ?? 0.0)
+              .compareTo(correlationStrengths[a] ?? 0.0));
+
+        // Take the top 5 or fewer if there are less
+        importantSymptoms = sortedSymptoms.take(5).toList();
+      }
+    } catch (e) {
+      // If any errors occur, fallback to showing all symptoms
+      importantSymptoms = symptoms;
+      print('Error filtering symptoms: $e');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (widget.matrixData.isEmpty || symptoms.isEmpty) {
+    if (widget.matrixData.isEmpty || importantSymptoms.isEmpty) {
       return const Center(child: Text('No correlation data available'));
     }
 
@@ -47,7 +117,7 @@ class _SymptomMatrixChartState extends State<SymptomMatrixChart> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Symptom Correlation Matrix',
+            'Key Symptom Correlations',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -66,7 +136,7 @@ class _SymptomMatrixChartState extends State<SymptomMatrixChart> {
   Widget _buildMatrixGrid() {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final cellSize = (constraints.maxWidth - 50) / symptoms.length;
+        final cellSize = (constraints.maxWidth - 50) / importantSymptoms.length;
 
         return SingleChildScrollView(
           scrollDirection: Axis.horizontal,
@@ -78,12 +148,15 @@ class _SymptomMatrixChartState extends State<SymptomMatrixChart> {
                 Row(
                   children: [
                     SizedBox(width: 50), // Empty corner
-                    ...symptoms
+                    ...importantSymptoms
                         .map((symptom) => _buildHeaderCell(symptom, cellSize)),
                   ],
                 ),
                 // Matrix rows
-                ...List.generate(symptoms.length, (rowIndex) {
+                ...List.generate(importantSymptoms.length, (rowIndex) {
+                  final rowSymptom = importantSymptoms[rowIndex];
+                  final rowIdx = symptoms.indexOf(rowSymptom);
+
                   return Row(
                     children: [
                       // Row header (symptom name)
@@ -93,7 +166,7 @@ class _SymptomMatrixChartState extends State<SymptomMatrixChart> {
                         alignment: Alignment.centerRight,
                         padding: const EdgeInsets.only(right: 8),
                         child: Text(
-                          symptoms[rowIndex],
+                          importantSymptoms[rowIndex],
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 10,
@@ -102,10 +175,14 @@ class _SymptomMatrixChartState extends State<SymptomMatrixChart> {
                         ),
                       ),
                       // Correlation cells
-                      ...List.generate(symptoms.length, (colIndex) {
-                        final value = widget.matrixData[rowIndex]
-                                [symptoms[colIndex]] ??
-                            0.0;
+                      ...List.generate(importantSymptoms.length, (colIndex) {
+                        final colSymptom = importantSymptoms[colIndex];
+                        final colIdx = symptoms.indexOf(colSymptom);
+
+                        final value = rowIdx >= 0 && colIdx >= 0
+                            ? widget.matrixData[rowIdx][colSymptom] ?? 0.0
+                            : 0.0;
+
                         return _buildMatrixCell(value, cellSize);
                       }),
                     ],

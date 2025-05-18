@@ -17,6 +17,8 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   late final DashboardProvider _provider;
+  int _currentChartIndex = 0;
+  final PageController _chartPageController = PageController();
 
   @override
   void initState() {
@@ -33,6 +35,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     // Load initial data
     _fetchData();
+  }
+
+  @override
+  void dispose() {
+    _chartPageController.dispose();
+    super.dispose();
   }
 
   Future<void> _fetchData() async {
@@ -95,49 +103,121 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      height: 250,
-                      margin: const EdgeInsets.only(bottom: 16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.2),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: FlareClusterChart(
-                        severityData: dashboardData.severityData,
-                        flares: dashboardData.flares,
-                      ),
-                    ),
-                    Container(
-                      height: 250,
-                      margin: const EdgeInsets.only(bottom: 16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.2),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: SymptomMatrixChart(
-                        matrixData: dashboardData.symptomMatrix,
-                      ),
-                    ),
+                    _buildChartCarousel(dashboardData),
                     _buildQuickActions(),
                   ],
                 ),
               ),
             );
           },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildChartCarousel(dashboardData) {
+    return Column(
+      children: [
+        Container(
+          height: 270,
+          margin: const EdgeInsets.only(bottom: 16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.2),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: PageView(
+            controller: _chartPageController,
+            onPageChanged: (index) {
+              setState(() {
+                _currentChartIndex = index;
+              });
+            },
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Symptom Severity & Flares',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF2E3E5C),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Expanded(
+                      child: FlareClusterChart(
+                        severityData: dashboardData.severityData,
+                        flares: dashboardData.flares,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Symptom Correlation Matrix',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF2E3E5C),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Expanded(
+                      child: SymptomMatrixChart(
+                        matrixData: dashboardData.symptomMatrix,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _buildIndicator(0),
+            const SizedBox(width: 8),
+            _buildIndicator(1),
+          ],
+        ),
+        const SizedBox(height: 16),
+      ],
+    );
+  }
+
+  Widget _buildIndicator(int index) {
+    return GestureDetector(
+      onTap: () {
+        _chartPageController.animateToPage(
+          index,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      },
+      child: Container(
+        width: 8,
+        height: 8,
+        decoration: BoxDecoration(
+          color: _currentChartIndex == index
+              ? Theme.of(context).primaryColor
+              : Colors.grey.withOpacity(0.3),
+          shape: BoxShape.circle,
         ),
       ),
     );
@@ -189,6 +269,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
             subtitle: 'Manage treatments',
             onTap: () {
               // Navigate to medication tracking
+            },
+          ),
+          const Divider(height: 1, indent: 70),
+          _buildActionListItem(
+            icon: Icons.notifications_active,
+            backgroundColor: const Color(0xFFF3E5F5),
+            iconColor: const Color(0xFF9C27B0),
+            title: 'Notification Settings',
+            subtitle: 'Manage alerts',
+            onTap: () {
+              // Navigate to notification settings
             },
           ),
         ],

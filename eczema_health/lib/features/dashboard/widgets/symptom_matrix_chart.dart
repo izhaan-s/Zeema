@@ -116,13 +116,6 @@ class _SymptomMatrixChartState extends State<SymptomMatrixChart> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Key Symptom Correlations',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-          ),
-          const SizedBox(height: 16),
           Expanded(
             child: _buildMatrixGrid(),
           ),

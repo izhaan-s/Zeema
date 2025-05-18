@@ -31,8 +31,11 @@ class _PhotoGalleryScreenState extends State<PhotoGalleryScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Photo Albums',
-            style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text('Photo Gallery'),
+        backgroundColor: Colors.white,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {

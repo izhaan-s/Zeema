@@ -67,55 +67,40 @@ class _RemindersScreenState extends State<RemindersScreen> {
       child: Scaffold(
         backgroundColor: const Color(0xFFF8FAFC),
         appBar: AppBar(
-          backgroundColor: const Color(0xFFF8FAFC),
+          title: const Text('Reminders'),
+          backgroundColor: Colors.white,
+          scrolledUnderElevation: 0,
+          surfaceTintColor: Colors.transparent,
           elevation: 0,
-          title: Row(
-            children: [
-              const Text(
-                'Reminders',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 26,
-                ),
-              ),
-              const Spacer(),
-              ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.pushNamed(context, AppRouter.addReminder);
-                },
-                icon: const Icon(Icons.add, size: 18, color: Colors.white),
-                label: const Text('Add'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF3b82f6),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  textStyle: const TextStyle(fontWeight: FontWeight.bold),
-                  elevation: 0,
-                ),
-              ),
-            ],
+          titleTextStyle: const TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+            fontSize: 24,
           ),
+          actions: [
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.pushNamed(context, AppRouter.addReminder);
+              },
+              icon: const Icon(Icons.add, size: 18, color: Colors.white),
+              label: const Text('Add'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF3b82f6),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                textStyle: const TextStyle(fontWeight: FontWeight.bold),
+                elevation: 0,
+              ),
+            ),
+          ],
         ),
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 2),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                'Set up reminders for medications and tracking.',
-                style: TextStyle(
-                  color: const Color(0xFF6a717d),
-                  fontSize: 15,
-                  fontWeight: FontWeight.normal,
-                ),
-              ),
-            ),
             Expanded(
               child: Consumer<ReminderController>(
                 builder: (context, controller, child) {
@@ -134,18 +119,21 @@ class _RemindersScreenState extends State<RemindersScreen> {
                           title: 'Daily',
                           reminders: grouped['Daily']!,
                           color: Colors.blue,
+                          backgroundColor: Colors.white,
                         ),
                       if (grouped['Weekly']!.isNotEmpty)
                         ReminderSectionCard(
                           title: 'Weekly',
                           reminders: grouped['Weekly']!,
                           color: Colors.green,
+                          backgroundColor: Colors.white,
                         ),
                       if (grouped['Custom']!.isNotEmpty)
                         ReminderSectionCard(
                           title: 'Custom',
                           reminders: grouped['Custom']!,
                           color: Colors.purple,
+                          backgroundColor: Colors.white,
                         ),
                     ],
                   );

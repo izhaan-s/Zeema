@@ -56,13 +56,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
       value: _provider,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text(
+          title: Text(
             'Dashboard',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF2E3E5C),
+                ),
           ),
+          backgroundColor: Colors.white,
+          scrolledUnderElevation: 0,
+          surfaceTintColor: Colors.transparent,
+          elevation: 0,
           actions: [
             IconButton(
               icon: const Icon(Icons.refresh),

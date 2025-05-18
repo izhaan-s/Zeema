@@ -102,7 +102,11 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Upload Photo'),
+        title: const Text('Add Photo'),
+        backgroundColor: Colors.white,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
         actions: [
           if (_selectedImage != null && _selectedBodyPart != null)
             Padding(

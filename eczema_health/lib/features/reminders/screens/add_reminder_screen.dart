@@ -97,6 +97,10 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
+        backgroundColor: Colors.white,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),

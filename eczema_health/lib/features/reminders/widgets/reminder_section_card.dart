@@ -6,12 +6,14 @@ class ReminderSectionCard extends StatelessWidget {
   final String title;
   final List<ReminderModel> reminders;
   final Color color;
+  final Color? backgroundColor;
 
   const ReminderSectionCard({
     super.key,
     required this.title,
     required this.reminders,
     required this.color,
+    this.backgroundColor,
   });
 
   @override
@@ -21,7 +23,7 @@ class ReminderSectionCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       elevation: 1,
-      color: Theme.of(context).cardColor,
+      color: backgroundColor ?? Theme.of(context).cardColor,
       child: Padding(
         padding: const EdgeInsets.all(18.0),
         child: Column(

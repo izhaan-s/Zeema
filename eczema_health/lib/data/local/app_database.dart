@@ -122,6 +122,18 @@ class SymptomMedicationLinks extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+class DashboardCache extends Table {
+  TextColumn get userId => text()
+      .customConstraint('NOT NULL REFERENCES profiles(id) ON DELETE CASCADE')();
+  TextColumn get severityData => text()(); // JSON string of severity data
+  TextColumn get flares => text()(); // JSON string of flare clusters
+  TextColumn get symptomMatrix => text()(); // JSON string of symptom matrix
+  DateTimeColumn get lastUpdated => dateTime()();
+  IntColumn get lastSymptomCount => integer()();
+  @override
+  Set<Column> get primaryKey => {userId};
+}
+
 // ------------- DATABASE CLASS -------------
 
 @DriftDatabase(
@@ -133,10 +145,18 @@ class SymptomMedicationLinks extends Table {
     LifestyleEntries,
     SymptomEntries,
     SymptomMedicationLinks,
+    DashboardCache,
   ],
 )
 class AppDatabase extends _$AppDatabase {
-  AppDatabase() : super(_openConnection());
+  AppDatabase({bool useInMemory = false})
+      : super(useInMemory
+            ? LazyDatabase(() async => NativeDatabase.memory())
+            : LazyDatabase(() async {
+                final dbFolder = await getApplicationDocumentsDirectory();
+                final file = File(p.join(dbFolder.path, 'db.sqlite'));
+                return NativeDatabase(file);
+              }));
 
   @override
   int get schemaVersion => 1;

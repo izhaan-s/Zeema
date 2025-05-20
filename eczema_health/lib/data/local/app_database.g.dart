@@ -3702,6 +3702,377 @@ class SymptomMedicationLinksCompanion
   }
 }
 
+class $DashboardCacheTable extends DashboardCache
+    with TableInfo<$DashboardCacheTable, DashboardCacheData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DashboardCacheTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+      'user_id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL REFERENCES profiles(id) ON DELETE CASCADE');
+  static const VerificationMeta _severityDataMeta =
+      const VerificationMeta('severityData');
+  @override
+  late final GeneratedColumn<String> severityData = GeneratedColumn<String>(
+      'severity_data', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _flaresMeta = const VerificationMeta('flares');
+  @override
+  late final GeneratedColumn<String> flares = GeneratedColumn<String>(
+      'flares', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _symptomMatrixMeta =
+      const VerificationMeta('symptomMatrix');
+  @override
+  late final GeneratedColumn<String> symptomMatrix = GeneratedColumn<String>(
+      'symptom_matrix', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _lastUpdatedMeta =
+      const VerificationMeta('lastUpdated');
+  @override
+  late final GeneratedColumn<DateTime> lastUpdated = GeneratedColumn<DateTime>(
+      'last_updated', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _lastSymptomCountMeta =
+      const VerificationMeta('lastSymptomCount');
+  @override
+  late final GeneratedColumn<int> lastSymptomCount = GeneratedColumn<int>(
+      'last_symptom_count', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [
+        userId,
+        severityData,
+        flares,
+        symptomMatrix,
+        lastUpdated,
+        lastSymptomCount
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'dashboard_cache';
+  @override
+  VerificationContext validateIntegrity(Insertable<DashboardCacheData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('user_id')) {
+      context.handle(_userIdMeta,
+          userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta));
+    } else if (isInserting) {
+      context.missing(_userIdMeta);
+    }
+    if (data.containsKey('severity_data')) {
+      context.handle(
+          _severityDataMeta,
+          severityData.isAcceptableOrUnknown(
+              data['severity_data']!, _severityDataMeta));
+    } else if (isInserting) {
+      context.missing(_severityDataMeta);
+    }
+    if (data.containsKey('flares')) {
+      context.handle(_flaresMeta,
+          flares.isAcceptableOrUnknown(data['flares']!, _flaresMeta));
+    } else if (isInserting) {
+      context.missing(_flaresMeta);
+    }
+    if (data.containsKey('symptom_matrix')) {
+      context.handle(
+          _symptomMatrixMeta,
+          symptomMatrix.isAcceptableOrUnknown(
+              data['symptom_matrix']!, _symptomMatrixMeta));
+    } else if (isInserting) {
+      context.missing(_symptomMatrixMeta);
+    }
+    if (data.containsKey('last_updated')) {
+      context.handle(
+          _lastUpdatedMeta,
+          lastUpdated.isAcceptableOrUnknown(
+              data['last_updated']!, _lastUpdatedMeta));
+    } else if (isInserting) {
+      context.missing(_lastUpdatedMeta);
+    }
+    if (data.containsKey('last_symptom_count')) {
+      context.handle(
+          _lastSymptomCountMeta,
+          lastSymptomCount.isAcceptableOrUnknown(
+              data['last_symptom_count']!, _lastSymptomCountMeta));
+    } else if (isInserting) {
+      context.missing(_lastSymptomCountMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {userId};
+  @override
+  DashboardCacheData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DashboardCacheData(
+      userId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}user_id'])!,
+      severityData: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}severity_data'])!,
+      flares: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}flares'])!,
+      symptomMatrix: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}symptom_matrix'])!,
+      lastUpdated: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}last_updated'])!,
+      lastSymptomCount: attachedDatabase.typeMapping.read(
+          DriftSqlType.int, data['${effectivePrefix}last_symptom_count'])!,
+    );
+  }
+
+  @override
+  $DashboardCacheTable createAlias(String alias) {
+    return $DashboardCacheTable(attachedDatabase, alias);
+  }
+}
+
+class DashboardCacheData extends DataClass
+    implements Insertable<DashboardCacheData> {
+  final String userId;
+  final String severityData;
+  final String flares;
+  final String symptomMatrix;
+  final DateTime lastUpdated;
+  final int lastSymptomCount;
+  const DashboardCacheData(
+      {required this.userId,
+      required this.severityData,
+      required this.flares,
+      required this.symptomMatrix,
+      required this.lastUpdated,
+      required this.lastSymptomCount});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['user_id'] = Variable<String>(userId);
+    map['severity_data'] = Variable<String>(severityData);
+    map['flares'] = Variable<String>(flares);
+    map['symptom_matrix'] = Variable<String>(symptomMatrix);
+    map['last_updated'] = Variable<DateTime>(lastUpdated);
+    map['last_symptom_count'] = Variable<int>(lastSymptomCount);
+    return map;
+  }
+
+  DashboardCacheCompanion toCompanion(bool nullToAbsent) {
+    return DashboardCacheCompanion(
+      userId: Value(userId),
+      severityData: Value(severityData),
+      flares: Value(flares),
+      symptomMatrix: Value(symptomMatrix),
+      lastUpdated: Value(lastUpdated),
+      lastSymptomCount: Value(lastSymptomCount),
+    );
+  }
+
+  factory DashboardCacheData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DashboardCacheData(
+      userId: serializer.fromJson<String>(json['userId']),
+      severityData: serializer.fromJson<String>(json['severityData']),
+      flares: serializer.fromJson<String>(json['flares']),
+      symptomMatrix: serializer.fromJson<String>(json['symptomMatrix']),
+      lastUpdated: serializer.fromJson<DateTime>(json['lastUpdated']),
+      lastSymptomCount: serializer.fromJson<int>(json['lastSymptomCount']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'userId': serializer.toJson<String>(userId),
+      'severityData': serializer.toJson<String>(severityData),
+      'flares': serializer.toJson<String>(flares),
+      'symptomMatrix': serializer.toJson<String>(symptomMatrix),
+      'lastUpdated': serializer.toJson<DateTime>(lastUpdated),
+      'lastSymptomCount': serializer.toJson<int>(lastSymptomCount),
+    };
+  }
+
+  DashboardCacheData copyWith(
+          {String? userId,
+          String? severityData,
+          String? flares,
+          String? symptomMatrix,
+          DateTime? lastUpdated,
+          int? lastSymptomCount}) =>
+      DashboardCacheData(
+        userId: userId ?? this.userId,
+        severityData: severityData ?? this.severityData,
+        flares: flares ?? this.flares,
+        symptomMatrix: symptomMatrix ?? this.symptomMatrix,
+        lastUpdated: lastUpdated ?? this.lastUpdated,
+        lastSymptomCount: lastSymptomCount ?? this.lastSymptomCount,
+      );
+  DashboardCacheData copyWithCompanion(DashboardCacheCompanion data) {
+    return DashboardCacheData(
+      userId: data.userId.present ? data.userId.value : this.userId,
+      severityData: data.severityData.present
+          ? data.severityData.value
+          : this.severityData,
+      flares: data.flares.present ? data.flares.value : this.flares,
+      symptomMatrix: data.symptomMatrix.present
+          ? data.symptomMatrix.value
+          : this.symptomMatrix,
+      lastUpdated:
+          data.lastUpdated.present ? data.lastUpdated.value : this.lastUpdated,
+      lastSymptomCount: data.lastSymptomCount.present
+          ? data.lastSymptomCount.value
+          : this.lastSymptomCount,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DashboardCacheData(')
+          ..write('userId: $userId, ')
+          ..write('severityData: $severityData, ')
+          ..write('flares: $flares, ')
+          ..write('symptomMatrix: $symptomMatrix, ')
+          ..write('lastUpdated: $lastUpdated, ')
+          ..write('lastSymptomCount: $lastSymptomCount')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(userId, severityData, flares, symptomMatrix,
+      lastUpdated, lastSymptomCount);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DashboardCacheData &&
+          other.userId == this.userId &&
+          other.severityData == this.severityData &&
+          other.flares == this.flares &&
+          other.symptomMatrix == this.symptomMatrix &&
+          other.lastUpdated == this.lastUpdated &&
+          other.lastSymptomCount == this.lastSymptomCount);
+}
+
+class DashboardCacheCompanion extends UpdateCompanion<DashboardCacheData> {
+  final Value<String> userId;
+  final Value<String> severityData;
+  final Value<String> flares;
+  final Value<String> symptomMatrix;
+  final Value<DateTime> lastUpdated;
+  final Value<int> lastSymptomCount;
+  final Value<int> rowid;
+  const DashboardCacheCompanion({
+    this.userId = const Value.absent(),
+    this.severityData = const Value.absent(),
+    this.flares = const Value.absent(),
+    this.symptomMatrix = const Value.absent(),
+    this.lastUpdated = const Value.absent(),
+    this.lastSymptomCount = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  DashboardCacheCompanion.insert({
+    required String userId,
+    required String severityData,
+    required String flares,
+    required String symptomMatrix,
+    required DateTime lastUpdated,
+    required int lastSymptomCount,
+    this.rowid = const Value.absent(),
+  })  : userId = Value(userId),
+        severityData = Value(severityData),
+        flares = Value(flares),
+        symptomMatrix = Value(symptomMatrix),
+        lastUpdated = Value(lastUpdated),
+        lastSymptomCount = Value(lastSymptomCount);
+  static Insertable<DashboardCacheData> custom({
+    Expression<String>? userId,
+    Expression<String>? severityData,
+    Expression<String>? flares,
+    Expression<String>? symptomMatrix,
+    Expression<DateTime>? lastUpdated,
+    Expression<int>? lastSymptomCount,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (userId != null) 'user_id': userId,
+      if (severityData != null) 'severity_data': severityData,
+      if (flares != null) 'flares': flares,
+      if (symptomMatrix != null) 'symptom_matrix': symptomMatrix,
+      if (lastUpdated != null) 'last_updated': lastUpdated,
+      if (lastSymptomCount != null) 'last_symptom_count': lastSymptomCount,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  DashboardCacheCompanion copyWith(
+      {Value<String>? userId,
+      Value<String>? severityData,
+      Value<String>? flares,
+      Value<String>? symptomMatrix,
+      Value<DateTime>? lastUpdated,
+      Value<int>? lastSymptomCount,
+      Value<int>? rowid}) {
+    return DashboardCacheCompanion(
+      userId: userId ?? this.userId,
+      severityData: severityData ?? this.severityData,
+      flares: flares ?? this.flares,
+      symptomMatrix: symptomMatrix ?? this.symptomMatrix,
+      lastUpdated: lastUpdated ?? this.lastUpdated,
+      lastSymptomCount: lastSymptomCount ?? this.lastSymptomCount,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
+    }
+    if (severityData.present) {
+      map['severity_data'] = Variable<String>(severityData.value);
+    }
+    if (flares.present) {
+      map['flares'] = Variable<String>(flares.value);
+    }
+    if (symptomMatrix.present) {
+      map['symptom_matrix'] = Variable<String>(symptomMatrix.value);
+    }
+    if (lastUpdated.present) {
+      map['last_updated'] = Variable<DateTime>(lastUpdated.value);
+    }
+    if (lastSymptomCount.present) {
+      map['last_symptom_count'] = Variable<int>(lastSymptomCount.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DashboardCacheCompanion(')
+          ..write('userId: $userId, ')
+          ..write('severityData: $severityData, ')
+          ..write('flares: $flares, ')
+          ..write('symptomMatrix: $symptomMatrix, ')
+          ..write('lastUpdated: $lastUpdated, ')
+          ..write('lastSymptomCount: $lastSymptomCount, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -3714,6 +4085,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $SymptomEntriesTable symptomEntries = $SymptomEntriesTable(this);
   late final $SymptomMedicationLinksTable symptomMedicationLinks =
       $SymptomMedicationLinksTable(this);
+  late final $DashboardCacheTable dashboardCache = $DashboardCacheTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -3725,7 +4097,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         photos,
         lifestyleEntries,
         symptomEntries,
-        symptomMedicationLinks
+        symptomMedicationLinks,
+        dashboardCache
       ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules(
@@ -3784,6 +4157,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
                 limitUpdateKind: UpdateKind.delete),
             result: [
               TableUpdate('symptom_medication_links', kind: UpdateKind.delete),
+            ],
+          ),
+          WritePropagation(
+            on: TableUpdateQuery.onTableName('profiles',
+                limitUpdateKind: UpdateKind.delete),
+            result: [
+              TableUpdate('dashboard_cache', kind: UpdateKind.delete),
             ],
           ),
         ],
@@ -3913,6 +4293,21 @@ final class $$ProfilesTableReferences
 
     final cache =
         $_typedResult.readTableOrNull(_symptomMedicationLinksRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+
+  static MultiTypedResultKey<$DashboardCacheTable, List<DashboardCacheData>>
+      _dashboardCacheRefsTable(_$AppDatabase db) =>
+          MultiTypedResultKey.fromTable(db.dashboardCache,
+              aliasName: $_aliasNameGenerator(
+                  db.profiles.id, db.dashboardCache.userId));
+
+  $$DashboardCacheTableProcessedTableManager get dashboardCacheRefs {
+    final manager = $$DashboardCacheTableTableManager($_db, $_db.dashboardCache)
+        .filter((f) => f.userId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_dashboardCacheRefsTable($_db));
     return ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: cache));
   }
@@ -4086,6 +4481,27 @@ class $$ProfilesTableFilterComposer
                   $removeJoinBuilderFromRootComposer:
                       $removeJoinBuilderFromRootComposer,
                 ));
+    return f(composer);
+  }
+
+  Expression<bool> dashboardCacheRefs(
+      Expression<bool> Function($$DashboardCacheTableFilterComposer f) f) {
+    final $$DashboardCacheTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.dashboardCache,
+        getReferencedColumn: (t) => t.userId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$DashboardCacheTableFilterComposer(
+              $db: $db,
+              $table: $db.dashboardCache,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
     return f(composer);
   }
 }
@@ -4304,6 +4720,27 @@ class $$ProfilesTableAnnotationComposer
                 ));
     return f(composer);
   }
+
+  Expression<T> dashboardCacheRefs<T extends Object>(
+      Expression<T> Function($$DashboardCacheTableAnnotationComposer a) f) {
+    final $$DashboardCacheTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.dashboardCache,
+        getReferencedColumn: (t) => t.userId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$DashboardCacheTableAnnotationComposer(
+              $db: $db,
+              $table: $db.dashboardCache,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
 }
 
 class $$ProfilesTableTableManager extends RootTableManager<
@@ -4323,7 +4760,8 @@ class $$ProfilesTableTableManager extends RootTableManager<
         bool photosRefs,
         bool lifestyleEntriesRefs,
         bool symptomEntriesRefs,
-        bool symptomMedicationLinksRefs})> {
+        bool symptomMedicationLinksRefs,
+        bool dashboardCacheRefs})> {
   $$ProfilesTableTableManager(_$AppDatabase db, $ProfilesTable table)
       : super(TableManagerState(
           db: db,
@@ -4400,7 +4838,8 @@ class $$ProfilesTableTableManager extends RootTableManager<
               photosRefs = false,
               lifestyleEntriesRefs = false,
               symptomEntriesRefs = false,
-              symptomMedicationLinksRefs = false}) {
+              symptomMedicationLinksRefs = false,
+              dashboardCacheRefs = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [
@@ -4409,7 +4848,8 @@ class $$ProfilesTableTableManager extends RootTableManager<
                 if (photosRefs) db.photos,
                 if (lifestyleEntriesRefs) db.lifestyleEntries,
                 if (symptomEntriesRefs) db.symptomEntries,
-                if (symptomMedicationLinksRefs) db.symptomMedicationLinks
+                if (symptomMedicationLinksRefs) db.symptomMedicationLinks,
+                if (dashboardCacheRefs) db.dashboardCache
               ],
               addJoins: null,
               getPrefetchedDataCallback: (items) async {
@@ -4489,6 +4929,19 @@ class $$ProfilesTableTableManager extends RootTableManager<
                         referencedItemsForCurrentItem: (item,
                                 referencedItems) =>
                             referencedItems.where((e) => e.userId == item.id),
+                        typedResults: items),
+                  if (dashboardCacheRefs)
+                    await $_getPrefetchedData<Profile, $ProfilesTable,
+                            DashboardCacheData>(
+                        currentTable: table,
+                        referencedTable: $$ProfilesTableReferences
+                            ._dashboardCacheRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$ProfilesTableReferences(db, table, p0)
+                                .dashboardCacheRefs,
+                        referencedItemsForCurrentItem: (item,
+                                referencedItems) =>
+                            referencedItems.where((e) => e.userId == item.id),
                         typedResults: items)
                 ];
               },
@@ -4514,7 +4967,8 @@ typedef $$ProfilesTableProcessedTableManager = ProcessedTableManager<
         bool photosRefs,
         bool lifestyleEntriesRefs,
         bool symptomEntriesRefs,
-        bool symptomMedicationLinksRefs})>;
+        bool symptomMedicationLinksRefs,
+        bool dashboardCacheRefs})>;
 typedef $$RemindersTableCreateCompanionBuilder = RemindersCompanion Function({
   required String id,
   required String userId,
@@ -6949,6 +7403,302 @@ typedef $$SymptomMedicationLinksTableProcessedTableManager
         SymptomMedicationLink,
         PrefetchHooks Function(
             {bool symptomId, bool medicationId, bool userId})>;
+typedef $$DashboardCacheTableCreateCompanionBuilder = DashboardCacheCompanion
+    Function({
+  required String userId,
+  required String severityData,
+  required String flares,
+  required String symptomMatrix,
+  required DateTime lastUpdated,
+  required int lastSymptomCount,
+  Value<int> rowid,
+});
+typedef $$DashboardCacheTableUpdateCompanionBuilder = DashboardCacheCompanion
+    Function({
+  Value<String> userId,
+  Value<String> severityData,
+  Value<String> flares,
+  Value<String> symptomMatrix,
+  Value<DateTime> lastUpdated,
+  Value<int> lastSymptomCount,
+  Value<int> rowid,
+});
+
+final class $$DashboardCacheTableReferences extends BaseReferences<
+    _$AppDatabase, $DashboardCacheTable, DashboardCacheData> {
+  $$DashboardCacheTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static $ProfilesTable _userIdTable(_$AppDatabase db) =>
+      db.profiles.createAlias(
+          $_aliasNameGenerator(db.dashboardCache.userId, db.profiles.id));
+
+  $$ProfilesTableProcessedTableManager get userId {
+    final $_column = $_itemColumn<String>('user_id')!;
+
+    final manager = $$ProfilesTableTableManager($_db, $_db.profiles)
+        .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_userIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
+class $$DashboardCacheTableFilterComposer
+    extends Composer<_$AppDatabase, $DashboardCacheTable> {
+  $$DashboardCacheTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get severityData => $composableBuilder(
+      column: $table.severityData, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get flares => $composableBuilder(
+      column: $table.flares, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get symptomMatrix => $composableBuilder(
+      column: $table.symptomMatrix, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get lastUpdated => $composableBuilder(
+      column: $table.lastUpdated, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get lastSymptomCount => $composableBuilder(
+      column: $table.lastSymptomCount,
+      builder: (column) => ColumnFilters(column));
+
+  $$ProfilesTableFilterComposer get userId {
+    final $$ProfilesTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.userId,
+        referencedTable: $db.profiles,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ProfilesTableFilterComposer(
+              $db: $db,
+              $table: $db.profiles,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$DashboardCacheTableOrderingComposer
+    extends Composer<_$AppDatabase, $DashboardCacheTable> {
+  $$DashboardCacheTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get severityData => $composableBuilder(
+      column: $table.severityData,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get flares => $composableBuilder(
+      column: $table.flares, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get symptomMatrix => $composableBuilder(
+      column: $table.symptomMatrix,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get lastUpdated => $composableBuilder(
+      column: $table.lastUpdated, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get lastSymptomCount => $composableBuilder(
+      column: $table.lastSymptomCount,
+      builder: (column) => ColumnOrderings(column));
+
+  $$ProfilesTableOrderingComposer get userId {
+    final $$ProfilesTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.userId,
+        referencedTable: $db.profiles,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ProfilesTableOrderingComposer(
+              $db: $db,
+              $table: $db.profiles,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$DashboardCacheTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DashboardCacheTable> {
+  $$DashboardCacheTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get severityData => $composableBuilder(
+      column: $table.severityData, builder: (column) => column);
+
+  GeneratedColumn<String> get flares =>
+      $composableBuilder(column: $table.flares, builder: (column) => column);
+
+  GeneratedColumn<String> get symptomMatrix => $composableBuilder(
+      column: $table.symptomMatrix, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastUpdated => $composableBuilder(
+      column: $table.lastUpdated, builder: (column) => column);
+
+  GeneratedColumn<int> get lastSymptomCount => $composableBuilder(
+      column: $table.lastSymptomCount, builder: (column) => column);
+
+  $$ProfilesTableAnnotationComposer get userId {
+    final $$ProfilesTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.userId,
+        referencedTable: $db.profiles,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ProfilesTableAnnotationComposer(
+              $db: $db,
+              $table: $db.profiles,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$DashboardCacheTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $DashboardCacheTable,
+    DashboardCacheData,
+    $$DashboardCacheTableFilterComposer,
+    $$DashboardCacheTableOrderingComposer,
+    $$DashboardCacheTableAnnotationComposer,
+    $$DashboardCacheTableCreateCompanionBuilder,
+    $$DashboardCacheTableUpdateCompanionBuilder,
+    (DashboardCacheData, $$DashboardCacheTableReferences),
+    DashboardCacheData,
+    PrefetchHooks Function({bool userId})> {
+  $$DashboardCacheTableTableManager(
+      _$AppDatabase db, $DashboardCacheTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DashboardCacheTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DashboardCacheTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DashboardCacheTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> userId = const Value.absent(),
+            Value<String> severityData = const Value.absent(),
+            Value<String> flares = const Value.absent(),
+            Value<String> symptomMatrix = const Value.absent(),
+            Value<DateTime> lastUpdated = const Value.absent(),
+            Value<int> lastSymptomCount = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              DashboardCacheCompanion(
+            userId: userId,
+            severityData: severityData,
+            flares: flares,
+            symptomMatrix: symptomMatrix,
+            lastUpdated: lastUpdated,
+            lastSymptomCount: lastSymptomCount,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String userId,
+            required String severityData,
+            required String flares,
+            required String symptomMatrix,
+            required DateTime lastUpdated,
+            required int lastSymptomCount,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              DashboardCacheCompanion.insert(
+            userId: userId,
+            severityData: severityData,
+            flares: flares,
+            symptomMatrix: symptomMatrix,
+            lastUpdated: lastUpdated,
+            lastSymptomCount: lastSymptomCount,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$DashboardCacheTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({userId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (userId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.userId,
+                    referencedTable:
+                        $$DashboardCacheTableReferences._userIdTable(db),
+                    referencedColumn:
+                        $$DashboardCacheTableReferences._userIdTable(db).id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$DashboardCacheTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $DashboardCacheTable,
+    DashboardCacheData,
+    $$DashboardCacheTableFilterComposer,
+    $$DashboardCacheTableOrderingComposer,
+    $$DashboardCacheTableAnnotationComposer,
+    $$DashboardCacheTableCreateCompanionBuilder,
+    $$DashboardCacheTableUpdateCompanionBuilder,
+    (DashboardCacheData, $$DashboardCacheTableReferences),
+    DashboardCacheData,
+    PrefetchHooks Function({bool userId})>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -6968,4 +7718,6 @@ class $AppDatabaseManager {
   $$SymptomMedicationLinksTableTableManager get symptomMedicationLinks =>
       $$SymptomMedicationLinksTableTableManager(
           _db, _db.symptomMedicationLinks);
+  $$DashboardCacheTableTableManager get dashboardCache =>
+      $$DashboardCacheTableTableManager(_db, _db.dashboardCache);
 }

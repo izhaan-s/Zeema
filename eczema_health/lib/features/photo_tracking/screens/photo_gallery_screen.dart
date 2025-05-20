@@ -31,7 +31,10 @@ class _PhotoGalleryScreenState extends State<PhotoGalleryScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Photo Gallery'),
+        title: Text('Photo Gallery',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                )),
         backgroundColor: Colors.white,
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.transparent,

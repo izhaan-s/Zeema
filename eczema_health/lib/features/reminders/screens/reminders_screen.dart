@@ -67,33 +67,34 @@ class _RemindersScreenState extends State<RemindersScreen> {
       child: Scaffold(
         backgroundColor: const Color(0xFFF8FAFC),
         appBar: AppBar(
-          title: const Text('Reminders'),
+          title: Text('Reminders',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  )),
           backgroundColor: Colors.white,
           scrolledUnderElevation: 0,
           surfaceTintColor: Colors.transparent,
           elevation: 0,
-          titleTextStyle: const TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-            fontSize: 24,
-          ),
           actions: [
-            ElevatedButton.icon(
-              onPressed: () {
-                Navigator.pushNamed(context, AppRouter.addReminder);
-              },
-              icon: const Icon(Icons.add, size: 18, color: Colors.white),
-              label: const Text('Add'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF3b82f6),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.pushNamed(context, AppRouter.addReminder);
+                },
+                icon: const Icon(Icons.add, size: 18, color: Colors.white),
+                label: const Text('Add'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF3b82f6),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  textStyle: const TextStyle(fontWeight: FontWeight.bold),
+                  elevation: 0,
                 ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                textStyle: const TextStyle(fontWeight: FontWeight.bold),
-                elevation: 0,
               ),
             ),
           ],

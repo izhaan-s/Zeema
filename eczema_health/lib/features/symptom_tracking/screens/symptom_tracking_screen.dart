@@ -36,7 +36,10 @@ class _SymptomTrackingScreenState extends State<SymptomTrackingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Symptom Tracking'),
+        title: Text('Symptom Tracking',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                )),
         backgroundColor: Colors.white,
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.transparent,

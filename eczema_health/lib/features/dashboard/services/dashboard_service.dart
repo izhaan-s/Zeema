@@ -1,23 +1,21 @@
 import 'package:eczema_health/data/repositories/cloud/analysis_repository.dart';
 import 'package:eczema_health/data/repositories/local_storage/symptom_repository.dart';
+import 'package:eczema_health/data/repositories/local_storage/dashboard_cache_repository.dart';
 import 'package:eczema_health/data/models/analysis_models.dart';
 import 'package:eczema_health/features/dashboard/models/dashboard_data.dart';
 
 class DashboardService {
   final AnalysisRepository _cloudRepo;
   final LocalSymptomRepository _localRepo;
-
-  // Cache the dashboard data
-  DashboardData? _cachedData;
-
-  // Track the last known symptom count to detect new additions
-  int _lastSymptomCount = 0;
+  final DashboardCacheRepository _cacheRepo;
 
   DashboardService({
     required AnalysisRepository cloudRepo,
     required LocalSymptomRepository localRepo,
+    required DashboardCacheRepository cacheRepo,
   })  : _cloudRepo = cloudRepo,
-        _localRepo = localRepo;
+        _localRepo = localRepo,
+        _cacheRepo = cacheRepo;
 
   // Get dashboard data, using cache if possible
   Future<DashboardData> getDashboardData(String userId,
@@ -26,8 +24,11 @@ class DashboardService {
     final needsRefresh = await _needsDataRefresh(userId, forceRefresh);
 
     // Return cached data if it's still valid
-    if (!needsRefresh && _cachedData != null) {
-      return _cachedData!;
+    if (!needsRefresh) {
+      final cachedData = await _cacheRepo.getDashboardCache(userId);
+      if (cachedData != null) {
+        return cachedData;
+      }
     }
 
     // Otherwise, fetch fresh data
@@ -39,18 +40,18 @@ class DashboardService {
     // Force refresh requested
     if (forceRefresh) return true;
 
-    // No cached data yet
-    if (_cachedData == null) return true;
+    // Get cached data
+    final cachedData = await _cacheRepo.getDashboardCache(userId);
+    if (cachedData == null) return true;
 
     // Check if cache is stale (older than 24 hours)
-    if (_cachedData!.isStale(const Duration(hours: 24))) return true;
+    if (cachedData.isStale(const Duration(hours: 24))) return true;
 
     // Check if new symptoms have been added
     final currentSymptomCount =
         (await _localRepo.getSymptomEntries(userId)).length;
-    if (currentSymptomCount != _lastSymptomCount) {
-      // Update the count and refresh
-      _lastSymptomCount = currentSymptomCount;
+    final lastSymptomCount = await _cacheRepo.getLastSymptomCount(userId);
+    if (lastSymptomCount != currentSymptomCount) {
       return true;
     }
 
@@ -62,7 +63,7 @@ class DashboardService {
   Future<DashboardData> _fetchAndCacheData(String userId) async {
     // Get local symptom entries
     final entries = await _localRepo.getSymptomEntries(userId);
-    _lastSymptomCount = entries.length;
+    final currentSymptomCount = entries.length;
 
     // Format entries for the API
     final formatted = entries
@@ -93,19 +94,23 @@ class DashboardService {
             ))
         .toList();
 
-    // Cache the result
-    _cachedData = DashboardData(
+    // Create and cache the result
+    final dashboardData = DashboardData(
       severityData: severityData,
       flares: clusters,
       symptomMatrix: symptomMatrix,
       lastUpdated: DateTime.now(),
     );
 
-    return _cachedData!;
+    // Save to persistent cache
+    await _cacheRepo.saveDashboardCache(
+        userId, dashboardData, currentSymptomCount);
+
+    return dashboardData;
   }
 
   // Call this when a new symptom is added
-  void invalidateCache() {
-    _cachedData = null;
+  Future<void> invalidateCache(String userId) async {
+    await _cacheRepo.deleteDashboardCache(userId);
   }
 }

@@ -5,6 +5,7 @@ import 'package:eczema_health/features/dashboard/services/dashboard_service.dart
 /// Provider to manage dashboard state
 class DashboardProvider extends ChangeNotifier {
   final DashboardService _service;
+  String? _currentUserId;
 
   DashboardData? _dashboardData;
   bool _isLoading = false;
@@ -25,6 +26,7 @@ class DashboardProvider extends ChangeNotifier {
     try {
       _isLoading = true;
       _error = null;
+      _currentUserId = userId;
       notifyListeners();
 
       _dashboardData =
@@ -40,7 +42,9 @@ class DashboardProvider extends ChangeNotifier {
   }
 
   // Call this when a new symptom is added
-  void symptomAdded() {
-    _service.invalidateCache();
+  Future<void> symptomAdded() async {
+    if (_currentUserId != null) {
+      await _service.invalidateCache(_currentUserId!);
+    }
   }
 }

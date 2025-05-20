@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:eczema_health/data/local/app_database.dart';
 import 'package:eczema_health/data/repositories/cloud/analysis_repository.dart';
 import 'package:eczema_health/data/repositories/local_storage/symptom_repository.dart';
+import 'package:eczema_health/data/repositories/local_storage/dashboard_cache_repository.dart';
 import 'package:eczema_health/features/dashboard/providers/dashboard_provider.dart';
 import 'package:eczema_health/features/dashboard/services/dashboard_service.dart';
 import 'package:eczema_health/features/dashboard/widgets/flare_cluster_chart.dart';
@@ -28,9 +29,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     // Set up the dependencies
     final cloudRepo = AnalysisRepository();
-    final localRepo = LocalSymptomRepository(AppDatabase());
-    final service =
-        DashboardService(cloudRepo: cloudRepo, localRepo: localRepo);
+    final db = AppDatabase();
+    final localRepo = LocalSymptomRepository(db);
+    final cacheRepo = DashboardCacheRepository(db);
+    final service = DashboardService(
+      cloudRepo: cloudRepo,
+      localRepo: localRepo,
+      cacheRepo: cacheRepo,
+    );
 
     // Create the provider
     _provider = DashboardProvider(service: service);
@@ -60,7 +66,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             'Dashboard',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFF2E3E5C),
                 ),
           ),
           backgroundColor: Colors.white,
@@ -218,7 +223,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     const SizedBox(height: 8),
                     Expanded(
                       child: SymptomMatrixChart(
-                        matrixData: dashboardData.symptomMatrix,
+                        matrixData: (dashboardData.symptomMatrix as List)
+                            .map((e) => Map<String, double>.from(e))
+                            .toList(),
                       ),
                     ),
                   ],

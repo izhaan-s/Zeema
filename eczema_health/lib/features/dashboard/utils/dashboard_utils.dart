@@ -6,12 +6,12 @@ import 'package:eczema_health/features/dashboard/providers/dashboard_provider.da
 class DashboardUtils {
   /// Call this when a new symptom is added to invalidate the dashboard cache
   /// Usage: DashboardUtils.notifySymptomAdded(context);
-  static void notifySymptomAdded(BuildContext context) {
+  static Future<void> notifySymptomAdded(BuildContext context) async {
     // Find the dashboard provider and notify it of the new symptom
     final dashboardProvider = Provider.of<DashboardProvider>(
       context,
       listen: false,
     );
-    dashboardProvider.symptomAdded();
+    await dashboardProvider.symptomAdded();
   }
 }

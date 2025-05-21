@@ -1,39 +1,58 @@
-// import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 
-// Temporarily disabled notification model
-class NotificationModel {
-  final dynamic content;
-  final dynamic schedule;
-  
-  NotificationModel({this.content, this.schedule});
-}
-
-/// Temporary stub implementation for NotificationService
-/// This is a placeholder while the awesome_notifications package is disabled
 class NotificationService {
   static const String channelKey = 'reminder_channel';
   static const String channelName = 'Reminders';
   static const String channelDescription = 'Channel for reminder notifications';
 
-  /// Stub implementation - no actual initialization
   static Future<void> init() async {
-    debugPrint('[STUB] Notification service initialization skipped');
+    // Make sure old notifications are cleared on startup to avoid issues
+    await AwesomeNotifications().cancelAll();
+
+    // Initialize the notification system
+    await AwesomeNotifications().initialize(
+      null, // Setting to null since the specified icon is causing issues
+      [
+        NotificationChannel(
+          channelGroupKey: 'reminder_group',
+          channelKey: channelKey,
+          channelName: channelName,
+          channelDescription: channelDescription,
+          defaultColor: Colors.blue,
+          importance: NotificationImportance.High,
+          ledColor: Colors.blue,
+          channelShowBadge: true,
+          // Enable vibration and sound
+          enableVibration: true,
+          playSound: true,
+        )
+      ],
+      // No channel groups for simplified setup
+      debug: true,
+    );
+
+    // Request notification permissions
+    await requestPermission();
+
+    debugPrint('Notification service initialized');
   }
 
-  /// Stub implementation - always returns true
+  /// Request permission to show notifications
   static Future<bool> requestPermission() async {
-    debugPrint('[STUB] Notification permission request skipped');
-    return true;
+    final isAllowed = await AwesomeNotifications().isNotificationAllowed();
+    if (!isAllowed) {
+      await AwesomeNotifications().requestPermissionToSendNotifications();
+      return await AwesomeNotifications().isNotificationAllowed();
+    }
+    return isAllowed;
   }
 
-  /// Stub implementation - always returns true
+  /// Check if notification permissions are granted
   static Future<bool> checkPermissions() async {
-    debugPrint('[STUB] Notification permission check skipped');
-    return true;
+    return await AwesomeNotifications().isNotificationAllowed();
   }
 
-  /// Stub implementation - logs the notification details but doesn't schedule anything
   static Future<void> scheduleNotification({
     required int id,
     required String title,
@@ -42,28 +61,72 @@ class NotificationService {
   }) async {
     if (utcTime.isBefore(DateTime.now().toUtc())) return;
 
-    // Log the notification details
-    debugPrint('[STUB] Would schedule notification: $title for ${utcTime.toString()}');
+    try {
+      // We'll use a simpler notification with fewer options to avoid issues
+      await AwesomeNotifications().createNotification(
+        content: NotificationContent(
+          id: id,
+          channelKey: channelKey,
+          title: title,
+          body: body,
+          notificationLayout: NotificationLayout.Default,
+        ),
+        schedule: NotificationCalendar.fromDate(
+          date: utcTime,
+          allowWhileIdle: true,
+        ),
+      );
+
+      debugPrint('Scheduled notification: $title for ${utcTime.toString()}');
+    } catch (e) {
+      debugPrint('Error scheduling notification: $e');
+    }
   }
 
-  /// Stub implementation - returns an empty list
+  /// Get all scheduled and active notifications
   static Future<List<NotificationModel>> getActiveNotifications() async {
-    debugPrint('[STUB] Get active notifications - returns empty list');
-    return [];
+    try {
+      final List<NotificationModel> activeNotifications =
+          await AwesomeNotifications().listScheduledNotifications();
+      return activeNotifications;
+    } catch (e) {
+      debugPrint('Error getting active notifications: $e');
+      return [];
+    }
   }
 
-  /// Stub implementation - logs the cancellation
+  /// Cancel a specific notification by ID
   static Future<void> cancel(int id) async {
-    debugPrint('[STUB] Would cancel notification #$id');
+    try {
+      await AwesomeNotifications().cancel(id);
+      debugPrint('Cancelled notification #$id');
+    } catch (e) {
+      debugPrint('Error cancelling notification #$id: $e');
+    }
   }
 
-  /// Stub implementation - logs the cancellation
+  /// Cancel all notifications
   static Future<void> cancelAll() async {
-    debugPrint('[STUB] Would cancel all notifications');
+    try {
+      await AwesomeNotifications().cancelAll();
+      debugPrint('Cancelled all notifications');
+    } catch (e) {
+      debugPrint('Error cancelling all notifications: $e');
+    }
   }
 
-  /// Stub implementation - logs that there are no active notifications
+  /// Debug function to print all active notifications
   static Future<void> printActiveNotifications() async {
-    debugPrint('[STUB] No active notifications (notifications disabled)');
+    try {
+      final notifications = await getActiveNotifications();
+      debugPrint('Active notifications: ${notifications.length}');
+      for (var notification in notifications) {
+        debugPrint('ID: ${notification.content?.id}, '
+            'Title: ${notification.content?.title}, '
+            'Scheduled: ${notification.schedule?.toMap()}');
+      }
+    } catch (e) {
+      debugPrint('Error printing active notifications: $e');
+    }
   }
 }

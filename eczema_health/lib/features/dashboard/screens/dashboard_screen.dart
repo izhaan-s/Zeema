@@ -22,12 +22,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
   late final DashboardProvider _provider;
   int _currentChartIndex = 0;
   final PageController _chartPageController = PageController();
+  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
-
-    // Initialize database and repositories
     _initDependencies();
   }
 
@@ -53,7 +52,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _provider = DashboardProvider(service: service);
 
     // Load initial data
-    _fetchData();
+    await _fetchData();
+    setState(() {
+      _isInitialized = true;
+    });
   }
 
   Future<void> _fetchData() async {
@@ -63,6 +65,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (!_isInitialized) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
     return ChangeNotifierProvider.value(
       value: _provider,
       child: Scaffold(

@@ -11,6 +11,7 @@ import 'features/reminders/controllers/reminder_controller.dart';
 import 'features/reminders/services/notification_service.dart';
 import 'utils/nav_bar.dart';
 import 'features/symptom_tracking/screens/symptom_tracking_screen.dart';
+import 'features/lifestyle_tracking/screens/lifestyle_log_screen.dart';
 
 final supabase = Supabase.instance.client;
 // Global navigator key to use for navigation from anywhere
@@ -105,8 +106,7 @@ class _MainScreenState extends State<MainScreen> {
     DashboardScreen(),
     PhotoGalleryScreen(),
     SymptomTrackingScreen(),
-    // Replace with your Lifestyle screen widget
-    Center(child: Text('Lifestyle')),
+    LifestyleLogScreen(),
     RemindersScreen(),
   ];
 

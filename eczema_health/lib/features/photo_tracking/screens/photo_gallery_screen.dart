@@ -52,8 +52,7 @@ class _PhotoGalleryScreenState extends State<PhotoGalleryScreen> {
   }
 
   Future<void> _initRepository() async {
-    final db = await DBProvider.instance.database;
-    photoRepository = PhotoRepository(db);
+    photoRepository = await PhotoRepository.create();
     await _loadPhotos();
   }
 

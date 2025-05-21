@@ -27,9 +27,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void initState() {
     super.initState();
 
+    // Initialize database and repositories
+    _initDependencies();
+  }
+
+  @override
+  void dispose() {
+    _chartPageController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _initDependencies() async {
     // Set up the dependencies
     final cloudRepo = AnalysisRepository();
-    final db = AppDatabase();
+    final db = await DBProvider.instance.database;
     final localRepo = LocalSymptomRepository(db);
     final cacheRepo = DashboardCacheRepository(db);
     final service = DashboardService(
@@ -43,12 +54,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     // Load initial data
     _fetchData();
-  }
-
-  @override
-  void dispose() {
-    _chartPageController.dispose();
-    super.dispose();
   }
 
   Future<void> _fetchData() async {

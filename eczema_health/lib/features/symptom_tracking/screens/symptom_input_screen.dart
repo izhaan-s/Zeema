@@ -33,11 +33,22 @@ class _SymptomInputScreenState extends State<SymptomInputScreen> {
   final Set<String> selectedMedications = {};
   final TextEditingController notesController = TextEditingController();
   Map<String, String> medicationNames = {};
+  late LocalSymptomRepository _symptomRepository;
+  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
     _loadPreloadedMedications();
+    _initRepository();
+  }
+
+  Future<void> _initRepository() async {
+    final db = await DBProvider.instance.database;
+    _symptomRepository = LocalSymptomRepository(db);
+    setState(() {
+      _isInitialized = true;
+    });
   }
 
   Future<void> _loadPreloadedMedications() async {
@@ -114,6 +125,11 @@ class _SymptomInputScreenState extends State<SymptomInputScreen> {
           IconButton(
             icon: const Icon(Icons.check),
             onPressed: () async {
+              if (!_isInitialized) {
+                // Show loading or wait
+                return;
+              }
+
               final entry = SymptomEntryModel(
                   id: DateTime.now().millisecondsSinceEpoch.toString(),
                   userId: '1',
@@ -132,8 +148,7 @@ class _SymptomInputScreenState extends State<SymptomInputScreen> {
                   updatedAt: DateTime.now());
 
               try {
-                await LocalSymptomRepository(AppDatabase())
-                    .addSymptomEntry(entry);
+                await _symptomRepository.addSymptomEntry(entry);
                 if (mounted) {
                   Navigator.pop(context);
                 }

@@ -30,12 +30,21 @@ class _MedicationSelectionDialogState extends State<MedicationSelectionDialog> {
   String searchQuery = '';
   String selectedCategory = 'All';
   late LocalMedicationRepository _medicationRepository;
+  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
     tempSelectedMedications = Set.from(widget.selectedMedications);
-    _medicationRepository = LocalMedicationRepository(AppDatabase());
+    _initRepository();
+  }
+
+  Future<void> _initRepository() async {
+    final db = await DBProvider.instance.database;
+    _medicationRepository = LocalMedicationRepository(db);
+    setState(() {
+      _isInitialized = true;
+    });
     _loadPreloadedMedications();
     _loadUserMedications();
   }
@@ -55,6 +64,8 @@ class _MedicationSelectionDialogState extends State<MedicationSelectionDialog> {
   }
 
   Future<void> _loadUserMedications() async {
+    if (!_isInitialized) return;
+
     try {
       final medications =
           await _medicationRepository.getUserMedications(widget.userId);

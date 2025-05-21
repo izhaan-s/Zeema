@@ -17,18 +17,25 @@ class _SymptomTrackingScreenState extends State<SymptomTrackingScreen> {
   late final LocalSymptomRepository _symptomRepository;
   final String userId = '1'; // TODO: Replace with actual user ID
   List<SymptomEntryModel> _symptoms = [];
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _symptomRepository = LocalSymptomRepository(AppDatabase());
-    _loadSymptoms();
+    _initDependencies();
+  }
+
+  Future<void> _initDependencies() async {
+    final db = await DBProvider.instance.database;
+    _symptomRepository = LocalSymptomRepository(db);
+    await _loadSymptoms();
   }
 
   Future<void> _loadSymptoms() async {
     final symptoms = await _symptomRepository.getSymptomEntries(userId);
     setState(() {
       _symptoms = symptoms;
+      _isLoading = false;
     });
   }
 

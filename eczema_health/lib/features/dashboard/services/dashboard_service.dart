@@ -82,9 +82,14 @@ class DashboardService {
             })
         .toList();
 
-    // Get flare clusters from the cloud API
-    final clusters = await _cloudRepo.getFlareClusters(formatted);
-    final symptomMatrix = await _cloudRepo.getSymptomMatrix(formatted);
+    // Get flare clusters and symptom matrix from the cloud API
+    List<FlareCluster> clusters = [];
+    List<Map<String, double>> symptomMatrix = [];
+
+    if (!entries.isEmpty) {
+      clusters = await _cloudRepo.getFlareClusters(formatted);
+      symptomMatrix = await _cloudRepo.getSymptomMatrix(formatted);
+    }
 
     // Create severity data points
     final severityData = entries

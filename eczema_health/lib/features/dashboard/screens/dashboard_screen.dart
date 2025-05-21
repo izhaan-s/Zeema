@@ -199,10 +199,38 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                     const SizedBox(height: 8),
                     Expanded(
-                      child: FlareClusterChart(
-                        severityData: dashboardData.severityData,
-                        flares: dashboardData.flares,
-                      ),
+                      child: dashboardData.severityData.isEmpty
+                          ? Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.bar_chart,
+                                      size: 50, color: Colors.grey[300]),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    'No symptom data yet',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Add your first symptom entry to see your data',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey[500],
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
+                            )
+                          : FlareClusterChart(
+                              severityData: dashboardData.severityData,
+                              flares: dashboardData.flares,
+                            ),
                     ),
                   ],
                 ),
@@ -222,11 +250,39 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                     const SizedBox(height: 8),
                     Expanded(
-                      child: SymptomMatrixChart(
-                        matrixData: (dashboardData.symptomMatrix as List)
-                            .map((e) => Map<String, double>.from(e))
-                            .toList(),
-                      ),
+                      child: dashboardData.symptomMatrix.isEmpty
+                          ? Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.bubble_chart,
+                                      size: 50, color: Colors.grey[300]),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    'No correlation data yet',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Add multiple symptom entries to see correlations',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey[500],
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
+                            )
+                          : SymptomMatrixChart(
+                              matrixData: (dashboardData.symptomMatrix as List)
+                                  .map((e) => Map<String, double>.from(e))
+                                  .toList(),
+                            ),
                     ),
                   ],
                 ),

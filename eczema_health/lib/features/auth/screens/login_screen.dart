@@ -54,7 +54,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   );
 
                   if (response.user != null) {
-                    // Navigate to home screen
+                    // Show success message
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Login successful!')),
+                    );
+                    // Pop all routes so AuthGate can show MainScreen
+                    Future.delayed(const Duration(milliseconds: 500), () {
+                      Navigator.of(context).popUntil((route) => route.isFirst);
+                    });
                   } else {
                     showDialog(
                       context: context,

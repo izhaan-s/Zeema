@@ -10,6 +10,7 @@ import 'package:eczema_health/features/dashboard/widgets/flare_cluster_chart.dar
 import 'package:eczema_health/features/dashboard/widgets/symptom_matrix_chart.dart';
 import 'package:eczema_health/features/symptom_tracking/widgets/flare_up_card.dart';
 import 'package:eczema_health/data/models/analysis_models.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -60,7 +61,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<void> _fetchData() async {
     // Use a fixed user ID for now - this would come from authentication in a real app
-    await _provider.loadDashboardData('1');
+    await _provider
+        .loadDashboardData(Supabase.instance.client.auth.currentUser?.id ?? "");
   }
 
   @override

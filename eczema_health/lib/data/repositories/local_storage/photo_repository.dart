@@ -112,10 +112,12 @@ class PhotoRepository {
     return path.join(photosDir.path, fileName);
   }
 
-  Future<List<Map<String, String>>> getPhotos() async {
+  Future<List<Map<String, String>>> getPhotos(String userId) async {
     await _verifyPhotoSchema();
 
-    final result = await _db.select(_db.photos).get();
+    final result = await (_db.select(_db.photos)
+          ..where((tbl) => tbl.userId.equals(userId)))
+        .get();
     return result
         .map((photo) => {
               'id': photo.id,

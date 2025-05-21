@@ -5,6 +5,7 @@ import 'package:eczema_health/data/repositories/local_storage/symptom_repository
 import 'package:eczema_health/data/local/app_database.dart';
 import 'package:eczema_health/data/models/symptom_entry_model.dart';
 import '../widgets/sympom_entries.dart' as symptom_widgets;
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SymptomTrackingScreen extends StatefulWidget {
   const SymptomTrackingScreen({super.key});
@@ -15,7 +16,7 @@ class SymptomTrackingScreen extends StatefulWidget {
 
 class _SymptomTrackingScreenState extends State<SymptomTrackingScreen> {
   late final LocalSymptomRepository _symptomRepository;
-  final String userId = '1'; // TODO: Replace with actual user ID
+  final String userId = Supabase.instance.client.auth.currentUser?.id ?? "";
   List<SymptomEntryModel> _symptoms = [];
   bool _isLoading = true;
 

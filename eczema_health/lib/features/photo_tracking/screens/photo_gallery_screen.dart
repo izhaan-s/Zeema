@@ -6,6 +6,7 @@ import '../../../data/repositories/local_storage/photo_repository.dart';
 import '../../../data/local/app_database.dart';
 import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PhotoGalleryScreen extends StatefulWidget {
   const PhotoGalleryScreen({super.key});
@@ -58,7 +59,8 @@ class _PhotoGalleryScreenState extends State<PhotoGalleryScreen> {
 
   Future<void> _loadPhotos() async {
     try {
-      final photos = await photoRepository.getPhotos();
+      final userId = Supabase.instance.client.auth.currentUser?.id ?? "";
+      final photos = await photoRepository.getPhotos(userId);
       setState(() {
         _photos = photos;
         _isLoading = false;

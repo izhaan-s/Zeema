@@ -6,6 +6,7 @@ import '../../../data/repositories/local_storage/symptom_repository.dart';
 import '../widgets/medication_selection_dialog.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SymptomInputScreen extends StatefulWidget {
   const SymptomInputScreen({super.key});
@@ -102,7 +103,7 @@ class _SymptomInputScreenState extends State<SymptomInputScreen> {
             selectedMedications.addAll(medications);
           });
         },
-        userId: '1',
+        userId: Supabase.instance.client.auth.currentUser?.id ?? "",
       ),
     );
   }
@@ -132,7 +133,7 @@ class _SymptomInputScreenState extends State<SymptomInputScreen> {
 
               final entry = SymptomEntryModel(
                   id: DateTime.now().millisecondsSinceEpoch.toString(),
-                  userId: '1',
+                  userId: Supabase.instance.client.auth.currentUser?.id ?? "",
                   date: selectedDate,
                   isFlareup: intensity >= 4,
                   severity: intensity.toInt().toString(),

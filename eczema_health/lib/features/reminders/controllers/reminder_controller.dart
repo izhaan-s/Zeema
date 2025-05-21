@@ -4,6 +4,7 @@ import '../../../data/repositories/local_storage/reminder_repository.dart';
 import '../../../data/local/app_database.dart';
 import '../services/reminder_notification_manager.dart';
 import '../services/notification_service.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ReminderController extends ChangeNotifier {
   late final ReminderRepository _repository;
@@ -37,7 +38,13 @@ class ReminderController extends ChangeNotifier {
         hasPermission = await NotificationService.requestPermission();
       }
 
-      final userId = '1'; // TODO: Replace with actual user ID
+      final userId = Supabase.instance.client.auth.currentUser?.id;
+      if (userId == null) {
+        _reminders = [];
+        _isLoading = false;
+        notifyListeners();
+        return;
+      }
       final localReminders = await _repository.getReminders(userId);
       _reminders = localReminders
           .map((r) => ReminderModel(
@@ -84,9 +91,13 @@ class ReminderController extends ChangeNotifier {
     await _ensureInitialized();
     try {
       final now = DateTime.now();
+      final userId = Supabase.instance.client.auth.currentUser?.id;
+      if (userId == null) {
+        throw Exception('User not logged in');
+      }
       final model = ReminderModel(
         id: now.millisecondsSinceEpoch.toString(),
-        userId: '1', // Replace with actual user ID
+        userId: userId,
         title: title,
         description: description,
         reminderType: null,

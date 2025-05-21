@@ -19,7 +19,7 @@ class ReminderRepository {
   }) async {
     try {
       final userId = _supabase.auth.currentUser?.id ??
-          "b5dddb02-ce34-4098-a20e-ebb6ea6e634d"; // HARD CODED FOR NOW fix ts later :skull:
+          ""; // HARD CODED FOR NOW fix ts later :skull:
       final now = DateTime.now();
 
       final uuid = Uuid();
@@ -70,7 +70,7 @@ class ReminderRepository {
   Future<List<ReminderModel>> getReminders() async {
     try {
       final userId = _supabase.auth.currentUser?.id ??
-          'b5dddb02-ce34-4098-a20e-ebb6ea6e634d'; // again cookie movie hard coded FIX LATER
+          ''; // again cookie movie hard coded FIX LATER
 
       final data = await _supabase
           .from('reminders')

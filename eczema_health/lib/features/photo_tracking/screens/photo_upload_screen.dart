@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 // import 'package:eczema_health/data/repositories/cloud/photo_repository.dart';
 import 'package:eczema_health/data/repositories/local_storage/photo_repository.dart';
 import 'package:eczema_health/data/local/app_database.dart';
@@ -107,8 +108,7 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
     });
 
     try {
-      // Use a temporary userId for now - in a real app, get from auth service
-      const userId = '1';
+      final userId = Supabase.instance.client.auth.currentUser?.id ?? "";
 
       await localPhotoRepository.savePhoto(
         userId,

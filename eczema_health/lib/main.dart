@@ -94,10 +94,32 @@ class EczemaHealthApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
           useMaterial3: true,
         ),
-        home: const MainScreen(),
+        home: AuthGate(),
         // Keep onGenerateRoute for auth and deep links
         onGenerateRoute: AppRouter.generateRoute,
       ),
+    );
+  }
+}
+
+class AuthGate extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<AuthState>(
+      stream: Supabase.instance.client.auth.onAuthStateChange,
+      builder: (context, snapshot) {
+        final session = Supabase.instance.client.auth.currentSession;
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+        if (session != null && session.user != null) {
+          return const MainScreen();
+        } else {
+          return const LoginScreen();
+        }
+      },
     );
   }
 }

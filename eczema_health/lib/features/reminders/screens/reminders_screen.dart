@@ -5,7 +5,6 @@ import '../controllers/reminder_controller.dart';
 import '../../../data/models/reminder_model.dart';
 import '../widgets/reminder_section_card.dart';
 import '../widgets/empty_reminders_view.dart';
-import '../widgets/custom_reminder_card.dart';
 
 class RemindersScreen extends StatefulWidget {
   const RemindersScreen({super.key});
@@ -17,16 +16,6 @@ class RemindersScreen extends StatefulWidget {
 class _RemindersScreenState extends State<RemindersScreen> {
   late final ReminderController _controller;
 
-  static const List<String> daysOfWeek = [
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-    'Sunday'
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -36,7 +25,8 @@ class _RemindersScreenState extends State<RemindersScreen> {
 
   String frequencyLabel(ReminderModel reminder) {
     final days = reminder.repeatDays;
-    final activeDays = days.where((d) => d == 'true' || d == true).length;
+    final activeDays =
+        days.where((d) => d == 'true' || (d is bool && d == true)).length;
     if (activeDays == 7) {
       return 'Daily';
     } else if (activeDays == 1) {

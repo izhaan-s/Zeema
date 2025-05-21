@@ -47,28 +47,28 @@ class NotificationController {
   @pragma("vm:entry-point")
   static Future<void> onNotificationCreatedMethod(
       ReceivedNotification receivedNotification) async {
-    debugPrint('Notification created: ${receivedNotification.id}');
+    // Notification created
   }
 
   /// method to detect every time a new notification is displayed
   @pragma("vm:entry-point")
   static Future<void> onNotificationDisplayedMethod(
       ReceivedNotification receivedNotification) async {
-    debugPrint('Notification displayed: ${receivedNotification.id}');
+    // Notification displayed
   }
 
   /// method to detect if the user dismissed a notification
   @pragma("vm:entry-point")
   static Future<void> onDismissActionReceivedMethod(
       ReceivedAction receivedAction) async {
-    debugPrint('Notification dismissed: ${receivedAction.id}');
+    // Notification dismissed
   }
 
   /// method to detect when the user taps on a notification or action button
   @pragma("vm:entry-point")
   static Future<void> onActionReceivedMethod(
       ReceivedAction receivedAction) async {
-    debugPrint('Notification action received: ${receivedAction.id}');
+    // Notification action received
 
     // Navigate to reminders screen when a notification is tapped
     if (navigatorKey.currentContext != null) {

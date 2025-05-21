@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import '../../../data/models/reminder_model.dart';
 import 'notification_service.dart';
 
@@ -21,13 +20,9 @@ class ReminderNotificationManager {
       final String body = reminder.description ??
           'Time for your ${reminder.reminderType?.toLowerCase() ?? 'reminder'}';
 
-      debugPrint(
-          'Attempting to schedule notification #$notificationId for "${reminder.title}" at ${notificationTime.toString()}');
-
       // Check notification permission before scheduling
       final bool hasPermission = await NotificationService.checkPermissions();
       if (!hasPermission) {
-        debugPrint('Cannot schedule notification - permission denied');
         return;
       }
 
@@ -37,11 +32,8 @@ class ReminderNotificationManager {
         body: body,
         utcTime: notificationTime.toUtc(),
       );
-
-      debugPrint(
-          'Successfully scheduled notification #$notificationId for "${reminder.title}" at ${notificationTime.toString()}');
     } catch (e) {
-      debugPrint('Error scheduling notification: $e');
+      // Error scheduling notification
     }
   }
 
@@ -50,10 +42,8 @@ class ReminderNotificationManager {
     try {
       final int notificationId = reminder.id.hashCode;
       await NotificationService.cancel(notificationId);
-      debugPrint(
-          'Cancelled notification #$notificationId for "${reminder.title}"');
     } catch (e) {
-      debugPrint('Error cancelling notification: $e');
+      // Error cancelling notification
     }
   }
 
@@ -67,25 +57,19 @@ class ReminderNotificationManager {
       // Check notification permission
       final bool hasPermission = await NotificationService.checkPermissions();
       if (!hasPermission) {
-        debugPrint('Cannot schedule notifications - permission denied');
         final granted = await NotificationService.requestPermission();
         if (!granted) {
-          debugPrint('User denied notification permission');
           return;
         }
       }
 
-      int scheduledCount = 0;
       for (final reminder in reminders) {
         if (reminder.isActive) {
           await scheduleReminderNotification(reminder);
-          scheduledCount++;
         }
       }
-      debugPrint(
-          'Scheduled notifications for $scheduledCount active reminders (out of ${reminders.length} total)');
     } catch (e) {
-      debugPrint('Error scheduling all reminders: $e');
+      // Error scheduling all reminders
     }
   }
 
@@ -106,7 +90,7 @@ class ReminderNotificationManager {
 
       // If it's a daily reminder and today's time hasn't passed yet, use today
       final List<bool> activeDays = reminder.repeatDays
-          .map((day) => day == 'true' || day == true)
+          .map((day) => day == 'true' || (day is bool && day == true))
           .toList();
 
       // Check if all days are active (daily reminder)
@@ -163,7 +147,6 @@ class ReminderNotificationManager {
           ? reminderTime
           : reminderTime.add(const Duration(days: 1));
     } catch (e) {
-      debugPrint('Error calculating next occurrence: $e');
       // Return a safe fallback - 1 day from now
       return DateTime.now().add(const Duration(days: 1));
     }

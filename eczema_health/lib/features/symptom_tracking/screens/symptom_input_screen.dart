@@ -44,20 +44,15 @@ class _SymptomInputScreenState extends State<SymptomInputScreen> {
     try {
       final String jsonString =
           await rootBundle.loadString('assets/preloaded_medications.json');
-      print('Raw JSON string: $jsonString');
 
       final dynamic decodedJson = json.decode(jsonString);
-      print('Decoded JSON type: ${decodedJson.runtimeType}');
 
       if (decodedJson is List) {
         final List<dynamic> medications = decodedJson;
-        print('Number of medications: ${medications.length}');
 
         final Map<String, String> names = {};
         for (var med in medications) {
-          print('Medication type: ${med.runtimeType}');
           if (med is Map) {
-            print('Medication data: $med');
             if (med.containsKey('id') && med.containsKey('name')) {
               names[med['id'].toString()] = med['name'].toString();
             }
@@ -67,12 +62,9 @@ class _SymptomInputScreenState extends State<SymptomInputScreen> {
         setState(() {
           medicationNames = names;
         });
-      } else {
-        print('Error: Expected List but got ${decodedJson.runtimeType}');
       }
-    } catch (e, stackTrace) {
-      print('Error loading preloaded medications: $e');
-      print('Stack trace: $stackTrace');
+    } catch (e) {
+      // Error loading medications
     }
   }
 
@@ -142,9 +134,11 @@ class _SymptomInputScreenState extends State<SymptomInputScreen> {
               try {
                 await LocalSymptomRepository(AppDatabase())
                     .addSymptomEntry(entry);
-                Navigator.pop(context);
+                if (mounted) {
+                  Navigator.pop(context);
+                }
               } catch (e) {
-                print(e);
+                // Entry save error
               }
             },
           ),

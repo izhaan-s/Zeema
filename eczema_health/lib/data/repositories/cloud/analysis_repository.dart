@@ -19,7 +19,6 @@ class AnalysisRepository {
   Future<List<FlareCluster>> getFlareClusters(
       List<Map<String, dynamic>> symptomEntries) async {
     final body = jsonEncode(symptomEntries);
-    print('Request body for flare clusters: $body'); // Debug print
 
     final response = await http.post(
       Uri.parse('$baseUrl/flare/clusters'),
@@ -31,8 +30,6 @@ class AnalysisRepository {
       final List<dynamic> jsonList = jsonDecode(response.body);
       return jsonList.map((e) => FlareCluster.fromJson(e)).toList();
     } else {
-      print(
-          'Error response from flare clusters: ${response.body}'); // Debug print
       throw Exception('Failed to get flare clusters: ${response.body}');
     }
   }
@@ -41,7 +38,6 @@ class AnalysisRepository {
   Future<Tuple<List<int>, List<String>, double, double>> getFlareGaps(
       List<Map<String, dynamic>> symptomEntries) async {
     final body = jsonEncode(symptomEntries);
-    print('Request body for flare gaps: $body'); // Debug print
 
     final response = await http.post(
       Uri.parse('$baseUrl/flare/gaps'),
@@ -53,7 +49,6 @@ class AnalysisRepository {
       final List<dynamic> jsonList = jsonDecode(response.body);
       return Tuple(jsonList[0], jsonList[1], jsonList[2], jsonList[3]);
     } else {
-      print('Error response from flare gaps: ${response.body}'); // Debug print
       throw Exception('Failed to get flare clusters: ${response.body}');
     }
   }
@@ -62,7 +57,6 @@ class AnalysisRepository {
   Future<Map<String, int>> getFlarePreflare(
       List<Map<String, dynamic>> symptomEntries) async {
     final body = jsonEncode(symptomEntries);
-    print('Request body for flare preflare: $body'); // Debug print
 
     final response = await http.post(
       Uri.parse('$baseUrl/flare/preflare'),
@@ -74,8 +68,6 @@ class AnalysisRepository {
       final Map<String, dynamic> jsonMap = jsonDecode(response.body);
       return jsonMap.map((key, value) => MapEntry(key, value as int));
     } else {
-      print(
-          'Error response from flare preflare: ${response.body}'); // Debug print
       throw Exception('Failed to get flare preflare: ${response.body}');
     }
   }
@@ -84,7 +76,6 @@ class AnalysisRepository {
   Future<List<Map<String, double>>> getSymptomMatrix(
       List<Map<String, dynamic>> symptomEntries) async {
     final body = jsonEncode(symptomEntries);
-    print('Request body for symptom matrix: $body'); // Debug print
 
     final response = await http.post(
       Uri.parse('$baseUrl/symptom/matrix'),
@@ -96,8 +87,6 @@ class AnalysisRepository {
       final List<dynamic> jsonList = jsonDecode(response.body);
       return jsonList.map((e) => Map<String, double>.from(e)).toList();
     } else {
-      print(
-          'Error response from symptom matrix: ${response.body}'); // Debug print
       throw Exception('Failed to get symptom matrix: ${response.body}');
     }
   }
@@ -109,7 +98,6 @@ class AnalysisRepository {
       'entries': symptomEntries,
       'medication': medication,
     });
-    print('Request body for symptom impact: $body'); // Debug print
 
     final response = await http.post(
       Uri.parse('$baseUrl/symptom/impact'),
@@ -122,8 +110,6 @@ class AnalysisRepository {
       return jsonMap
           .map((key, value) => MapEntry(int.parse(key), value as double));
     } else {
-      print(
-          'Error response from symptom impact: ${response.body}'); // Debug print
       throw Exception('Failed to get symptom impact: ${response.body}');
     }
   }

@@ -23,25 +23,19 @@ class ReminderController extends ChangeNotifier {
       // Check notification permissions first
       bool hasPermission = await NotificationService.checkPermissions();
       if (!hasPermission) {
-        debugPrint('Notifications permission not granted, requesting...');
         hasPermission = await NotificationService.requestPermission();
-        debugPrint('Notification permission granted: $hasPermission');
       }
 
       _reminders = await _repository.getReminders();
-      debugPrint('Loaded ${_reminders.length} reminders from repository');
 
       // Schedule notifications for all loaded reminders
       if (hasPermission) {
         await ReminderNotificationManager.scheduleAllReminders(_reminders);
-        // Print active notifications for debugging
+        // Check active notifications
         await NotificationService.printActiveNotifications();
-      } else {
-        debugPrint(
-            'Skipping notification scheduling due to lack of permissions');
       }
     } catch (e) {
-      debugPrint('Error loading reminders: $e');
+      // Error loading reminders
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -75,7 +69,6 @@ class ReminderController extends ChangeNotifier {
             reminder);
         await NotificationService.printActiveNotifications();
       } else {
-        debugPrint('Cannot schedule notification - permission denied');
         bool requested = await NotificationService.requestPermission();
         if (requested) {
           await ReminderNotificationManager.scheduleReminderNotification(
@@ -85,7 +78,6 @@ class ReminderController extends ChangeNotifier {
 
       return reminder;
     } catch (e) {
-      debugPrint('Error creating reminder: $e');
       rethrow;
     }
   }
@@ -104,10 +96,9 @@ class ReminderController extends ChangeNotifier {
       await ReminderNotificationManager.cancelReminderNotification(
           reminderToDelete);
 
-      // Debug: print remaining notifications
+      // Check remaining notifications
       await NotificationService.printActiveNotifications();
     } catch (e) {
-      debugPrint('Error deleting reminder: $e');
       rethrow;
     }
   }
@@ -131,16 +122,14 @@ class ReminderController extends ChangeNotifier {
             await ReminderNotificationManager.cancelReminderNotification(
                 updatedReminder);
           }
-          // Debug: print active notifications after toggle
+          // Check active notifications after toggle
           await NotificationService.printActiveNotifications();
         } else if (isActive) {
           // If trying to activate, request permission
-          debugPrint('Requesting notification permission for toggled reminder');
           await NotificationService.requestPermission();
         }
       }
     } catch (e) {
-      debugPrint('Error toggling reminder status: $e');
       rethrow;
     }
   }

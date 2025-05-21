@@ -26,7 +26,6 @@ class PhotoRepository {
           )
           .get();
 
-      print('Photos table columns: $result');
       bool hasDateColumn = false;
 
       for (var column in result) {
@@ -39,7 +38,6 @@ class PhotoRepository {
 
       if (!hasDateColumn) {
         // Try to add the column
-        print('Adding date column to photos table');
         await _db.customStatement(
           'ALTER TABLE photos ADD COLUMN date INTEGER',
         );
@@ -47,7 +45,7 @@ class PhotoRepository {
 
       _schemaVerified = true;
     } catch (e) {
-      print('Error verifying schema: $e');
+      // Error verifying schema
     }
   }
 
@@ -72,8 +70,6 @@ class PhotoRepository {
         updatedAt: DateTime.now(),
       );
 
-      print('Trying to insert photo with: id=${photo.id}, date=${photo.date}');
-
       // Use a simpler approach with named parameters for clarity
       final companion = PhotosCompanion.insert(
         id: photo.id,
@@ -87,12 +83,8 @@ class PhotoRepository {
         updatedAt: photo.updatedAt,
       );
 
-      print('Photo companion created: $companion');
       await _db.into(_db.photos).insert(companion);
-      print('Photo saved successfully');
-    } catch (e, stackTrace) {
-      print('Error saving photo: $e');
-      print('Stack trace: $stackTrace');
+    } catch (e) {
       rethrow;
     }
   }

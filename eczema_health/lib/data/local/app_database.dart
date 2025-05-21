@@ -179,21 +179,19 @@ class AppDatabase extends _$AppDatabase {
           }
         },
         beforeOpen: (details) async {
-          // Print table info for debugging
+          // Table info tracking
           if (details.wasCreated) {
-            print(
-                'Database was created with schema version ${details.versionNow}');
+            // Database created with schema version ${details.versionNow}
           } else {
-            print(
-                'Database was opened with schema version ${details.versionNow}');
+            // Database opened with schema version ${details.versionNow}
           }
 
           // Validate Photos table schema
           try {
             await customStatement('PRAGMA table_info(photos)');
-            print('Photos table exists');
+            // Photos table exists
           } catch (e) {
-            print('Error checking Photos table: $e');
+            // Error checking Photos table
           }
         },
       );
@@ -211,23 +209,15 @@ Future<void> _handleDatabaseRecreation() async {
       final dbFile = File(p.join(dbFolder.path, 'db.sqlite'));
       if (await dbFile.exists()) {
         await dbFile.delete();
-        print('Database file deleted for schema upgrade');
+        // Database file deleted for schema upgrade
       }
 
       // Save the new version
       await prefs.setInt('db_version', 2);
     } catch (e) {
-      print('Error during database recreation: $e');
+      // Error during database recreation
     }
   }
-}
-
-LazyDatabase _openConnection() {
-  return LazyDatabase(() async {
-    final dbFolder = await getApplicationDocumentsDirectory();
-    final file = File(p.join(dbFolder.path, 'app.sqlite'));
-    return NativeDatabase(file);
-  });
 }
 
 // Add this singleton pattern

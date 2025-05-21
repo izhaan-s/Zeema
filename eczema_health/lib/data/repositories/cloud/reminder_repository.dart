@@ -63,10 +63,6 @@ class ReminderRepository {
 
       return ReminderModel.fromMap(data);
     } catch (e) {
-      print("Error in ReminderRepository.createReminder: $e");
-      if (e is FormatException) {
-        print("Format exception details: ${e.source}");
-      }
       rethrow;
     }
   }
@@ -82,22 +78,17 @@ class ReminderRepository {
           .eq('user_id', userId)
           .order('time');
 
-      print("Reminders retrieved: ${data.length}");
-      print(data);
-
       return (data as List)
           .map((item) {
             try {
               return ReminderModel.fromMap(item);
             } catch (e) {
-              print("Error parsing reminder: $e");
               return null;
             }
           })
           .whereType<ReminderModel>()
           .toList();
     } catch (e) {
-      print("Error in ReminderRepository.getReminders: $e");
       rethrow;
     }
   }
@@ -111,11 +102,11 @@ class ReminderRepository {
         // Check if the reminder is active and scheduled for today
         return reminder.isActive &&
             reminder.repeatDays.length > today &&
-            (reminder.repeatDays[today] == true ||
-                reminder.repeatDays[today] == 1);
+            (reminder.repeatDays[today] == 'true' ||
+                (reminder.repeatDays[today] is bool &&
+                    reminder.repeatDays[today] == 'true'));
       }).toList();
     } catch (e) {
-      print("Error in ReminderRepository.getTodayReminders: $e");
       rethrow;
     }
   }
@@ -124,7 +115,6 @@ class ReminderRepository {
     try {
       await _supabase.from('reminders').delete().eq('id', id);
     } catch (e) {
-      print("Error in ReminderRepository.deleteReminder: $e");
       rethrow;
     }
   }
@@ -135,7 +125,6 @@ class ReminderRepository {
           .from('reminders')
           .update({'is_active': isActive}).eq('id', id);
     } catch (e) {
-      print("Error in ReminderRepository.updateReminderStatus: $e");
       rethrow;
     }
   }

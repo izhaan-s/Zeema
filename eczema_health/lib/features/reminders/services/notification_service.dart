@@ -34,8 +34,6 @@ class NotificationService {
 
     // Request notification permissions
     await requestPermission();
-
-    debugPrint('Notification service initialized');
   }
 
   /// Request permission to show notifications
@@ -76,10 +74,8 @@ class NotificationService {
           allowWhileIdle: true,
         ),
       );
-
-      debugPrint('Scheduled notification: $title for ${utcTime.toString()}');
     } catch (e) {
-      debugPrint('Error scheduling notification: $e');
+      // Error scheduling notification
     }
   }
 
@@ -90,7 +86,7 @@ class NotificationService {
           await AwesomeNotifications().listScheduledNotifications();
       return activeNotifications;
     } catch (e) {
-      debugPrint('Error getting active notifications: $e');
+      // Error getting active notifications
       return [];
     }
   }
@@ -99,9 +95,8 @@ class NotificationService {
   static Future<void> cancel(int id) async {
     try {
       await AwesomeNotifications().cancel(id);
-      debugPrint('Cancelled notification #$id');
     } catch (e) {
-      debugPrint('Error cancelling notification #$id: $e');
+      // Error cancelling notification
     }
   }
 
@@ -109,24 +104,18 @@ class NotificationService {
   static Future<void> cancelAll() async {
     try {
       await AwesomeNotifications().cancelAll();
-      debugPrint('Cancelled all notifications');
     } catch (e) {
-      debugPrint('Error cancelling all notifications: $e');
+      // Error cancelling all notifications
     }
   }
 
   /// Debug function to print all active notifications
   static Future<void> printActiveNotifications() async {
     try {
-      final notifications = await getActiveNotifications();
-      debugPrint('Active notifications: ${notifications.length}');
-      for (var notification in notifications) {
-        debugPrint('ID: ${notification.content?.id}, '
-            'Title: ${notification.content?.title}, '
-            'Scheduled: ${notification.schedule?.toMap()}');
-      }
+      await getActiveNotifications();
+      // Notifications information no longer needed
     } catch (e) {
-      debugPrint('Error printing active notifications: $e');
+      // Error with active notifications
     }
   }
 }

@@ -1,4 +1,3 @@
-import 'package:eczema_health/main.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../models/photo_entry_model.dart';
 import 'package:uuid/uuid.dart';
@@ -35,7 +34,7 @@ class PhotoRepository {
       final fileName = '$userId/$date/$uuid$fileExt';
 
       // Upload here to storage bucket
-      await supabase.storage.from(_bucketName).upload(fileName, photoFile);
+      await _supabase.storage.from(_bucketName).upload(fileName, photoFile);
 
       // Creates secure URL which is valid for 1 hour
       final imageURL = await _supabase.storage
@@ -64,7 +63,6 @@ class PhotoRepository {
 
       return PhotoEntryModel.fromMap(data);
     } catch (e) {
-      print("Error in PhotoRepository.uploadPhoto: $e");
       rethrow;
     }
   }

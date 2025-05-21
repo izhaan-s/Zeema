@@ -5,7 +5,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:eczema_health/data/repositories/local_storage/photo_repository.dart';
 import 'package:eczema_health/data/local/app_database.dart';
 import '../widgets/body_part_selector.dart';
-import '../widgets/image_picker_section.dart';
 import '../widgets/notes_input.dart';
 
 class PhotoUploadScreen extends StatefulWidget {
@@ -319,7 +318,7 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
               style: OutlinedButton.styleFrom(
                 side: BorderSide(
                     color:
-                        Theme.of(context).colorScheme.outline.withOpacity(0.5)),
+                        Theme.of(context).colorScheme.outline.withAlpha(128)),
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8)),

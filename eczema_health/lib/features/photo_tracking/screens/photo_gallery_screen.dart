@@ -65,7 +65,6 @@ class _PhotoGalleryScreenState extends State<PhotoGalleryScreen> {
         _isLoading = false;
       });
     } catch (e) {
-      print('Error loading photos: $e');
       setState(() {
         _isLoading = false;
       });

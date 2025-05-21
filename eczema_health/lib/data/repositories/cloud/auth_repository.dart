@@ -37,10 +37,6 @@ class AuthRepository {
         password: password,
       );
 
-      // Debug information
-      print("Sign up response received: ${response.toString()}");
-      print("User: ${response.user?.toJson()}");
-
       // Don't throw an exception if session is null - for email confirmation,
       // session will be null until email is verified, but user should exist
       if (response.user == null) {
@@ -49,7 +45,6 @@ class AuthRepository {
 
       return response;
     } catch (e) {
-      print("Error in AuthRepository.signUpUser: $e");
       // Re-throw with more context
       throw Exception("Sign up failed: ${e.toString()}");
     }

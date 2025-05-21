@@ -55,8 +55,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   if (response.user != null) {
                     // Navigate to home screen
-                    print('Logged in user: ${response.user?.email}');
-                    print('User ID: ${response.user?.id}');
                   } else {
                     showDialog(
                       context: context,

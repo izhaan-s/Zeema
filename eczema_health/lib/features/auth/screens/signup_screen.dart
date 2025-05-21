@@ -75,20 +75,14 @@ class _SignupScreenState extends State<SignupScreen> {
             ),
             ElevatedButton(
               onPressed: () async {
-                print("Sign up button pressed");
                 final authRepository = AuthRepository();
                 try {
-                  print(
-                      "Attempting to sign up user with email: ${emailController.text}");
                   final response = await authRepository.signUpUser(
                     email: emailController.text,
                     password: passwordController.text,
                   );
 
                   // Debug what we got back
-                  print("Raw response data: ${response.toString()}");
-                  print("User exists: ${response.user != null}");
-                  print("Session exists: ${response.session != null}");
 
                   // For email confirmation flow, the session might be null until verified
                   // but we should still have a user object
@@ -111,8 +105,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   }
                 } catch (e, stackTrace) {
                   // Print both error and stack trace for better debugging
-                  print("Error during signup: $e");
-                  print("Stack trace: $stackTrace");
+
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text("Signup failed: $e")),
                   );

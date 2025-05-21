@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../../data/repositories/cloud/photo_repository.dart';
+// import 'package:eczema_health/data/repositories/cloud/photo_repository.dart';
+import 'package:eczema_health/data/repositories/local_storage/photo_repository.dart';
+import 'package:eczema_health/data/local/app_database.dart';
 import '../widgets/body_part_selector.dart';
 import '../widgets/image_picker_section.dart';
 import '../widgets/notes_input.dart';
@@ -15,12 +17,27 @@ class PhotoUploadScreen extends StatefulWidget {
 
 class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
   final ImagePicker _picker = ImagePicker();
-  late final PhotoRepository photoRepository = PhotoRepository();
+  // late final PhotoRepository photoRepository = PhotoRepository();
+  late PhotoRepository localPhotoRepository;
   File? _selectedImage;
   bool _isPickingImage = false;
+  bool _isSaving = false;
   String? _selectedBodyPart;
   final _notesController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    _initRepository();
+  }
+
+  Future<void> _initRepository() async {
+    final db = await DBProvider.instance.database;
+    setState(() {
+      localPhotoRepository = PhotoRepository(db);
+    });
+  }
 
   final List<String> bodyParts = [
     'Face',
@@ -67,7 +84,7 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
     });
   }
 
-  void _submitPhoto() {
+  void _submitPhoto() async {
     if (_selectedImage == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -85,17 +102,46 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
       return;
     }
 
-    print('Uploading photo...');
-    print('Image: ${_selectedImage!.path}');
-    print('Body Part: $_selectedBodyPart');
-    print('Notes: ${_notesController.text}');
+    // Set saving state to show loading indicator
+    setState(() {
+      _isSaving = true;
+    });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-          content: Text('Photo submitted (simulated)'),
-          backgroundColor: Colors.green),
-    );
-    Navigator.of(context).pop();
+    try {
+      // Use a temporary userId for now - in a real app, get from auth service
+      const userId = '1';
+
+      await localPhotoRepository.savePhoto(
+        userId,
+        _selectedBodyPart!.toLowerCase(),
+        _selectedImage!.path,
+        DateTime.now(),
+        _notesController.text.isEmpty ? null : _notesController.text,
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Photo saved successfully'),
+              backgroundColor: Colors.green),
+        );
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text('Failed to save photo: ${e.toString()}'),
+              backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSaving = false;
+        });
+      }
+    }
   }
 
   @override
@@ -111,15 +157,22 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
           if (_selectedImage != null && _selectedBodyPart != null)
             Padding(
               padding: const EdgeInsets.only(right: 8.0),
-              child: TextButton(
-                onPressed: _submitPhoto,
-                style: TextButton.styleFrom(
-                    foregroundColor: Theme.of(context).colorScheme.primary,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8))),
-                child: const Text('SAVE',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-              ),
+              child: _isSaving
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : TextButton(
+                      onPressed: _submitPhoto,
+                      style: TextButton.styleFrom(
+                          foregroundColor:
+                              Theme.of(context).colorScheme.primary,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8))),
+                      child: const Text('SAVE',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
             ),
         ],
       ),

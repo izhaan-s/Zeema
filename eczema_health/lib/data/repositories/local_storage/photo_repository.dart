@@ -113,4 +113,18 @@ class PhotoRepository {
 
     return path.join(photosDir.path, fileName);
   }
+
+  Future<List<Map<String, String>>> getPhotos() async {
+    await _verifyPhotoSchema();
+
+    final result = await _db.select(_db.photos).get();
+    return result
+        .map((photo) => {
+              'id': photo.id,
+              'image': photo.imageUrl,
+              'date': photo.date.toString(),
+              'bodyPart': photo.bodyPart,
+            })
+        .toList();
+  }
 }

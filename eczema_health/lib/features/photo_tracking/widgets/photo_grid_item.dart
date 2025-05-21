@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
 
 class PhotoGridItem extends StatelessWidget {
   final Map<String, String> photo;
@@ -26,17 +27,7 @@ class PhotoGridItem extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
               child: Container(
                 color: Colors.grey[200],
-                child: FadeInImage.assetNetwork(
-                  placeholder: 'assets/images/placeholder.png',
-                  image: photo['image']!,
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                  height: double.infinity,
-                  fadeInDuration: const Duration(milliseconds: 300),
-                  imageErrorBuilder: (context, error, stackTrace) =>
-                      Image.asset('assets/images/placeholder.png',
-                          fit: BoxFit.cover),
-                ),
+                child: _buildImage(),
               ),
             ),
             Positioned(
@@ -58,7 +49,7 @@ class PhotoGridItem extends StatelessWidget {
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                 child: Text(
-                  photo['date']!,
+                  photo['date'] ?? 'Unknown date',
                   style: const TextStyle(
                       color: Colors.white,
                       fontSize: 12,
@@ -72,5 +63,33 @@ class PhotoGridItem extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildImage() {
+    final imagePath = photo['image'];
+
+    if (imagePath == null) {
+      return Image.asset('assets/images/placeholder.png', fit: BoxFit.cover);
+    }
+
+    if (imagePath.startsWith('assets')) {
+      return Image.asset(
+        imagePath,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+        errorBuilder: (context, error, stackTrace) =>
+            Image.asset('assets/images/placeholder.png', fit: BoxFit.cover),
+      );
+    } else {
+      return Image.file(
+        File(imagePath),
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+        errorBuilder: (context, error, stackTrace) =>
+            Image.asset('assets/images/placeholder.png', fit: BoxFit.cover),
+      );
+    }
   }
 }

@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import '../../../navigation/app_router.dart';
 import '../widgets/album_list_item.dart';
 import '../widgets/photo_grid_item.dart';
+import '../../../data/repositories/local_storage/photo_repository.dart';
+import '../../../data/local/app_database.dart';
+import 'dart:io';
 
 class PhotoGalleryScreen extends StatefulWidget {
   const PhotoGalleryScreen({super.key});
@@ -11,17 +14,47 @@ class PhotoGalleryScreen extends StatefulWidget {
 }
 
 class _PhotoGalleryScreenState extends State<PhotoGalleryScreen> {
-  final List<Map<String, String>> _photos = List.generate(
-    12,
-    (i) => {
-      'image': 'assets/images/placeholder.png',
-      'date': '2024-06-${(i % 30 + 1).toString().padLeft(2, '0')}',
-      'bodyPart': ['Face', 'Arms', 'Legs', 'Hands', 'Feet'][i % 5],
-    },
-  );
+  late PhotoRepository photoRepository;
+  List<Map<String, String>> _photos = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _initRepository();
+  }
+
+  Future<void> _initRepository() async {
+    final db = await DBProvider.instance.database;
+    photoRepository = PhotoRepository(db);
+    await _loadPhotos();
+  }
+
+  Future<void> _loadPhotos() async {
+    try {
+      final photos = await photoRepository.getPhotos();
+      setState(() {
+        _photos = photos;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error loading photos: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     final Map<String, List<Map<String, String>>> albums = {};
     for (var photo in _photos) {
       final part = photo['bodyPart'] ?? 'Other';
@@ -41,8 +74,10 @@ class _PhotoGalleryScreenState extends State<PhotoGalleryScreen> {
         elevation: 0,
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pushNamed(context, AppRouter.photoUpload);
+        onPressed: () async {
+          await Navigator.pushNamed(context, AppRouter.photoUpload);
+          // Refresh photos when returning from upload screen
+          _loadPhotos();
         },
         backgroundColor: Theme.of(context).colorScheme.primary,
         child: const Icon(Icons.add_a_photo, color: Colors.white),
@@ -175,7 +210,7 @@ class AlbumGridView extends StatelessWidget {
 
 class FullScreenPhotoView extends StatelessWidget {
   final Map<String, String> photo;
-  final String heroTag; // Added heroTag
+  final String heroTag;
   const FullScreenPhotoView(
       {super.key, required this.photo, required this.heroTag});
 
@@ -193,13 +228,22 @@ class FullScreenPhotoView extends StatelessWidget {
         child: Center(
           child: Hero(
             tag: heroTag,
-            child: Image.asset(
-              photo['image']!,
-              fit: BoxFit.contain,
-              errorBuilder: (context, error, stackTrace) => const Center(
-                  child: Text('Could not load image',
-                      style: TextStyle(color: Colors.white))),
-            ),
+            child: photo['image'] != null &&
+                    photo['image']!.startsWith('assets')
+                ? Image.asset(
+                    photo['image']!,
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) => const Center(
+                        child: Text('Could not load image',
+                            style: TextStyle(color: Colors.white))),
+                  )
+                : Image.file(
+                    File(photo['image']!),
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) => const Center(
+                        child: Text('Could not load image',
+                            style: TextStyle(color: Colors.white))),
+                  ),
           ),
         ),
       ),

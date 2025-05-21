@@ -91,34 +91,62 @@ class _FlareClusterChartState extends State<FlareClusterChart> {
     final maxX = lastDate.millisecondsSinceEpoch.toDouble();
 
     final clampedValue = value.clamp(minX, maxX);
-
-    const style = TextStyle(
-      fontWeight: FontWeight.w600, // Slightly less bold
-      fontSize: 9.5, // Further reduced for more space
-      color: Colors.black87,
-    );
-
     final date = DateTime.fromMillisecondsSinceEpoch(clampedValue.toInt());
     final dateRangeDays = lastDate.difference(firstDate).inDays;
 
-    String text = '';
+    // Check if single day data point
+    final bool isSingleDay = dateRangeDays == 0;
 
-    if (dateRangeDays > 90) {
-      text = DateFormat('MMM').format(date);
-    } else if (dateRangeDays > 30) {
-      // Breakpoint for d MMM
-      text = DateFormat('d MMM').format(date);
-    } else if (dateRangeDays > 7) {
-      // Week view
-      text = DateFormat('E d').format(date);
-    } else {
-      // Very short range, show day or specific format
-      text = DateFormat('d').format(date);
+    // For single day, only show the exact date
+    if (isSingleDay &&
+        (date.day != firstDate.day || date.month != firstDate.month)) {
+      return const SizedBox.shrink();
     }
+
+    // For date ranges, reduce number of labels
+    if (!isSingleDay) {
+      // Show fewer labels based on range:
+      // For short ranges (< 30 days): show 1st, 10th, 20th of month or first day of data
+      // For medium ranges (< 90 days): show 1st of each month
+      // For long ranges (> 90 days): show 1st of each month or quarter start
+
+      // Only show label if:
+      bool shouldShowLabel = false;
+
+      if (date.day == firstDate.day && date.month == firstDate.month) {
+        // Always show first date
+        shouldShowLabel = true;
+      } else if (date.day == lastDate.day && date.month == lastDate.month) {
+        // Always show last date
+        shouldShowLabel = true;
+      } else if (dateRangeDays <= 30) {
+        // For shorter ranges, show every 5th day
+        shouldShowLabel = date.day % 5 == 0;
+      } else if (dateRangeDays <= 90) {
+        // For medium ranges, show 1st and 15th
+        shouldShowLabel = date.day == 1 || date.day == 15;
+      } else {
+        // For long ranges, just show 1st of month
+        shouldShowLabel = date.day == 1;
+      }
+
+      if (!shouldShowLabel) {
+        return const SizedBox.shrink();
+      }
+    }
+
+    const style = TextStyle(
+      fontWeight: FontWeight.w600,
+      fontSize: 9.5,
+      color: Colors.black87,
+    );
+
+    // Use this consistent format for all cases
+    final String text = DateFormat('d MMM').format(date);
 
     return SideTitleWidget(
       meta: meta,
-      space: 4.0, // Reduced space for tighter packing if needed
+      space: 4.0,
       child: Text(text, style: style),
     );
   }

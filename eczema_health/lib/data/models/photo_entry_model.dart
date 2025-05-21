@@ -4,9 +4,10 @@ class PhotoEntryModel {
   final String imageUrl;
   final String bodyPart;
   final int itchIntensity;
-  final List<String>? notes;
+  final String? notes;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final DateTime date;
 
   PhotoEntryModel({
     required this.id,
@@ -15,6 +16,7 @@ class PhotoEntryModel {
     required this.bodyPart,
     required this.itchIntensity,
     this.notes,
+    required this.date,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -26,7 +28,8 @@ class PhotoEntryModel {
       imageUrl: map['image_url'] as String,
       bodyPart: map['body_part'] as String,
       itchIntensity: map['itch_intensity'] as int,
-      notes: map['notes'] != null ? List<String>.from(map['notes']) : null,
+      notes: map['notes'] != null ? map['notes'] as String : null,
+      date: DateTime.parse(map['date'] as String),
       createdAt: DateTime.parse(map['created_at'] as String),
       updatedAt: DateTime.parse(map['updated_at'] as String),
     );
@@ -39,6 +42,7 @@ class PhotoEntryModel {
       'image_url': imageUrl,
       'body_part': bodyPart,
       'itch_intensity': itchIntensity,
+      'date': date.toIso8601String(),
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
     };

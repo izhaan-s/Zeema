@@ -1,21 +1,32 @@
 import 'package:flutter/material.dart';
 import '../../../data/models/reminder_model.dart';
-import '../../../data/repositories/cloud/reminder_repository.dart';
+import '../../../data/repositories/local_storage/reminder_repository.dart';
+import '../../../data/local/app_database.dart';
 import '../services/reminder_notification_manager.dart';
 import '../services/notification_service.dart';
 
 class ReminderController extends ChangeNotifier {
-  final ReminderRepository _repository;
+  late final ReminderRepository _repository;
   List<ReminderModel> _reminders = [];
   bool _isLoading = false;
+  bool _isInitialized = false;
 
-  ReminderController({ReminderRepository? repository})
-      : _repository = repository ?? ReminderRepository();
+  ReminderController() {
+    _initLocalRepository();
+  }
 
   List<ReminderModel> get reminders => _reminders;
   bool get isLoading => _isLoading;
 
+  Future<void> _initLocalRepository() async {
+    final db = await DBProvider.instance.database;
+    _repository = ReminderRepository(db);
+    _isInitialized = true;
+    await loadReminders();
+  }
+
   Future<void> loadReminders() async {
+    if (!_isInitialized) return;
     _isLoading = true;
     notifyListeners();
 
@@ -26,7 +37,22 @@ class ReminderController extends ChangeNotifier {
         hasPermission = await NotificationService.requestPermission();
       }
 
-      _reminders = await _repository.getReminders();
+      final userId = '1'; // TODO: Replace with actual user ID
+      final localReminders = await _repository.getReminders(userId);
+      _reminders = localReminders
+          .map((r) => ReminderModel(
+                id: r.id,
+                userId: r.userId,
+                title: r.title,
+                description: r.description,
+                reminderType: r.reminderType,
+                dateTime: r.time,
+                repeatDays: r.repeatDays.split(','),
+                isActive: r.isActive,
+                createdAt: r.createdAt,
+                updatedAt: r.updatedAt,
+              ))
+          .toList();
 
       // Schedule notifications for all loaded reminders
       if (hasPermission) {
@@ -42,6 +68,12 @@ class ReminderController extends ChangeNotifier {
     }
   }
 
+  Future<void> _ensureInitialized() async {
+    while (!_isInitialized) {
+      await Future.delayed(const Duration(milliseconds: 10));
+    }
+  }
+
   Future<ReminderModel?> createReminder({
     required String title,
     String? description,
@@ -49,48 +81,40 @@ class ReminderController extends ChangeNotifier {
     required List<bool> repeatDays,
     String? dosage,
   }) async {
+    await _ensureInitialized();
     try {
-      final reminder = await _repository.createReminder(
+      final now = DateTime.now();
+      final model = ReminderModel(
+        id: now.millisecondsSinceEpoch.toString(),
+        userId: '1', // Replace with actual user ID
         title: title,
         description: description,
-        time: time,
-        repeatDays: repeatDays,
-        dosage: dosage,
+        reminderType: null,
+        dateTime:
+            DateTime(now.year, now.month, now.day, time.hour, time.minute),
+        repeatDays: repeatDays.map((b) => b.toString()).toList(),
+        isActive: true,
+        createdAt: now,
+        updatedAt: now,
       );
-
-      _reminders.add(reminder);
-      notifyListeners();
-
-      // Check permissions before scheduling
-      bool hasPermission = await NotificationService.checkPermissions();
-      if (hasPermission) {
-        // Schedule notification for the new reminder
-        await ReminderNotificationManager.scheduleReminderNotification(
-            reminder);
-        await NotificationService.printActiveNotifications();
-      } else {
-        bool requested = await NotificationService.requestPermission();
-        if (requested) {
-          await ReminderNotificationManager.scheduleReminderNotification(
-              reminder);
-        }
-      }
-
-      return reminder;
+      await _repository.createReminder(model);
+      await loadReminders(); // Refresh list
+      return model;
     } catch (e) {
       rethrow;
     }
   }
 
   Future<void> deleteReminder(String id) async {
+    await _ensureInitialized();
     try {
       // Find reminder before deleting to cancel its notification
       final reminderToDelete =
           _reminders.firstWhere((reminder) => reminder.id == id);
 
-      await _repository.deleteReminder(id);
-      _reminders.removeWhere((reminder) => reminder.id == id);
-      notifyListeners();
+      // await _repository.deleteReminder(id);
+      // _reminders.removeWhere((reminder) => reminder.id == id);
+      // notifyListeners();
 
       // Cancel notification for deleted reminder
       await ReminderNotificationManager.cancelReminderNotification(
@@ -104,8 +128,9 @@ class ReminderController extends ChangeNotifier {
   }
 
   Future<void> toggleReminderStatus(String id, bool isActive) async {
+    await _ensureInitialized();
     try {
-      await _repository.updateReminderStatus(id, isActive);
+      // await _repository.updateReminderStatus(id, isActive);
       final index = _reminders.indexWhere((reminder) => reminder.id == id);
       if (index != -1) {
         final updatedReminder = _reminders[index].copyWith(isActive: isActive);

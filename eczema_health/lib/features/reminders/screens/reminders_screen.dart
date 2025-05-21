@@ -20,7 +20,6 @@ class _RemindersScreenState extends State<RemindersScreen> {
   void initState() {
     super.initState();
     _controller = ReminderController();
-    _controller.loadReminders();
   }
 
   String frequencyLabel(ReminderModel reminder) {

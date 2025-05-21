@@ -1,7 +1,12 @@
 import '../../../data/models/reminder_model.dart';
 import 'notification_service.dart';
+import '../../../data/repositories/local_storage/reminder_repository.dart';
 
 class ReminderNotificationManager {
+  final ReminderRepository _repository;
+
+  ReminderNotificationManager(this._repository);
+
   // Schedule a notification for a single reminder
   static Future<void> scheduleReminderNotification(
       ReminderModel reminder) async {

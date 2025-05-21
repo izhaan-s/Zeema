@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
 
 class AlbumListItem extends StatelessWidget {
   final String albumName;
@@ -22,7 +23,7 @@ class AlbumListItem extends StatelessWidget {
         elevation: 4,
         shadowColor: Colors.black.withOpacity(0.1),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.5),
+        color: Colors.white,
         child: Row(
           children: [
             Hero(
@@ -41,18 +42,7 @@ class AlbumListItem extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius:
                       const BorderRadius.horizontal(left: Radius.circular(20)),
-                  child: Image.asset(
-                    coverPhotoUrl,
-                    width: 80,
-                    height: 80,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => Container(
-                        width: 80,
-                        height: 80,
-                        color: Colors.grey[300],
-                        child: Icon(Icons.hide_image_outlined,
-                            color: Colors.grey[500])),
-                  ),
+                  child: _buildCoverImage(),
                 ),
               ),
             ),
@@ -104,5 +94,47 @@ class AlbumListItem extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildCoverImage() {
+    if (coverPhotoUrl.startsWith('assets/images/placeholder.png')) {
+      // Custom placeholder design
+      return Container(
+        width: 80,
+        height: 80,
+        color: Colors.grey[100],
+        child: Center(
+          child: Icon(
+            Icons.hide_image_rounded,
+            size: 36,
+            color: Colors.grey[400],
+          ),
+        ),
+      );
+    } else if (coverPhotoUrl.startsWith('assets')) {
+      return Image.asset(
+        coverPhotoUrl,
+        width: 80,
+        height: 80,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => Container(
+            width: 80,
+            height: 80,
+            color: Colors.grey[300],
+            child: Icon(Icons.hide_image_outlined, color: Colors.grey[500])),
+      );
+    } else {
+      return Image.file(
+        File(coverPhotoUrl),
+        width: 80,
+        height: 80,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => Container(
+            width: 80,
+            height: 80,
+            color: Colors.grey[300],
+            child: Icon(Icons.hide_image_outlined, color: Colors.grey[500])),
+      );
+    }
   }
 }

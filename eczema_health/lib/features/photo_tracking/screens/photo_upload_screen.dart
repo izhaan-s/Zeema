@@ -113,7 +113,7 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
 
       await localPhotoRepository.savePhoto(
         userId,
-        _selectedBodyPart!.toLowerCase(),
+        _selectedBodyPart!,
         _selectedImage!.path,
         DateTime.now(),
         _notesController.text.isEmpty ? null : _notesController.text,

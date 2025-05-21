@@ -5,6 +5,7 @@ import '../widgets/photo_grid_item.dart';
 import '../../../data/repositories/local_storage/photo_repository.dart';
 import '../../../data/local/app_database.dart';
 import 'dart:io';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PhotoGalleryScreen extends StatefulWidget {
   const PhotoGalleryScreen({super.key});
@@ -17,11 +18,37 @@ class _PhotoGalleryScreenState extends State<PhotoGalleryScreen> {
   late PhotoRepository photoRepository;
   List<Map<String, String>> _photos = [];
   bool _isLoading = true;
+  bool _useRecentPhotoAsThumbnail = true;
+
+  // Helper method to capitalise first letter of each word
+  String capitalizeBodyPart(String text) {
+    if (text.isEmpty) return text;
+
+    return text.split(' ').map((word) {
+      if (word.isEmpty) return word;
+      return word[0].toUpperCase() + word.substring(1);
+    }).join(' ');
+  }
 
   @override
   void initState() {
     super.initState();
+    _loadPreferences();
     _initRepository();
+  }
+
+  Future<void> _loadPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _useRecentPhotoAsThumbnail =
+          prefs.getBool('use_recent_photo_thumbnail') ?? true;
+    });
+  }
+
+  Future<void> _savePreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(
+        'use_recent_photo_thumbnail', _useRecentPhotoAsThumbnail);
   }
 
   Future<void> _initRepository() async {
@@ -42,6 +69,25 @@ class _PhotoGalleryScreenState extends State<PhotoGalleryScreen> {
       setState(() {
         _isLoading = false;
       });
+    }
+  }
+
+  // Get the cover photo for an album based on preference
+  Map<String, String> _getCoverPhoto(List<Map<String, String>> photos) {
+    if (photos.isEmpty) return {'image': 'assets/images/placeholder.png'};
+
+    if (_useRecentPhotoAsThumbnail) {
+      // Sort photos by date and get the most recent
+      final sorted = List<Map<String, String>>.from(photos);
+      sorted.sort((a, b) {
+        final dateA = DateTime.tryParse(a['date'] ?? '') ?? DateTime(1900);
+        final dateB = DateTime.tryParse(b['date'] ?? '') ?? DateTime(1900);
+        return dateB.compareTo(dateA); // Most recent first
+      });
+      return sorted.first;
+    } else {
+      // Use a placeholder when toggle is off
+      return {'image': 'assets/images/placeholder.png'};
     }
   }
 
@@ -84,54 +130,92 @@ class _PhotoGalleryScreenState extends State<PhotoGalleryScreen> {
       ),
       body: _photos.isEmpty
           ? _buildEmptyPlaceholder()
-          : ListView.separated(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-              itemCount: albums.length + 1, // +1 for "All Photos"
-              separatorBuilder: (_, __) => const SizedBox(height: 18),
-              itemBuilder: (context, index) {
-                if (index == 0) {
-                  // "All Photos" item
-                  return AlbumListItem(
-                    albumName: 'All Photos',
-                    coverPhotoUrl: _photos.isNotEmpty
-                        ? _photos.first['image']!
-                        : 'assets/images/placeholder.png',
-                    photoCount: _photos.length,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => AlbumGridView(
-                            albumName: 'All Photos',
-                            photos: _photos,
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                }
-                // Regular album items
-                final albumIndex = index - 1;
-                final bodyPart = albumKeys[albumIndex];
-                final photosInAlbum = albums[bodyPart]!;
-                final coverPhoto = photosInAlbum.first;
-                return AlbumListItem(
-                  albumName: bodyPart,
-                  coverPhotoUrl: coverPhoto['image']!,
-                  photoCount: photosInAlbum.length,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => AlbumGridView(
-                          albumName: bodyPart,
-                          photos: photosInAlbum,
+          : Column(
+              children: [
+                // Toggle for recent photo as thumbnail
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0, vertical: 10.0),
+                  child: Row(
+                    children: [
+                      Text(
+                        'Show photos on album covers',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey[700],
                         ),
                       ),
-                    );
-                  },
-                );
-              },
+                      const Spacer(),
+                      Switch(
+                        value: _useRecentPhotoAsThumbnail,
+                        onChanged: (value) {
+                          setState(() {
+                            _useRecentPhotoAsThumbnail = value;
+                          });
+                          _savePreferences();
+                        },
+                        activeColor: Theme.of(context).colorScheme.primary,
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: ListView.separated(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 10),
+                    itemCount: albums.length + 1, // +1 for "All Photos"
+                    separatorBuilder: (_, __) => const SizedBox(height: 18),
+                    itemBuilder: (context, index) {
+                      if (index == 0) {
+                        // "All Photos" item
+                        final coverPhoto = _photos.isNotEmpty
+                            ? _getCoverPhoto(_photos)['image']!
+                            : 'assets/images/placeholder.png';
+
+                        return AlbumListItem(
+                          albumName: 'All Photos',
+                          coverPhotoUrl: coverPhoto,
+                          photoCount: _photos.length,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => AlbumGridView(
+                                  albumName: 'All Photos',
+                                  photos: _photos,
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      }
+                      // Regular album items
+                      final albumIndex = index - 1;
+                      final bodyPart = albumKeys[albumIndex];
+                      final photosInAlbum = albums[bodyPart]!;
+                      final coverPhoto = _getCoverPhoto(photosInAlbum);
+
+                      return AlbumListItem(
+                        albumName: capitalizeBodyPart(bodyPart),
+                        coverPhotoUrl: coverPhoto['image']!,
+                        photoCount: photosInAlbum.length,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => AlbumGridView(
+                                albumName: capitalizeBodyPart(bodyPart),
+                                photos: photosInAlbum,
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
     );
   }
@@ -171,6 +255,10 @@ class AlbumGridView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(albumName),
+        backgroundColor: Colors.white,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
       ),
       body: Padding(
         padding: const EdgeInsets.all(12.0),

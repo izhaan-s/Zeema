@@ -20,7 +20,7 @@ class PhotoRepository {
     required File photoFile,
     required String bodyPart,
     required int itchIntensity,
-    List<String>? notes,
+    String? notes,
   }) async {
     try {
       final userId = _supabase.auth.currentUser?.id;
@@ -51,6 +51,7 @@ class PhotoRepository {
         bodyPart: bodyPart,
         itchIntensity: itchIntensity,
         notes: notes,
+        date: date,
         createdAt: now,
         updatedAt: now,
       );

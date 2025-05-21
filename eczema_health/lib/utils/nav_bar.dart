@@ -32,7 +32,7 @@ class BottomNav extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 80,
-      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
       margin: const EdgeInsets.fromLTRB(8, 0, 8, 24),
       decoration: BoxDecoration(
         color: Theme.of(context)

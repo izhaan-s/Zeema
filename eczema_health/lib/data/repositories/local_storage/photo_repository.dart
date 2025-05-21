@@ -3,40 +3,114 @@ import 'package:path/path.dart' as path;
 import 'dart:io';
 import 'package:drift/drift.dart';
 import 'package:eczema_health/data/models/photo_entry_model.dart';
+import 'package:path_provider/path_provider.dart';
+
 // Folder structure:
 // photos/{userId}_{bodyPart}.jpg
 
 class PhotoRepository {
   final AppDatabase _db;
-  final String _photosPath = 'photos';
+  final String _photosFolder = 'photos';
+  bool _schemaVerified = false;
 
   PhotoRepository(this._db);
 
+  Future<void> _verifyPhotoSchema() async {
+    if (_schemaVerified) return;
+
+    try {
+      // Check for date column
+      final result = await _db
+          .customSelect(
+            'PRAGMA table_info(photos)',
+          )
+          .get();
+
+      print('Photos table columns: $result');
+      bool hasDateColumn = false;
+
+      for (var column in result) {
+        final columnName = column.data['name'] as String?;
+        if (columnName == 'date') {
+          hasDateColumn = true;
+          break;
+        }
+      }
+
+      if (!hasDateColumn) {
+        // Try to add the column
+        print('Adding date column to photos table');
+        await _db.customStatement(
+          'ALTER TABLE photos ADD COLUMN date INTEGER',
+        );
+      }
+
+      _schemaVerified = true;
+    } catch (e) {
+      print('Error verifying schema: $e');
+    }
+  }
+
   Future<void> savePhoto(String userId, String bodyPart, String imagePath,
       DateTime date, String? notes) async {
-    final photoPath = await _getPhotoPath(userId, bodyPart);
-    await File(imagePath).copy(photoPath);
+    try {
+      // Verify schema before attempting insert
+      await _verifyPhotoSchema();
 
-    PhotoEntryModel photo = PhotoEntryModel(
-      id: path.basenameWithoutExtension(photoPath),
-      userId: userId,
-      imageUrl: photoPath,
-      bodyPart: bodyPart,
-      itchIntensity: 0,
-      notes: notes,
-      date: date,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    );
+      final photoPath = await _getPhotoPath(userId, bodyPart);
+      await File(imagePath).copy(photoPath);
 
-    await _db.into(_db.photoEntries).insert(photo);
+      PhotoEntryModel photo = PhotoEntryModel(
+        id: path.basenameWithoutExtension(photoPath),
+        userId: userId,
+        imageUrl: photoPath,
+        bodyPart: bodyPart,
+        itchIntensity: 0,
+        notes: notes,
+        date: date,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+
+      print('Trying to insert photo with: id=${photo.id}, date=${photo.date}');
+
+      // Use a simpler approach with named parameters for clarity
+      final companion = PhotosCompanion.insert(
+        id: photo.id,
+        userId: photo.userId,
+        imageUrl: photo.imageUrl,
+        bodyPart: photo.bodyPart,
+        itchIntensity: Value(photo.itchIntensity),
+        notes: Value(photo.notes),
+        date: date,
+        createdAt: photo.createdAt,
+        updatedAt: photo.updatedAt,
+      );
+
+      print('Photo companion created: $companion');
+      await _db.into(_db.photos).insert(companion);
+      print('Photo saved successfully');
+    } catch (e, stackTrace) {
+      print('Error saving photo: $e');
+      print('Stack trace: $stackTrace');
+      rethrow;
+    }
   }
 
   Future<String> _getPhotoPath(String userId, String bodyPart) async {
-    final dir = Directory(_photosPath);
-    if (!await dir.exists()) {
-      await dir.create(recursive: true);
+    // Get the application documents directory
+    final appDocDir = await getApplicationDocumentsDirectory();
+    final photosDir = Directory('${appDocDir.path}/$_photosFolder');
+
+    // Create the photos directory if it doesn't exist
+    if (!await photosDir.exists()) {
+      await photosDir.create(recursive: true);
     }
-    return path.join(_photosPath, '${userId}_$bodyPart.jpg');
+
+    // Create a unique filename
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    final fileName = '${userId}_${bodyPart}_$timestamp.jpg';
+
+    return path.join(photosDir.path, fileName);
   }
 }

@@ -1804,13 +1804,18 @@ class $PhotosTable extends Photos with TableInfo<$PhotosTable, Photo> {
       const VerificationMeta('itchIntensity');
   @override
   late final GeneratedColumn<int> itchIntensity = GeneratedColumn<int>(
-      'itch_intensity', aliasedName, false,
-      type: DriftSqlType.int, requiredDuringInsert: true);
+      'itch_intensity', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
   static const VerificationMeta _notesMeta = const VerificationMeta('notes');
   @override
   late final GeneratedColumn<String> notes = GeneratedColumn<String>(
       'notes', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _dateMeta = const VerificationMeta('date');
+  @override
+  late final GeneratedColumn<DateTime> date = GeneratedColumn<DateTime>(
+      'date', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
   static const VerificationMeta _createdAtMeta =
       const VerificationMeta('createdAt');
   @override
@@ -1831,6 +1836,7 @@ class $PhotosTable extends Photos with TableInfo<$PhotosTable, Photo> {
         bodyPart,
         itchIntensity,
         notes,
+        date,
         createdAt,
         updatedAt
       ];
@@ -1872,12 +1878,16 @@ class $PhotosTable extends Photos with TableInfo<$PhotosTable, Photo> {
           _itchIntensityMeta,
           itchIntensity.isAcceptableOrUnknown(
               data['itch_intensity']!, _itchIntensityMeta));
-    } else if (isInserting) {
-      context.missing(_itchIntensityMeta);
     }
     if (data.containsKey('notes')) {
       context.handle(
           _notesMeta, notes.isAcceptableOrUnknown(data['notes']!, _notesMeta));
+    }
+    if (data.containsKey('date')) {
+      context.handle(
+          _dateMeta, date.isAcceptableOrUnknown(data['date']!, _dateMeta));
+    } else if (isInserting) {
+      context.missing(_dateMeta);
     }
     if (data.containsKey('created_at')) {
       context.handle(_createdAtMeta,
@@ -1909,9 +1919,11 @@ class $PhotosTable extends Photos with TableInfo<$PhotosTable, Photo> {
       bodyPart: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}body_part'])!,
       itchIntensity: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}itch_intensity'])!,
+          .read(DriftSqlType.int, data['${effectivePrefix}itch_intensity']),
       notes: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}notes']),
+      date: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}date'])!,
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
       updatedAt: attachedDatabase.typeMapping
@@ -1930,8 +1942,9 @@ class Photo extends DataClass implements Insertable<Photo> {
   final String userId;
   final String imageUrl;
   final String bodyPart;
-  final int itchIntensity;
+  final int? itchIntensity;
   final String? notes;
+  final DateTime date;
   final DateTime createdAt;
   final DateTime updatedAt;
   const Photo(
@@ -1939,8 +1952,9 @@ class Photo extends DataClass implements Insertable<Photo> {
       required this.userId,
       required this.imageUrl,
       required this.bodyPart,
-      required this.itchIntensity,
+      this.itchIntensity,
       this.notes,
+      required this.date,
       required this.createdAt,
       required this.updatedAt});
   @override
@@ -1950,10 +1964,13 @@ class Photo extends DataClass implements Insertable<Photo> {
     map['user_id'] = Variable<String>(userId);
     map['image_url'] = Variable<String>(imageUrl);
     map['body_part'] = Variable<String>(bodyPart);
-    map['itch_intensity'] = Variable<int>(itchIntensity);
+    if (!nullToAbsent || itchIntensity != null) {
+      map['itch_intensity'] = Variable<int>(itchIntensity);
+    }
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
     }
+    map['date'] = Variable<DateTime>(date);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
@@ -1965,9 +1982,12 @@ class Photo extends DataClass implements Insertable<Photo> {
       userId: Value(userId),
       imageUrl: Value(imageUrl),
       bodyPart: Value(bodyPart),
-      itchIntensity: Value(itchIntensity),
+      itchIntensity: itchIntensity == null && nullToAbsent
+          ? const Value.absent()
+          : Value(itchIntensity),
       notes:
           notes == null && nullToAbsent ? const Value.absent() : Value(notes),
+      date: Value(date),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -1981,8 +2001,9 @@ class Photo extends DataClass implements Insertable<Photo> {
       userId: serializer.fromJson<String>(json['userId']),
       imageUrl: serializer.fromJson<String>(json['imageUrl']),
       bodyPart: serializer.fromJson<String>(json['bodyPart']),
-      itchIntensity: serializer.fromJson<int>(json['itchIntensity']),
+      itchIntensity: serializer.fromJson<int?>(json['itchIntensity']),
       notes: serializer.fromJson<String?>(json['notes']),
+      date: serializer.fromJson<DateTime>(json['date']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -1995,8 +2016,9 @@ class Photo extends DataClass implements Insertable<Photo> {
       'userId': serializer.toJson<String>(userId),
       'imageUrl': serializer.toJson<String>(imageUrl),
       'bodyPart': serializer.toJson<String>(bodyPart),
-      'itchIntensity': serializer.toJson<int>(itchIntensity),
+      'itchIntensity': serializer.toJson<int?>(itchIntensity),
       'notes': serializer.toJson<String?>(notes),
+      'date': serializer.toJson<DateTime>(date),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
@@ -2007,8 +2029,9 @@ class Photo extends DataClass implements Insertable<Photo> {
           String? userId,
           String? imageUrl,
           String? bodyPart,
-          int? itchIntensity,
+          Value<int?> itchIntensity = const Value.absent(),
           Value<String?> notes = const Value.absent(),
+          DateTime? date,
           DateTime? createdAt,
           DateTime? updatedAt}) =>
       Photo(
@@ -2016,8 +2039,10 @@ class Photo extends DataClass implements Insertable<Photo> {
         userId: userId ?? this.userId,
         imageUrl: imageUrl ?? this.imageUrl,
         bodyPart: bodyPart ?? this.bodyPart,
-        itchIntensity: itchIntensity ?? this.itchIntensity,
+        itchIntensity:
+            itchIntensity.present ? itchIntensity.value : this.itchIntensity,
         notes: notes.present ? notes.value : this.notes,
+        date: date ?? this.date,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
       );
@@ -2031,6 +2056,7 @@ class Photo extends DataClass implements Insertable<Photo> {
           ? data.itchIntensity.value
           : this.itchIntensity,
       notes: data.notes.present ? data.notes.value : this.notes,
+      date: data.date.present ? data.date.value : this.date,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -2045,6 +2071,7 @@ class Photo extends DataClass implements Insertable<Photo> {
           ..write('bodyPart: $bodyPart, ')
           ..write('itchIntensity: $itchIntensity, ')
           ..write('notes: $notes, ')
+          ..write('date: $date, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -2053,7 +2080,7 @@ class Photo extends DataClass implements Insertable<Photo> {
 
   @override
   int get hashCode => Object.hash(id, userId, imageUrl, bodyPart, itchIntensity,
-      notes, createdAt, updatedAt);
+      notes, date, createdAt, updatedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2064,6 +2091,7 @@ class Photo extends DataClass implements Insertable<Photo> {
           other.bodyPart == this.bodyPart &&
           other.itchIntensity == this.itchIntensity &&
           other.notes == this.notes &&
+          other.date == this.date &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -2073,8 +2101,9 @@ class PhotosCompanion extends UpdateCompanion<Photo> {
   final Value<String> userId;
   final Value<String> imageUrl;
   final Value<String> bodyPart;
-  final Value<int> itchIntensity;
+  final Value<int?> itchIntensity;
   final Value<String?> notes;
+  final Value<DateTime> date;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<int> rowid;
@@ -2085,6 +2114,7 @@ class PhotosCompanion extends UpdateCompanion<Photo> {
     this.bodyPart = const Value.absent(),
     this.itchIntensity = const Value.absent(),
     this.notes = const Value.absent(),
+    this.date = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -2094,8 +2124,9 @@ class PhotosCompanion extends UpdateCompanion<Photo> {
     required String userId,
     required String imageUrl,
     required String bodyPart,
-    required int itchIntensity,
+    this.itchIntensity = const Value.absent(),
     this.notes = const Value.absent(),
+    required DateTime date,
     required DateTime createdAt,
     required DateTime updatedAt,
     this.rowid = const Value.absent(),
@@ -2103,7 +2134,7 @@ class PhotosCompanion extends UpdateCompanion<Photo> {
         userId = Value(userId),
         imageUrl = Value(imageUrl),
         bodyPart = Value(bodyPart),
-        itchIntensity = Value(itchIntensity),
+        date = Value(date),
         createdAt = Value(createdAt),
         updatedAt = Value(updatedAt);
   static Insertable<Photo> custom({
@@ -2113,6 +2144,7 @@ class PhotosCompanion extends UpdateCompanion<Photo> {
     Expression<String>? bodyPart,
     Expression<int>? itchIntensity,
     Expression<String>? notes,
+    Expression<DateTime>? date,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<int>? rowid,
@@ -2124,6 +2156,7 @@ class PhotosCompanion extends UpdateCompanion<Photo> {
       if (bodyPart != null) 'body_part': bodyPart,
       if (itchIntensity != null) 'itch_intensity': itchIntensity,
       if (notes != null) 'notes': notes,
+      if (date != null) 'date': date,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
@@ -2135,8 +2168,9 @@ class PhotosCompanion extends UpdateCompanion<Photo> {
       Value<String>? userId,
       Value<String>? imageUrl,
       Value<String>? bodyPart,
-      Value<int>? itchIntensity,
+      Value<int?>? itchIntensity,
       Value<String?>? notes,
+      Value<DateTime>? date,
       Value<DateTime>? createdAt,
       Value<DateTime>? updatedAt,
       Value<int>? rowid}) {
@@ -2147,6 +2181,7 @@ class PhotosCompanion extends UpdateCompanion<Photo> {
       bodyPart: bodyPart ?? this.bodyPart,
       itchIntensity: itchIntensity ?? this.itchIntensity,
       notes: notes ?? this.notes,
+      date: date ?? this.date,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
@@ -2174,6 +2209,9 @@ class PhotosCompanion extends UpdateCompanion<Photo> {
     if (notes.present) {
       map['notes'] = Variable<String>(notes.value);
     }
+    if (date.present) {
+      map['date'] = Variable<DateTime>(date.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -2195,6 +2233,7 @@ class PhotosCompanion extends UpdateCompanion<Photo> {
           ..write('bodyPart: $bodyPart, ')
           ..write('itchIntensity: $itchIntensity, ')
           ..write('notes: $notes, ')
+          ..write('date: $date, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
@@ -5815,8 +5854,9 @@ typedef $$PhotosTableCreateCompanionBuilder = PhotosCompanion Function({
   required String userId,
   required String imageUrl,
   required String bodyPart,
-  required int itchIntensity,
+  Value<int?> itchIntensity,
   Value<String?> notes,
+  required DateTime date,
   required DateTime createdAt,
   required DateTime updatedAt,
   Value<int> rowid,
@@ -5826,8 +5866,9 @@ typedef $$PhotosTableUpdateCompanionBuilder = PhotosCompanion Function({
   Value<String> userId,
   Value<String> imageUrl,
   Value<String> bodyPart,
-  Value<int> itchIntensity,
+  Value<int?> itchIntensity,
   Value<String?> notes,
+  Value<DateTime> date,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
   Value<int> rowid,
@@ -5875,6 +5916,9 @@ class $$PhotosTableFilterComposer
 
   ColumnFilters<String> get notes => $composableBuilder(
       column: $table.notes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get date => $composableBuilder(
+      column: $table.date, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnFilters(column));
@@ -5928,6 +5972,9 @@ class $$PhotosTableOrderingComposer
   ColumnOrderings<String> get notes => $composableBuilder(
       column: $table.notes, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<DateTime> get date => $composableBuilder(
+      column: $table.date, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnOrderings(column));
 
@@ -5978,6 +6025,9 @@ class $$PhotosTableAnnotationComposer
 
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get date =>
+      $composableBuilder(column: $table.date, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -6033,8 +6083,9 @@ class $$PhotosTableTableManager extends RootTableManager<
             Value<String> userId = const Value.absent(),
             Value<String> imageUrl = const Value.absent(),
             Value<String> bodyPart = const Value.absent(),
-            Value<int> itchIntensity = const Value.absent(),
+            Value<int?> itchIntensity = const Value.absent(),
             Value<String?> notes = const Value.absent(),
+            Value<DateTime> date = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
@@ -6046,6 +6097,7 @@ class $$PhotosTableTableManager extends RootTableManager<
             bodyPart: bodyPart,
             itchIntensity: itchIntensity,
             notes: notes,
+            date: date,
             createdAt: createdAt,
             updatedAt: updatedAt,
             rowid: rowid,
@@ -6055,8 +6107,9 @@ class $$PhotosTableTableManager extends RootTableManager<
             required String userId,
             required String imageUrl,
             required String bodyPart,
-            required int itchIntensity,
+            Value<int?> itchIntensity = const Value.absent(),
             Value<String?> notes = const Value.absent(),
+            required DateTime date,
             required DateTime createdAt,
             required DateTime updatedAt,
             Value<int> rowid = const Value.absent(),
@@ -6068,6 +6121,7 @@ class $$PhotosTableTableManager extends RootTableManager<
             bodyPart: bodyPart,
             itchIntensity: itchIntensity,
             notes: notes,
+            date: date,
             createdAt: createdAt,
             updatedAt: updatedAt,
             rowid: rowid,

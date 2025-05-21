@@ -3,6 +3,7 @@ import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
+import 'package:shared_preferences/shared_preferences.dart';
 
 part 'app_database.g.dart';
 
@@ -50,8 +51,9 @@ class Photos extends Table {
       .customConstraint('NOT NULL REFERENCES profiles(id) ON DELETE CASCADE')();
   TextColumn get imageUrl => text()();
   TextColumn get bodyPart => text()();
-  IntColumn get itchIntensity => integer()();
+  IntColumn get itchIntensity => integer().nullable()();
   TextColumn get notes => text().nullable()(); // JSON string
+  DateTimeColumn get date => dateTime()();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
   @override
@@ -153,13 +155,71 @@ class AppDatabase extends _$AppDatabase {
       : super(useInMemory
             ? LazyDatabase(() async => NativeDatabase.memory())
             : LazyDatabase(() async {
+                // Force recreate database file if needed
+                await _handleDatabaseRecreation();
+
                 final dbFolder = await getApplicationDocumentsDirectory();
                 final file = File(p.join(dbFolder.path, 'db.sqlite'));
                 return NativeDatabase(file);
               }));
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+        onCreate: (Migrator m) => m.createAll(),
+        onUpgrade: (Migrator m, int from, int to) async {
+          if (from < 2) {
+            // For schema version 2, we'll handle it by recreating the database
+            // This is already handled by _handleDatabaseRecreation above
+
+            // Add explicit Photos table creation with the date column
+            await m.createTable(photos);
+          }
+        },
+        beforeOpen: (details) async {
+          // Print table info for debugging
+          if (details.wasCreated) {
+            print(
+                'Database was created with schema version ${details.versionNow}');
+          } else {
+            print(
+                'Database was opened with schema version ${details.versionNow}');
+          }
+
+          // Validate Photos table schema
+          try {
+            await customStatement('PRAGMA table_info(photos)');
+            print('Photos table exists');
+          } catch (e) {
+            print('Error checking Photos table: $e');
+          }
+        },
+      );
+}
+
+// Handle database recreation on first run with the new schema
+Future<void> _handleDatabaseRecreation() async {
+  final prefs = await SharedPreferences.getInstance();
+  final currentDbVersion = prefs.getInt('db_version') ?? 1;
+
+  if (currentDbVersion < 2) {
+    // Need to recreate database
+    try {
+      final dbFolder = await getApplicationDocumentsDirectory();
+      final dbFile = File(p.join(dbFolder.path, 'db.sqlite'));
+      if (await dbFile.exists()) {
+        await dbFile.delete();
+        print('Database file deleted for schema upgrade');
+      }
+
+      // Save the new version
+      await prefs.setInt('db_version', 2);
+    } catch (e) {
+      print('Error during database recreation: $e');
+    }
+  }
 }
 
 LazyDatabase _openConnection() {
@@ -168,4 +228,23 @@ LazyDatabase _openConnection() {
     final file = File(p.join(dbFolder.path, 'app.sqlite'));
     return NativeDatabase(file);
   });
+}
+
+// Add this singleton pattern
+class DBProvider {
+  // Private constructor
+  DBProvider._();
+
+  // Singleton instance
+  static final DBProvider instance = DBProvider._();
+
+  // Database instance
+  AppDatabase? _database;
+
+  // Get database, create if it doesn't exist
+  Future<AppDatabase> get database async {
+    if (_database != null) return _database!;
+    _database = AppDatabase();
+    return _database!;
+  }
 }

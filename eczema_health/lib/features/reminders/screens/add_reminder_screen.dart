@@ -88,120 +88,123 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Add Reminder',
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text(
+            'Add Reminder',
+            style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
-        backgroundColor: Colors.white,
-        scrolledUnderElevation: 0,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
-        actions: [
-          TextButton(
-            onPressed: _isLoading ? null : _saveReminder,
-            child: _isLoading
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-                    ),
-                  )
-                : const Text(
-                    'Save',
-                    style: TextStyle(
-                      color: Colors.blue,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
+          backgroundColor: Colors.white,
+          scrolledUnderElevation: 0,
+          surfaceTintColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.black),
+            onPressed: () => Navigator.pop(context),
           ),
-          const SizedBox(width: 16),
-        ],
-      ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            TextFormField(
-              controller: _titleController,
-              decoration: const InputDecoration(
-                labelText: 'Medication name',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.medication),
-              ),
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Please enter medication name';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 20),
-            TextFormField(
-              controller: _dosageController,
-              decoration: const InputDecoration(
-                labelText: 'Dosage',
-                hintText: 'e.g., 1 pill, 10ml, etc.',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.medical_information),
-              ),
-            ),
-            const SizedBox(height: 20),
-            GestureDetector(
-              onTap: _selectTime,
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.shade400),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.access_time, color: Colors.grey),
-                    const SizedBox(width: 10),
-                    Text(
-                      _selectedTime.format(context),
-                      style: const TextStyle(fontSize: 16),
+          actions: [
+            TextButton(
+              onPressed: _isLoading ? null : _saveReminder,
+              child: _isLoading
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                      ),
+                    )
+                  : const Text(
+                      'Save',
+                      style: TextStyle(
+                        color: Colors.blue,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
-                    const Spacer(),
-                    const Icon(Icons.arrow_drop_down, color: Colors.grey),
-                  ],
-                ),
-              ),
             ),
-            const SizedBox(height: 20),
-            DaySelector(
-              selectedDays: _selectedDays,
-              onDaySelected: (index) {
-                setState(() {
-                  _selectedDays[index] = !_selectedDays[index];
-                });
-              },
-            ),
-            const SizedBox(height: 20),
-            TextFormField(
-              controller: _notesController,
-              decoration: const InputDecoration(
-                labelText: 'Notes (Optional)',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.note),
-              ),
-              maxLines: 3,
-            ),
+            const SizedBox(width: 16),
           ],
+        ),
+        body: Form(
+          key: _formKey,
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              TextFormField(
+                controller: _titleController,
+                decoration: const InputDecoration(
+                  labelText: 'Medication name',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.medication),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Please enter medication name';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 20),
+              TextFormField(
+                controller: _dosageController,
+                decoration: const InputDecoration(
+                  labelText: 'Dosage',
+                  hintText: 'e.g., 1 pill, 10ml, etc.',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.medical_information),
+                ),
+              ),
+              const SizedBox(height: 20),
+              GestureDetector(
+                onTap: _selectTime,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey.shade400),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.access_time, color: Colors.grey),
+                      const SizedBox(width: 10),
+                      Text(
+                        _selectedTime.format(context),
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      const Spacer(),
+                      const Icon(Icons.arrow_drop_down, color: Colors.grey),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              DaySelector(
+                selectedDays: _selectedDays,
+                onDaySelected: (index) {
+                  setState(() {
+                    _selectedDays[index] = !_selectedDays[index];
+                  });
+                },
+              ),
+              const SizedBox(height: 20),
+              TextFormField(
+                controller: _notesController,
+                decoration: const InputDecoration(
+                  labelText: 'Notes (Optional)',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.note),
+                ),
+                maxLines: 3,
+              ),
+            ],
+          ),
         ),
       ),
     );

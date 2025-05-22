@@ -32,6 +32,11 @@ class _LoginScreenState extends State<LoginScreen> {
           children: [
             TextField(
               controller: emailController,
+              autofillHints: const [
+                AutofillHints.username,
+                AutofillHints.email
+              ],
+              textInputAction: TextInputAction.next,
               decoration: const InputDecoration(
                 labelText: 'Email',
               ),
@@ -39,6 +44,8 @@ class _LoginScreenState extends State<LoginScreen> {
             TextField(
               controller: passwordController,
               obscureText: !passwordVisible,
+              autofillHints: const [AutofillHints.password],
+              textInputAction: TextInputAction.done,
               decoration: InputDecoration(
                 labelText: 'Password',
                 suffixIcon: togglePassword(),

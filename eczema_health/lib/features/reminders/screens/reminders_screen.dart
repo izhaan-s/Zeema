@@ -68,8 +68,10 @@ class _RemindersScreenState extends State<RemindersScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12.0),
               child: ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.pushNamed(context, AppRouter.addReminder);
+                onPressed: () async {
+                  await Navigator.pushNamed(context, AppRouter.addReminder);
+                  // Refresh reminders after returning
+                  setState(() {});
                 },
                 icon: const Icon(Icons.add, size: 18, color: Colors.white),
                 label: const Text('Add'),

@@ -145,66 +145,69 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Add Photo'),
-        backgroundColor: Colors.white,
-        scrolledUnderElevation: 0,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-        actions: [
-          if (_selectedImage != null && _selectedBodyPart != null)
-            Padding(
-              padding: const EdgeInsets.only(right: 8.0),
-              child: _isSaving
-                  ? const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : TextButton(
-                      onPressed: _submitPhoto,
-                      style: TextButton.styleFrom(
-                          foregroundColor:
-                              Theme.of(context).colorScheme.primary,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8))),
-                      child: const Text('SAVE',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                    ),
-            ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _buildImagePickerSection(),
-              const SizedBox(height: 24),
-              Text('Body Part',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w600)),
-              const SizedBox(height: 8),
-              BodyPartSelector(
-                selectedBodyPart: _selectedBodyPart,
-                onSelected: (bodyPart) =>
-                    setState(() => _selectedBodyPart = bodyPart),
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Add Photo'),
+          backgroundColor: Colors.white,
+          scrolledUnderElevation: 0,
+          surfaceTintColor: Colors.transparent,
+          elevation: 0,
+          actions: [
+            if (_selectedImage != null && _selectedBodyPart != null)
+              Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: _isSaving
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : TextButton(
+                        onPressed: _submitPhoto,
+                        style: TextButton.styleFrom(
+                            foregroundColor:
+                                Theme.of(context).colorScheme.primary,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8))),
+                        child: const Text('SAVE',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
               ),
-              const SizedBox(height: 24),
-              Text('Notes (Optional)',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w600)),
-              const SizedBox(height: 8),
-              NotesInput(controller: _notesController),
-              const SizedBox(height: 30),
-            ],
+          ],
+        ),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(20.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildImagePickerSection(),
+                const SizedBox(height: 24),
+                Text('Body Part',
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w600)),
+                const SizedBox(height: 8),
+                BodyPartSelector(
+                  selectedBodyPart: _selectedBodyPart,
+                  onSelected: (bodyPart) =>
+                      setState(() => _selectedBodyPart = bodyPart),
+                ),
+                const SizedBox(height: 24),
+                Text('Notes (Optional)',
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w600)),
+                const SizedBox(height: 8),
+                NotesInput(controller: _notesController),
+                const SizedBox(height: 30),
+              ],
+            ),
           ),
         ),
       ),

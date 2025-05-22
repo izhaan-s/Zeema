@@ -80,11 +80,15 @@ class _SymptomTrackingScreenState extends State<SymptomTrackingScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const SymptomInputScreen()));
+              onPressed: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const SymptomInputScreen(),
+                  ),
+                );
+                // Refresh symptoms after returning
+                await _loadSymptoms();
               },
               icon: const Icon(Icons.add, size: 18, color: Colors.white),
               label: const Text('Log Symptoms'),

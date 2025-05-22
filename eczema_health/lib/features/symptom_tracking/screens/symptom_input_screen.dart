@@ -113,192 +113,196 @@ class _SymptomInputScreenState extends State<SymptomInputScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Log Symptoms'),
-        backgroundColor: Colors.white,
-        scrolledUnderElevation: 0,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-        automaticallyImplyLeading: false,
-        leading: IconButton(
-          icon: const Icon(Icons.close),
-          onPressed: () => Navigator.pop(context),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.check),
-            onPressed: () async {
-              if (!_isInitialized) {
-                // Show loading or wait
-                return;
-              }
-
-              final entry = SymptomEntryModel(
-                  id: DateTime.now().millisecondsSinceEpoch.toString(),
-                  userId: Supabase.instance.client.auth.currentUser?.id ?? "",
-                  date: selectedDate,
-                  isFlareup: intensity >= 4,
-                  severity: intensity.toInt().toString(),
-                  affectedAreas: selectedSymptoms.toList(),
-                  symptoms: selectedSymptoms.toList(),
-                  medications: selectedMedications.isNotEmpty
-                      ? selectedMedications.toList()
-                      : null,
-                  notes: notesController.text.isNotEmpty
-                      ? [notesController.text]
-                      : null,
-                  createdAt: DateTime.now(),
-                  updatedAt: DateTime.now());
-
-              try {
-                // Save locally
-                await _symptomRepository.addSymptomEntry(entry);
-
-                // Increment change count and try to sync
-                await _syncService.incrementChangeCount('symptom');
-                await _syncService.syncData();
-
-                if (mounted) {
-                  Navigator.pop(context);
-                }
-              } catch (e) {
-                // Show error message
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Error saving symptom entry: $e'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                }
-              }
-            },
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Log Symptoms'),
+          backgroundColor: Colors.white,
+          scrolledUnderElevation: 0,
+          surfaceTintColor: Colors.transparent,
+          elevation: 0,
+          automaticallyImplyLeading: false,
+          leading: IconButton(
+            icon: const Icon(Icons.close),
+            onPressed: () => Navigator.pop(context),
           ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text("Date", style: TextStyle(fontWeight: FontWeight.bold)),
-              GestureDetector(
-                onTap: () => _selectDate(context),
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey.shade300),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.calendar_today, size: 20),
-                      const SizedBox(width: 12),
-                      Text(DateFormat.yMMMMd().format(selectedDate)),
-                    ],
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.check),
+              onPressed: () async {
+                if (!_isInitialized) {
+                  // Show loading or wait
+                  return;
+                }
+
+                final entry = SymptomEntryModel(
+                    id: DateTime.now().millisecondsSinceEpoch.toString(),
+                    userId: Supabase.instance.client.auth.currentUser?.id ?? "",
+                    date: selectedDate,
+                    isFlareup: intensity >= 4,
+                    severity: intensity.toInt().toString(),
+                    affectedAreas: selectedSymptoms.toList(),
+                    symptoms: selectedSymptoms.toList(),
+                    medications: selectedMedications.isNotEmpty
+                        ? selectedMedications.toList()
+                        : null,
+                    notes: notesController.text.isNotEmpty
+                        ? [notesController.text]
+                        : null,
+                    createdAt: DateTime.now(),
+                    updatedAt: DateTime.now());
+
+                try {
+                  // Save locally
+                  await _symptomRepository.addSymptomEntry(entry);
+
+                  // Increment change count and try to sync
+                  await _syncService.incrementChangeCount('symptom');
+                  await _syncService.syncData();
+
+                  if (mounted) {
+                    Navigator.pop(context);
+                  }
+                } catch (e) {
+                  // Show error message
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Error saving symptom entry: $e'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                }
+              },
+            ),
+          ],
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text("Date",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                GestureDetector(
+                  onTap: () => _selectDate(context),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 16),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey.shade300),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.calendar_today, size: 20),
+                        const SizedBox(width: 12),
+                        Text(DateFormat.yMMMMd().format(selectedDate)),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 24),
-              const Text("Symptom Intensity",
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-              Slider(
-                value: intensity,
-                min: 1,
-                max: 5,
-                divisions: 4,
-                label: intensity.toInt().toString(),
-                onChanged: (value) {
-                  setState(() => intensity = value);
-                },
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Text("Mild (1)"),
-                  Text("Moderate (3)"),
-                  Text("Severe (5)"),
-                ],
-              ),
-              const SizedBox(height: 24),
-              const Text("Symptoms",
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: symptoms.map((symptom) {
-                  final isSelected = selectedSymptoms.contains(symptom);
-                  return ChoiceChip(
-                    label: Text(symptom),
-                    selected: isSelected,
-                    onSelected: (_) {
-                      setState(() {
-                        if (isSelected) {
-                          selectedSymptoms.remove(symptom);
-                        } else {
-                          selectedSymptoms.add(symptom);
-                        }
-                      });
-                    },
-                    selectedColor: Colors.blue.shade100,
-                    backgroundColor: Colors.grey.shade100,
-                    labelStyle: TextStyle(
-                      color: isSelected ? Colors.blue.shade700 : Colors.black,
-                    ),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 24),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text("Medications",
-                      style: TextStyle(fontWeight: FontWeight.bold)),
-                  TextButton.icon(
-                    onPressed: _showMedicationDialog,
-                    icon: const Icon(Icons.add),
-                    label: const Text("Add Medications"),
-                  ),
-                ],
-              ),
-              if (selectedMedications.isNotEmpty) ...[
+                const SizedBox(height: 24),
+                const Text("Symptom Intensity",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                Slider(
+                  value: intensity,
+                  min: 1,
+                  max: 5,
+                  divisions: 4,
+                  label: intensity.toInt().toString(),
+                  onChanged: (value) {
+                    setState(() => intensity = value);
+                  },
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: const [
+                    Text("Mild (1)"),
+                    Text("Moderate (3)"),
+                    Text("Severe (5)"),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                const Text("Symptoms",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 Wrap(
                   spacing: 10,
                   runSpacing: 10,
-                  children: selectedMedications.map((medicationId) {
-                    return Chip(
-                      label:
-                          Text(medicationNames[medicationId] ?? medicationId),
-                      onDeleted: () {
+                  children: symptoms.map((symptom) {
+                    final isSelected = selectedSymptoms.contains(symptom);
+                    return ChoiceChip(
+                      label: Text(symptom),
+                      selected: isSelected,
+                      onSelected: (_) {
                         setState(() {
-                          selectedMedications.remove(medicationId);
+                          if (isSelected) {
+                            selectedSymptoms.remove(symptom);
+                          } else {
+                            selectedSymptoms.add(symptom);
+                          }
                         });
                       },
+                      selectedColor: Colors.blue.shade100,
+                      backgroundColor: Colors.grey.shade100,
+                      labelStyle: TextStyle(
+                        color: isSelected ? Colors.blue.shade700 : Colors.black,
+                      ),
                     );
                   }).toList(),
                 ),
-              ],
-              const SizedBox(height: 24),
-              const Text("Notes (Optional)",
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              TextField(
-                controller: notesController,
-                maxLines: 4,
-                decoration: InputDecoration(
-                  hintText:
-                      "Add any additional notes about your symptoms or potential triggers",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
+                const SizedBox(height: 24),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text("Medications",
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    TextButton.icon(
+                      onPressed: _showMedicationDialog,
+                      icon: const Icon(Icons.add),
+                      label: const Text("Add Medications"),
+                    ),
+                  ],
+                ),
+                if (selectedMedications.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: selectedMedications.map((medicationId) {
+                      return Chip(
+                        label:
+                            Text(medicationNames[medicationId] ?? medicationId),
+                        onDeleted: () {
+                          setState(() {
+                            selectedMedications.remove(medicationId);
+                          });
+                        },
+                      );
+                    }).toList(),
+                  ),
+                ],
+                const SizedBox(height: 24),
+                const Text("Notes (Optional)",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: notesController,
+                  maxLines: 4,
+                  decoration: InputDecoration(
+                    hintText:
+                        "Add any additional notes about your symptoms or potential triggers",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

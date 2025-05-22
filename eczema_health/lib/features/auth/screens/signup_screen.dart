@@ -37,6 +37,11 @@ class _SignupScreenState extends State<SignupScreen> {
           children: [
             TextField(
               controller: emailController,
+              autofillHints: const [
+                AutofillHints.username,
+                AutofillHints.email
+              ],
+              textInputAction: TextInputAction.next,
               decoration: const InputDecoration(
                 labelText: 'Email',
               ),
@@ -44,6 +49,8 @@ class _SignupScreenState extends State<SignupScreen> {
             TextField(
               controller: passwordController,
               obscureText: !passwordVisible,
+              autofillHints: const [AutofillHints.newPassword],
+              textInputAction: TextInputAction.next,
               decoration: InputDecoration(
                 labelText: 'Password',
                 suffixIcon: togglePassword(),
@@ -51,24 +58,32 @@ class _SignupScreenState extends State<SignupScreen> {
             ),
             TextField(
               controller: firstName,
+              autofillHints: const [AutofillHints.givenName],
+              textInputAction: TextInputAction.next,
               decoration: InputDecoration(
                 labelText: 'First Name',
               ),
             ),
             TextField(
               controller: lastName,
+              autofillHints: const [AutofillHints.familyName],
+              textInputAction: TextInputAction.next,
               decoration: InputDecoration(
                 labelText: 'Last Name',
               ),
             ),
             TextField(
               controller: dateOfBirth,
+              autofillHints: const [AutofillHints.birthday],
+              textInputAction: TextInputAction.next,
               decoration: InputDecoration(
                 labelText: 'Date of Birth',
               ),
             ),
             TextField(
               controller: phoneNumber,
+              autofillHints: const [AutofillHints.telephoneNumber],
+              textInputAction: TextInputAction.done,
               decoration: InputDecoration(
                 labelText: 'Phone Number',
               ),

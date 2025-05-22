@@ -15,6 +15,8 @@ import 'features/lifestyle_tracking/screens/lifestyle_log_screen.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'data/local/app_database.dart';
 import 'data/services/sync_service.dart';
+import 'features/legal/terms_and_conditions_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final supabase = Supabase.instance.client;
 // Global navigator key to use for navigation from anywhere
@@ -96,11 +98,54 @@ class EczemaHealthApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
           useMaterial3: true,
         ),
-        home: AuthGate(),
+        home: const TermsOrAuthGate(),
         // Keep onGenerateRoute for auth and deep links
         onGenerateRoute: AppRouter.generateRoute,
       ),
     );
+  }
+}
+
+class TermsOrAuthGate extends StatefulWidget {
+  const TermsOrAuthGate({Key? key}) : super(key: key);
+
+  @override
+  State<TermsOrAuthGate> createState() => _TermsOrAuthGateState();
+}
+
+class _TermsOrAuthGateState extends State<TermsOrAuthGate> {
+  bool? _accepted;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAccepted();
+  }
+
+  Future<void> _checkAccepted() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _accepted = prefs.getBool('terms_accepted') ?? false;
+    });
+  }
+
+  void _onAccepted() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('terms_accepted', true);
+    setState(() {
+      _accepted = true;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_accepted == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    if (_accepted == true) {
+      return AuthGate();
+    }
+    return TermsAndConditionsScreen(onAccepted: _onAccepted);
   }
 }
 

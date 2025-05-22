@@ -13,6 +13,8 @@ import 'utils/nav_bar.dart';
 import 'features/symptom_tracking/screens/symptom_tracking_screen.dart';
 import 'features/lifestyle_tracking/screens/lifestyle_log_screen.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
+import 'data/local/app_database.dart';
+import 'data/services/sync_service.dart';
 
 final supabase = Supabase.instance.client;
 // Global navigator key to use for navigation from anywhere
@@ -146,6 +148,23 @@ class _MainScreenState extends State<MainScreen> {
     setState(() {
       _selectedIndex = index;
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _runAutoSync();
+  }
+
+  Future<void> _runAutoSync() async {
+    final db = await DBProvider.instance.database;
+    final syncService = SyncService(db);
+    try {
+      await syncService.syncData();
+      print('Auto sync complete!');
+    } catch (e) {
+      print('Auto sync failed: $e');
+    }
   }
 
   @override

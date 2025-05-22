@@ -84,209 +84,82 @@ class SyncService {
   }
 
   Future<void> syncData() async {
-    if (!await shouldSync()) return;
-
     final userId = _supabase.auth.currentUser?.id;
     if (userId == null) {
-      print('Sync skipped: User not logged in');
+      print('Migration skipped: User not logged in');
       return;
     }
 
     try {
-      // Sync symptoms
-      await _syncSymptoms(userId);
+      // MIGRATION: SYMPTOMS
+      final localSymptoms = await _localRepo.getSymptomEntries(userId);
+      print('Uploading ${localSymptoms.length} symptoms...');
+      for (final entry in localSymptoms) {
+        try {
+          final response = await _supabase.from('symptoms').upsert({
+            'id': entry.id,
+            'user_id': entry.userId,
+            'date': entry.date.toIso8601String(),
+            'is_flareup': entry.isFlareup,
+            'severity': entry.severity,
+            'affected_areas': entry.affectedAreas,
+            'symptoms': entry.symptoms,
+            'notes': entry.notes,
+            'created_at': entry.createdAt.toIso8601String(),
+            'updated_at': entry.updatedAt.toIso8601String(),
+          });
+          print('Symptom ${entry.id} upload response: $response');
+        } catch (e) {
+          print('Failed to upload symptom ${entry.id}: $e');
+        }
+      }
 
-      // Sync photos
-      await _syncPhotos(userId);
+      // MIGRATION: REMINDERS
+      final localReminders = await _reminderRepo.getReminders(userId);
+      print('Uploading ${localReminders.length} reminders...');
+      for (final reminder in localReminders) {
+        try {
+          final response = await _supabase.from('reminders').upsert({
+            'id': reminder.id,
+            'user_id': reminder.userId,
+            'title': reminder.title,
+            'description': reminder.description,
+            'reminder_type': reminder.reminderType,
+            'time':
+                reminder.time.toIso8601String().substring(11, 19), // HH:mm:ss
+            'repeat_days': reminder.repeatDays.split(','),
+            'is_active': reminder.isActive,
+            'created_at': reminder.createdAt.toIso8601String(),
+            'updated_at': reminder.updatedAt.toIso8601String(),
+          });
+          print('Reminder ${reminder.id} upload response: $response');
+        } catch (e) {
+          print('Failed to upload reminder ${reminder.id}: $e');
+        }
+      }
 
-      // Sync reminders
-      await _syncReminders(userId);
+      // MIGRATION: PHOTOS
+      final localPhotos = await _photoRepo.getPhotos(userId);
+      print('Uploading ${localPhotos.length} photos...');
+      for (final photo in localPhotos) {
+        try {
+          final response = await _supabase.from('photos').upsert({
+            'id': photo['id'],
+            'user_id': userId,
+            'image_url': photo['image'],
+            'body_part': photo['bodyPart'],
+            'date': photo['date'],
+          });
+          print('Photo ${photo['id']} upload response: $response');
+        } catch (e) {
+          print('Failed to upload photo ${photo['id']}: $e');
+        }
+      }
 
-      // Reset change counts and update last sync
-      await resetChangeCounts();
-      await updateLastSync();
-    } catch (e) {
-      print('Sync failed: $e');
+      print('Migration complete!');
+    } catch (e, st) {
+      print('Migration failed: $e\n$st');
       rethrow;
-    }
-  }
-
-  Future<void> _syncSymptoms(String userId) async {
-    // Get local changes
-    final localEntries = await _localRepo.getSymptomEntries(userId);
-
-    // Get remote changes
-    final remoteEntries = await _cloudRepo.getSymptomEntries();
-
-    // Handle conflicts and sync
-    for (final localEntry in localEntries) {
-      final remoteEntry = remoteEntries.firstWhere(
-        (entry) => entry.id == localEntry.id,
-        orElse: () => localEntry,
-      );
-
-      if (remoteEntry.updatedAt.isAfter(localEntry.updatedAt)) {
-        // Remote is newer, update local
-        await _localRepo.updateSymptomEntry(remoteEntry);
-      } else if (localEntry.updatedAt.isAfter(remoteEntry.updatedAt)) {
-        // Local is newer, update remote
-        await _cloudRepo.addSymptomEntry(localEntry);
-      }
-    }
-
-    // Add new remote entries to local
-    for (final remoteEntry in remoteEntries) {
-      if (!localEntries.any((entry) => entry.id == remoteEntry.id)) {
-        await _localRepo.addSymptomEntry(remoteEntry);
-      }
-    }
-  }
-
-  Future<void> _syncPhotos(String userId) async {
-    // Get local photos
-    final localPhotos = await _photoRepo.getPhotos(userId);
-
-    // Get remote photos
-    final remoteResponse =
-        await _supabase.from('photos').select().eq('user_id', userId);
-
-    final remotePhotos = (remoteResponse as List)
-        .map((photo) => PhotoEntryModel.fromMap(photo))
-        .toList();
-
-    // Handle conflicts and sync
-    for (final localPhoto in localPhotos) {
-      final remotePhoto = remotePhotos.firstWhere(
-        (photo) => photo.id == localPhoto['id'],
-        orElse: () => PhotoEntryModel(
-          id: localPhoto['id']!,
-          userId: userId,
-          imageUrl: localPhoto['image']!,
-          bodyPart: localPhoto['bodyPart']!,
-          itchIntensity: 0,
-          notes: null,
-          date: DateTime.parse(localPhoto['date']!),
-          createdAt: DateTime.now(),
-          updatedAt: DateTime.now(),
-        ),
-      );
-
-      // Compare timestamps and sync accordingly
-      final localDate = DateTime.parse(localPhoto['date']!);
-      final remoteDate = remotePhoto.date;
-
-      if (remoteDate.isAfter(localDate)) {
-        // Download remote photo
-        await _photoRepo.savePhoto(
-          userId,
-          remotePhoto.bodyPart,
-          remotePhoto.imageUrl,
-          remoteDate,
-          remotePhoto.notes,
-        );
-      } else if (localDate.isAfter(remoteDate)) {
-        // Upload local photo
-        await _supabase.from('photos').upsert({
-          'id': localPhoto['id'],
-          'user_id': userId,
-          'image_url': localPhoto['image'],
-          'body_part': localPhoto['bodyPart'],
-          'date': localDate.toIso8601String(),
-        });
-      }
-    }
-
-    // Add new remote photos to local
-    for (final remotePhoto in remotePhotos) {
-      if (!localPhotos.any((photo) => photo['id'] == remotePhoto.id)) {
-        await _photoRepo.savePhoto(
-          userId,
-          remotePhoto.bodyPart,
-          remotePhoto.imageUrl,
-          remotePhoto.date,
-          remotePhoto.notes,
-        );
-      }
-    }
-  }
-
-  Future<void> _syncReminders(String userId) async {
-    // Get local reminders
-    final localReminders = await _reminderRepo.getReminders(userId);
-
-    // Get remote reminders
-    final remoteResponse =
-        await _supabase.from('reminders').select().eq('user_id', userId);
-
-    final remoteReminders = (remoteResponse as List)
-        .map((reminder) => ReminderModel.fromMap(reminder))
-        .toList();
-
-    // Handle conflicts and sync
-    for (final localReminder in localReminders) {
-      final remoteReminder = remoteReminders.firstWhere(
-        (reminder) => reminder.id == localReminder.id,
-        orElse: () => ReminderModel(
-          id: localReminder.id,
-          userId: userId,
-          title: localReminder.title,
-          description: localReminder.description,
-          reminderType: localReminder.reminderType,
-          dateTime: localReminder.time,
-          repeatDays: localReminder.repeatDays.split(','),
-          isActive: localReminder.isActive,
-          createdAt: localReminder.createdAt,
-          updatedAt: localReminder.updatedAt,
-        ),
-      );
-
-      if (remoteReminder.updatedAt.isAfter(localReminder.updatedAt)) {
-        // Update local reminder
-        await _reminderRepo.saveReminder(Reminder(
-          id: remoteReminder.id,
-          userId: userId,
-          title: remoteReminder.title,
-          description: remoteReminder.description,
-          reminderType: remoteReminder.reminderType,
-          time: remoteReminder.dateTime,
-          repeatDays: remoteReminder.repeatDays.join(','),
-          isActive: remoteReminder.isActive,
-          createdAt: remoteReminder.createdAt,
-          updatedAt: remoteReminder.updatedAt,
-        ));
-      } else if (localReminder.updatedAt.isAfter(remoteReminder.updatedAt)) {
-        // Update remote reminder
-        await _supabase.from('reminders').upsert(ReminderModel(
-              id: localReminder.id,
-              userId: userId,
-              title: localReminder.title,
-              description: localReminder.description,
-              reminderType: localReminder.reminderType,
-              dateTime: localReminder.time,
-              repeatDays: localReminder.repeatDays.split(','),
-              isActive: localReminder.isActive,
-              createdAt: localReminder.createdAt,
-              updatedAt: localReminder.updatedAt,
-            ).toMap());
-      }
-    }
-
-    // Add new remote reminders to local
-    for (final remoteReminder in remoteReminders) {
-      if (!localReminders.any((reminder) => reminder.id == remoteReminder.id)) {
-        await _reminderRepo.saveReminder(Reminder(
-          id: remoteReminder.id,
-          userId: userId,
-          title: remoteReminder.title,
-          description: remoteReminder.description,
-          reminderType: remoteReminder.reminderType,
-          time: remoteReminder.dateTime,
-          repeatDays: remoteReminder.repeatDays.join(','),
-          isActive: remoteReminder.isActive,
-          createdAt: remoteReminder.createdAt,
-          updatedAt: remoteReminder.updatedAt,
-        ));
-      }
     }
   }
 }

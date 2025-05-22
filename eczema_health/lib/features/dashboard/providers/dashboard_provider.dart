@@ -9,6 +9,8 @@ class DashboardProvider extends ChangeNotifier {
 
   DashboardData? _dashboardData;
   bool _isLoading = false;
+  bool _isLoadingFlares = false;
+  bool _isLoadingMatrix = false;
   String? _error;
 
   DashboardProvider({
@@ -18,6 +20,8 @@ class DashboardProvider extends ChangeNotifier {
   // Getters
   DashboardData? get dashboardData => _dashboardData;
   bool get isLoading => _isLoading;
+  bool get isLoadingFlares => _isLoadingFlares;
+  bool get isLoadingMatrix => _isLoadingMatrix;
   String? get error => _error;
 
   // Load dashboard data
@@ -29,8 +33,38 @@ class DashboardProvider extends ChangeNotifier {
       _currentUserId = userId;
       notifyListeners();
 
-      _dashboardData =
-          await _service.getDashboardData(userId, forceRefresh: forceRefresh);
+      // First try to get cached data
+      final cachedData = await _service.getCachedData(userId);
+      if (cachedData != null) {
+        _dashboardData = cachedData;
+        notifyListeners();
+      }
+
+      // Then fetch fresh data with timeout
+      try {
+        _dashboardData = await _service
+            .getDashboardData(userId, forceRefresh: forceRefresh)
+            .timeout(const Duration(seconds: 5), onTimeout: () {
+          // If timeout occurs, keep using cached data
+          return _dashboardData ??
+              DashboardData(
+                severityData: [],
+                flares: [],
+                symptomMatrix: [],
+                lastUpdated: DateTime.now(),
+              );
+        });
+      } catch (e) {
+        // If error occurs, keep using cached data
+        if (_dashboardData == null) {
+          _dashboardData = DashboardData(
+            severityData: [],
+            flares: [],
+            symptomMatrix: [],
+            lastUpdated: DateTime.now(),
+          );
+        }
+      }
 
       _isLoading = false;
       notifyListeners();

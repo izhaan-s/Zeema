@@ -17,6 +17,11 @@ class DashboardService {
         _localRepo = localRepo,
         _cacheRepo = cacheRepo;
 
+  // Get cached data without checking if it needs refresh
+  Future<DashboardData?> getCachedData(String userId) async {
+    return await _cacheRepo.getDashboardCache(userId);
+  }
+
   // Get dashboard data, using cache if possible
   Future<DashboardData> getDashboardData(String userId,
       {bool forceRefresh = false}) async {

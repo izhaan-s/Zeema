@@ -96,10 +96,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
         body: Consumer<DashboardProvider>(
           builder: (context, provider, child) {
-            if (provider.isLoading) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
             if (provider.error != null) {
               return Center(
                 child: Column(
@@ -129,7 +125,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildFlareUpStatus(dashboardData.flares),
-                    _buildChartCarousel(dashboardData),
+                    _buildChartCarousel(dashboardData, provider),
                     _buildQuickActions(),
                   ],
                 ),
@@ -173,7 +169,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  Widget _buildChartCarousel(dashboardData) {
+  Widget _buildChartCarousel(dashboardData, DashboardProvider provider) {
     return Column(
       children: [
         Container(
@@ -198,31 +194,44 @@ class _DashboardScreenState extends State<DashboardScreen> {
               });
             },
             children: [
+              // First page - Flare Cluster Chart
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Symptom Severity & Flares',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF2E3E5C),
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Flare Clusters',
+                          style:
+                              Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                        ),
+                        if (provider.isLoadingFlares)
+                          const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                            ),
+                          ),
+                      ],
                     ),
                     const SizedBox(height: 8),
                     Expanded(
-                      child: dashboardData.severityData.isEmpty
+                      child: dashboardData.flares.isEmpty
                           ? Center(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.bar_chart,
+                                  Icon(Icons.show_chart,
                                       size: 50, color: Colors.grey[300]),
                                   const SizedBox(height: 16),
                                   Text(
-                                    'No symptom data yet',
+                                    'No flare data yet',
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w500,
@@ -231,7 +240,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
-                                    'Add your first symptom entry to see your data',
+                                    'Add symptom entries to see flare patterns',
                                     style: TextStyle(
                                       fontSize: 14,
                                       color: Colors.grey[500],
@@ -249,18 +258,31 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ],
                 ),
               ),
+              // Second page - Symptom Matrix Chart
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Symptom Correlation Matrix',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF2E3E5C),
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Symptom Correlations',
+                          style:
+                              Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                        ),
+                        if (provider.isLoadingMatrix)
+                          const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                            ),
+                          ),
+                      ],
                     ),
                     const SizedBox(height: 8),
                     Expanded(

@@ -6,6 +6,7 @@ import 'package:eczema_health/data/local/app_database.dart';
 import 'package:eczema_health/data/models/symptom_entry_model.dart';
 import '../widgets/sympom_entries.dart' as symptom_widgets;
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:eczema_health/data/services/sync_service.dart';
 
 class SymptomTrackingScreen extends StatefulWidget {
   const SymptomTrackingScreen({super.key});
@@ -16,6 +17,7 @@ class SymptomTrackingScreen extends StatefulWidget {
 
 class _SymptomTrackingScreenState extends State<SymptomTrackingScreen> {
   late final LocalSymptomRepository _symptomRepository;
+  late final SyncService _syncService;
   final String userId = Supabase.instance.client.auth.currentUser?.id ?? "";
   List<SymptomEntryModel> _symptoms = [];
   bool _isLoading = true;
@@ -29,15 +31,30 @@ class _SymptomTrackingScreenState extends State<SymptomTrackingScreen> {
   Future<void> _initDependencies() async {
     final db = await DBProvider.instance.database;
     _symptomRepository = LocalSymptomRepository(db);
+    _syncService = SyncService(db);
     await _loadSymptoms();
   }
 
   Future<void> _loadSymptoms() async {
-    final symptoms = await _symptomRepository.getSymptomEntries(userId);
-    setState(() {
-      _symptoms = symptoms;
-      _isLoading = false;
-    });
+    try {
+      // Try to sync data first
+      await _syncService.syncData();
+
+      // Then load local symptoms
+      final symptoms = await _symptomRepository.getSymptomEntries(userId);
+      setState(() {
+        _symptoms = symptoms;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error loading symptoms: $e');
+      // If sync fails, still try to load local data
+      final symptoms = await _symptomRepository.getSymptomEntries(userId);
+      setState(() {
+        _symptoms = symptoms;
+        _isLoading = false;
+      });
+    }
   }
 
   @override

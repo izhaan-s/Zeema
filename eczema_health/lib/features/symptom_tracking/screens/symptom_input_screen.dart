@@ -7,6 +7,7 @@ import '../widgets/medication_selection_dialog.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:eczema_health/data/services/sync_service.dart';
 
 class SymptomInputScreen extends StatefulWidget {
   const SymptomInputScreen({super.key});
@@ -35,6 +36,7 @@ class _SymptomInputScreenState extends State<SymptomInputScreen> {
   final TextEditingController notesController = TextEditingController();
   Map<String, String> medicationNames = {};
   late LocalSymptomRepository _symptomRepository;
+  late SyncService _syncService;
   bool _isInitialized = false;
 
   @override
@@ -47,6 +49,7 @@ class _SymptomInputScreenState extends State<SymptomInputScreen> {
   Future<void> _initRepository() async {
     final db = await DBProvider.instance.database;
     _symptomRepository = LocalSymptomRepository(db);
+    _syncService = SyncService(db);
     setState(() {
       _isInitialized = true;
     });
@@ -149,12 +152,26 @@ class _SymptomInputScreenState extends State<SymptomInputScreen> {
                   updatedAt: DateTime.now());
 
               try {
+                // Save locally
                 await _symptomRepository.addSymptomEntry(entry);
+
+                // Increment change count and try to sync
+                await _syncService.incrementChangeCount('symptom');
+                await _syncService.syncData();
+
                 if (mounted) {
                   Navigator.pop(context);
                 }
               } catch (e) {
-                // Entry save error
+                // Show error message
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Error saving symptom entry: $e'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
               }
             },
           ),

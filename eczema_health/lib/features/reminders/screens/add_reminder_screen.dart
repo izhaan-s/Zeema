@@ -94,6 +94,7 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
       try {
         final controller = context.read<ReminderController>();
         await controller.createReminder(
+          context: context,
           title: _titleController.text,
           description:
               _notesController.text.isNotEmpty ? _notesController.text : null,

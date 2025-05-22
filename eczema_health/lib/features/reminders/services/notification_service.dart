@@ -37,9 +37,35 @@ class NotificationService {
   }
 
   /// Request permission to show notifications
-  static Future<bool> requestPermission() async {
+  static Future<bool> requestPermission({BuildContext? context}) async {
     final isAllowed = await AwesomeNotifications().isNotificationAllowed();
-    if (!isAllowed) {
+    if (!isAllowed && context != null) {
+      final result = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Allow Notifications?'),
+          content: const Text(
+              'We need notification access to remind you to take your medication.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: const Text('Deny'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: const Text('Allow'),
+            ),
+          ],
+        ),
+      );
+      if (result == true) {
+        await AwesomeNotifications().requestPermissionToSendNotifications();
+        return await AwesomeNotifications().isNotificationAllowed();
+      } else {
+        return false;
+      }
+    } else if (!isAllowed) {
+      // If no context, fallback to direct request (legacy)
       await AwesomeNotifications().requestPermissionToSendNotifications();
       return await AwesomeNotifications().isNotificationAllowed();
     }

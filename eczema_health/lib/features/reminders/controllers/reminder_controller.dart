@@ -12,7 +12,9 @@ class ReminderController extends ChangeNotifier {
   bool _isLoading = false;
   bool _isInitialized = false;
 
-  ReminderController();
+  ReminderController() {
+    _initLocalRepository();
+  }
 
   List<ReminderModel> get reminders => _reminders;
   bool get isLoading => _isLoading;
@@ -21,10 +23,10 @@ class ReminderController extends ChangeNotifier {
     final db = await DBProvider.instance.database;
     _repository = ReminderRepository(db);
     _isInitialized = true;
-    // Do not call loadReminders(context) here; context is not available
+    await loadReminders();
   }
 
-  Future<void> loadReminders(BuildContext context) async {
+  Future<void> loadReminders() async {
     if (!_isInitialized) return;
     _isLoading = true;
     notifyListeners();
@@ -33,8 +35,7 @@ class ReminderController extends ChangeNotifier {
       // Check notification permissions first
       bool hasPermission = await NotificationService.checkPermissions();
       if (!hasPermission) {
-        hasPermission =
-            await NotificationService.requestPermission(context: context);
+        hasPermission = await NotificationService.requestPermission();
       }
 
       final userId = Supabase.instance.client.auth.currentUser?.id;
@@ -81,7 +82,6 @@ class ReminderController extends ChangeNotifier {
   }
 
   Future<ReminderModel?> createReminder({
-    required BuildContext context,
     required String title,
     String? description,
     required TimeOfDay time,
@@ -109,7 +109,7 @@ class ReminderController extends ChangeNotifier {
         updatedAt: now,
       );
       await _repository.createReminder(model);
-      await loadReminders(context); // Refresh list
+      await loadReminders(); // Refresh list
       return model;
     } catch (e) {
       rethrow;
@@ -138,8 +138,7 @@ class ReminderController extends ChangeNotifier {
     }
   }
 
-  Future<void> toggleReminderStatus(
-      String id, bool isActive, BuildContext context) async {
+  Future<void> toggleReminderStatus(String id, bool isActive) async {
     await _ensureInitialized();
     try {
       // await _repository.updateReminderStatus(id, isActive);
@@ -163,7 +162,7 @@ class ReminderController extends ChangeNotifier {
           await NotificationService.printActiveNotifications();
         } else if (isActive) {
           // If trying to activate, request permission
-          await NotificationService.requestPermission(context: context);
+          await NotificationService.requestPermission();
         }
       }
     } catch (e) {

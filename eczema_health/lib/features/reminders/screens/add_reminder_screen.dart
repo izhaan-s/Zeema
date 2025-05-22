@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../controllers/reminder_controller.dart';
@@ -13,9 +12,9 @@ class AddReminderScreen extends StatefulWidget {
 
 class _AddReminderScreenState extends State<AddReminderScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _titleController = TextEditingController();
-  final _dosageController = TextEditingController();
-  final _notesController = TextEditingController();
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _dosageController = TextEditingController();
+  final TextEditingController _notesController = TextEditingController();
   TimeOfDay _selectedTime = TimeOfDay.now();
   final List<bool> _selectedDays = List.generate(7, (_) => false);
   bool _isLoading = false;
@@ -28,56 +27,17 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
     super.dispose();
   }
 
-  // --- Cupertino Time Picker ---
-  Future<void> _selectTimeCupertino(BuildContext context) async {
-    TimeOfDay tempPickedTime = _selectedTime;
-
-    await showCupertinoModalPopup(
+  Future<void> _selectTime() async {
+    final TimeOfDay? pickedTime = await showTimePicker(
       context: context,
-      builder: (_) => Container(
-        height: 300,
-        color: Colors.white,
-        child: Column(
-          children: [
-            // Done button
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                CupertinoButton(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: const Text('Done'),
-                  onPressed: () {
-                    setState(() => _selectedTime = tempPickedTime);
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 200,
-              child: CupertinoDatePicker(
-                mode: CupertinoDatePickerMode.time,
-                initialDateTime: DateTime(
-                  2023,
-                  1,
-                  1,
-                  _selectedTime.hour,
-                  _selectedTime.minute,
-                ),
-                use24hFormat: true,
-                onDateTimeChanged: (DateTime newDateTime) {
-                  tempPickedTime = TimeOfDay(
-                    hour: newDateTime.hour,
-                    minute: newDateTime.minute,
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
+      initialTime: _selectedTime,
     );
+
+    if (pickedTime != null && pickedTime != _selectedTime) {
+      setState(() {
+        _selectedTime = pickedTime;
+      });
+    }
   }
 
   Future<void> _saveReminder() async {
@@ -85,16 +45,19 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
       if (!_selectedDays.contains(true)) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text('Please select at least one day of the week')),
+            content: Text('Please select at least one day of the week'),
+          ),
         );
         return;
       }
 
-      setState(() => _isLoading = true);
+      setState(() {
+        _isLoading = true;
+      });
+
       try {
         final controller = context.read<ReminderController>();
         await controller.createReminder(
-          context: context,
           title: _titleController.text,
           description:
               _notesController.text.isNotEmpty ? _notesController.text : null,
@@ -103,7 +66,10 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
           dosage:
               _dosageController.text.isNotEmpty ? _dosageController.text : null,
         );
-        if (mounted) Navigator.pop(context);
+
+        if (mounted) {
+          Navigator.pop(context);
+        }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -111,34 +77,13 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
           );
         }
       } finally {
-        if (mounted) setState(() => _isLoading = false);
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
       }
     }
-  }
-
-  Widget _buildTimePickerTile(BuildContext context) {
-    return GestureDetector(
-      onTap: () => _selectTimeCupertino(context),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade400),
-          borderRadius: BorderRadius.circular(4),
-        ),
-        child: Row(
-          children: [
-            const Icon(Icons.access_time, color: Colors.grey),
-            const SizedBox(width: 10),
-            Text(
-              _selectedTime.format(context),
-              style: const TextStyle(fontSize: 16),
-            ),
-            const Spacer(),
-            const Icon(Icons.arrow_drop_down, color: Colors.grey),
-          ],
-        ),
-      ),
-    );
   }
 
   @override
@@ -149,7 +94,10 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
         appBar: AppBar(
           title: const Text(
             'Add Reminder',
-            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           backgroundColor: Colors.white,
           scrolledUnderElevation: 0,
@@ -195,9 +143,12 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.medication),
                 ),
-                validator: (value) => (value == null || value.trim().isEmpty)
-                    ? 'Please enter medication name'
-                    : null,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Please enter medication name';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 20),
               TextFormField(
@@ -210,12 +161,36 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              _buildTimePickerTile(context),
+              GestureDetector(
+                onTap: _selectTime,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey.shade400),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.access_time, color: Colors.grey),
+                      const SizedBox(width: 10),
+                      Text(
+                        _selectedTime.format(context),
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      const Spacer(),
+                      const Icon(Icons.arrow_drop_down, color: Colors.grey),
+                    ],
+                  ),
+                ),
+              ),
               const SizedBox(height: 20),
               DaySelector(
                 selectedDays: _selectedDays,
                 onDaySelected: (index) {
-                  setState(() => _selectedDays[index] = !_selectedDays[index]);
+                  setState(() {
+                    _selectedDays[index] = !_selectedDays[index];
+                  });
                 },
               ),
               const SizedBox(height: 20),

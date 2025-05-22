@@ -8,6 +8,7 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:eczema_health/data/services/sync_service.dart';
+import 'package:flutter/cupertino.dart';
 
 class SymptomInputScreen extends StatefulWidget {
   const SymptomInputScreen({super.key});
@@ -93,6 +94,48 @@ class _SymptomInputScreenState extends State<SymptomInputScreen> {
     if (picked != null) {
       setState(() => selectedDate = picked);
     }
+  }
+
+  Future<void> _selectDateCupertino(BuildContext context) async {
+    DateTime tempPicked = selectedDate;
+    await showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          padding: const EdgeInsets.only(top: 16, bottom: 32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                height: 200,
+                child: CupertinoDatePicker(
+                  mode: CupertinoDatePickerMode.date,
+                  initialDateTime: selectedDate,
+                  minimumDate: DateTime(2020),
+                  maximumDate: DateTime(2100),
+                  onDateTimeChanged: (DateTime newDate) {
+                    tempPicked = newDate;
+                  },
+                ),
+              ),
+              const SizedBox(height: 8),
+              CupertinoButton.filled(
+                child: const Text('Done'),
+                onPressed: () {
+                  setState(() => selectedDate = tempPicked);
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   void _showMedicationDialog() {
@@ -188,19 +231,26 @@ class _SymptomInputScreenState extends State<SymptomInputScreen> {
                 const Text("Date",
                     style: TextStyle(fontWeight: FontWeight.bold)),
                 GestureDetector(
-                  onTap: () => _selectDate(context),
+                  onTap: () => _selectDateCupertino(context),
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 12, vertical: 16),
                     decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.shade300),
+                      color: Colors.grey.shade100,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.calendar_today, size: 20),
+                        const Icon(CupertinoIcons.calendar,
+                            size: 20, color: CupertinoColors.activeBlue),
                         const SizedBox(width: 12),
-                        Text(DateFormat.yMMMMd().format(selectedDate)),
+                        Text(
+                          DateFormat.yMMMMd().format(selectedDate),
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                        const Spacer(),
+                        const Icon(CupertinoIcons.chevron_down,
+                            size: 18, color: CupertinoColors.systemGrey),
                       ],
                     ),
                   ),

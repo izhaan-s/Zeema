@@ -11,6 +11,7 @@ import 'package:eczema_health/features/dashboard/widgets/symptom_matrix_chart.da
 import 'package:eczema_health/features/symptom_tracking/widgets/flare_up_card.dart';
 import 'package:eczema_health/data/models/analysis_models.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../profile/screens/settings_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -91,9 +92,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
           elevation: 0,
           actions: [
             IconButton(
-              icon: const Icon(Icons.refresh),
-              onPressed: () =>
-                  _provider.loadDashboardData(userId, forceRefresh: true),
+              icon: const Icon(Icons.settings),
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                );
+              },
             ),
           ],
         ),

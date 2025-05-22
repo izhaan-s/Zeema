@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:eczema_health/features/dashboard/models/dashboard_data.dart';
 import 'package:eczema_health/features/dashboard/services/dashboard_service.dart';
@@ -9,73 +10,67 @@ class DashboardProvider extends ChangeNotifier {
 
   DashboardData? _dashboardData;
   bool _isLoading = false;
-  bool _isLoadingFlares = false;
-  bool _isLoadingMatrix = false;
   String? _error;
 
-  DashboardProvider({
-    required DashboardService service,
-  }) : _service = service;
+  /// Network timeout for the dashboard call. Increase this if your backend is far away.
+  static const Duration _networkTimeout = Duration(seconds: 15);
+
+  DashboardProvider({required DashboardService service}) : _service = service;
 
   // Getters
   DashboardData? get dashboardData => _dashboardData;
   bool get isLoading => _isLoading;
-  bool get isLoadingFlares => _isLoadingFlares;
-  bool get isLoadingMatrix => _isLoadingMatrix;
   String? get error => _error;
 
-  // Load dashboard data
-  Future<void> loadDashboardData(String userId,
-      {bool forceRefresh = false}) async {
-    try {
-      _isLoading = true;
-      _error = null;
-      _currentUserId = userId;
-      notifyListeners();
+  /// Loads dashboard data for [userId].
+  ///
+  /// * Shows cached data immediately if it exists.
+  /// * Attempts to fetch fresh data and **does not** overwrite an existing
+  ///   dashboard snapshot if the request times out or fails.
+  Future<void> loadDashboardData(
+    String userId, {
+    bool forceRefresh = false,
+  }) async {
+    _currentUserId = userId;
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
 
-      // First try to get cached data
-      final cachedData = await _service.getCachedData(userId);
-      if (cachedData != null) {
-        _dashboardData = cachedData;
+    try {
+      // 1. Serve cached data first (if any)
+
+      final cached = await _service.getCachedData(userId);
+      print('cached: $cached');
+      if (cached != null) {
+        _dashboardData = cached;
         notifyListeners();
       }
 
-      // Then fetch fresh data with timeout
-      try {
-        _dashboardData = await _service
-            .getDashboardData(userId, forceRefresh: forceRefresh)
-            .timeout(const Duration(seconds: 5), onTimeout: () {
-          // If timeout occurs, keep using cached data
-          return _dashboardData ??
-              DashboardData(
-                severityData: [],
-                flares: [],
-                symptomMatrix: [],
-                lastUpdated: DateTime.now(),
-              );
-        });
-      } catch (e) {
-        // If error occurs, keep using cached data
-        if (_dashboardData == null) {
-          _dashboardData = DashboardData(
-            severityData: [],
-            flares: [],
-            symptomMatrix: [],
-            lastUpdated: DateTime.now(),
+      // 2. Fetch fresh data with an extended timeout. If the call takes too
+      //    long, we keep whatever data we already have and surface an error
+      //    message instead of wiping the UI.
+      final fresh = await _service
+          .getDashboardData(userId, forceRefresh: forceRefresh)
+          .timeout(
+        _networkTimeout,
+        onTimeout: () {
+          throw TimeoutException(
+            'Dashboard request exceeded ${_networkTimeout.inSeconds}s',
           );
-        }
-      }
+        },
+      );
 
-      _isLoading = false;
-      notifyListeners();
+      _dashboardData = fresh;
     } catch (e) {
-      _isLoading = false;
+      // Preserve the last good data; just store the error so the UI can react.
       _error = e.toString();
+    } finally {
+      _isLoading = false;
       notifyListeners();
     }
   }
 
-  // Call this when a new symptom is added
+  /// Call this when a new symptom is added so the next fetch is guaranteed fresh.
   Future<void> symptomAdded() async {
     if (_currentUserId != null) {
       await _service.invalidateCache(_currentUserId!);

@@ -90,10 +90,18 @@ class SyncService {
       return;
     }
 
+    // Check if sync should proceed (every 24 hours or if change count threshold is met)
+    final shouldProceed = await shouldSync();
+    if (!shouldProceed) {
+      print(
+          'Sync skipped: Less than 24 hours since last sync and change count threshold not met.');
+      return;
+    }
+
     try {
       // MIGRATION: SYMPTOMS
       final localSymptoms = await _localRepo.getSymptomEntries(userId);
-      print('Uploading ${localSymptoms.length} symptoms...');
+      print('Uploading [32m[1m${localSymptoms.length}[0m symptoms...');
       for (final entry in localSymptoms) {
         try {
           final response = await _supabase.from('symptoms').upsert({
@@ -116,7 +124,7 @@ class SyncService {
 
       // MIGRATION: REMINDERS
       final localReminders = await _reminderRepo.getReminders(userId);
-      print('Uploading ${localReminders.length} reminders...');
+      print('Uploading [32m[1m${localReminders.length}[0m reminders...');
       for (final reminder in localReminders) {
         try {
           final response = await _supabase.from('reminders').upsert({
@@ -140,7 +148,7 @@ class SyncService {
 
       // MIGRATION: PHOTOS
       final localPhotos = await _photoRepo.getPhotos(userId);
-      print('Uploading ${localPhotos.length} photos...');
+      print('Uploading [32m[1m${localPhotos.length}[0m photos...');
       for (final photo in localPhotos) {
         try {
           final response = await _supabase.from('photos').upsert({
@@ -155,6 +163,10 @@ class SyncService {
           print('Failed to upload photo ${photo['id']}: $e');
         }
       }
+
+      // Update last sync time and reset change counts after successful migration
+      await updateLastSync();
+      await resetChangeCounts();
 
       print('Migration complete!');
     } catch (e, st) {

@@ -20,6 +20,7 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
+  String userId = Supabase.instance.client.auth.currentUser?.id ?? "";
   late final DashboardProvider _provider;
   int _currentChartIndex = 0;
   final PageController _chartPageController = PageController();
@@ -59,10 +60,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
   }
 
-  Future<void> _fetchData() async {
+  Future<void> _fetchData({bool forceRefresh = false}) async {
     // Use a fixed user ID for now - this would come from authentication in a real app
-    await _provider
-        .loadDashboardData(Supabase.instance.client.auth.currentUser?.id ?? "");
+    await _provider.loadDashboardData(
+      Supabase.instance.client.auth.currentUser?.id ?? "",
+      forceRefresh: forceRefresh,
+    );
   }
 
   @override
@@ -90,7 +93,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             IconButton(
               icon: const Icon(Icons.refresh),
               onPressed: () =>
-                  _provider.loadDashboardData('1', forceRefresh: true),
+                  _provider.loadDashboardData(userId, forceRefresh: true),
             ),
           ],
         ),
@@ -210,7 +213,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     fontWeight: FontWeight.bold,
                                   ),
                         ),
-                        if (provider.isLoadingFlares)
+                        if (provider.isLoading)
                           const SizedBox(
                             width: 20,
                             height: 20,
@@ -222,7 +225,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                     const SizedBox(height: 8),
                     Expanded(
-                      child: dashboardData.flares.isEmpty
+                      child: dashboardData.severityData.isEmpty
                           ? Center(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -231,7 +234,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       size: 50, color: Colors.grey[300]),
                                   const SizedBox(height: 16),
                                   Text(
-                                    'No flare data yet',
+                                    'No symptom data yet',
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w500,
@@ -240,19 +243,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
-                                    'Add symptom entries to see flare patterns',
+                                    'Add symptom entries to see trends',
                                     style: TextStyle(
                                       fontSize: 14,
                                       color: Colors.grey[500],
                                     ),
-                                    textAlign: TextAlign.center,
                                   ),
                                 ],
                               ),
                             )
                           : FlareClusterChart(
                               severityData: dashboardData.severityData,
-                              flares: dashboardData.flares,
+                              flares: dashboardData
+                                  .flares, // Can be empty, chart still renders
                             ),
                     ),
                   ],
@@ -274,7 +277,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     fontWeight: FontWeight.bold,
                                   ),
                         ),
-                        if (provider.isLoadingMatrix)
+                        if (provider.isLoading)
                           const SizedBox(
                             width: 20,
                             height: 20,

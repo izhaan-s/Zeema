@@ -13,7 +13,7 @@ class Tuple<T1, T2, T3, T4> {
 
 class AnalysisRepository {
   final String baseUrl =
-      'http://10.0.2.2:8000'; // change when I host to render!!!
+      'https://fastapiserver-84fe9d858a05.herokuapp.com'; // change when I host to render!!!
 
   // flare/gaps endpoint
   Future<List<FlareCluster>> getFlareClusters(

@@ -55,7 +55,7 @@ class ProfilesModel {
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
     };
-    // Remove nulls for optional fields
+    // remove nulls for optional fields
     map.removeWhere((key, value) => value == null);
     return map;
   }

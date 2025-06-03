@@ -1,3 +1,5 @@
+// FlareCluster is a cluster of flares for FastAPI from POST request
+// /flare-cluster
 class FlareCluster {
   final DateTime start;
   final DateTime end;
@@ -18,6 +20,7 @@ class FlareCluster {
   }
 }
 
+// SeverityPoint is a point in time with a severity score for FastAPI
 class SeverityPoint {
   final DateTime date;
   final int severity;

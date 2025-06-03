@@ -8,6 +8,24 @@ class DashboardCacheRepository {
 
   DashboardCacheRepository(this._db);
 
+  // caches dashboard data from FastAPI for offline user + more
+  // format of data is as follows:
+  // {
+  //   userId: "123",
+  //   severityData: [
+  //     {"date": "2021-01-01T00:00:00Z", "severity": 1},
+  //     {"date": "2021-01-02T00:00:00Z", "severity": 2},
+  //   ],
+  //   flares: [
+  //     {"start": "2021-01-01T00:00:00Z", "end": "2021-01-02T00:00:00Z", "duration": 1},
+  //   ],
+  //   symptomMatrix: [
+  //     {"symptom": "itching", "severity": 1},
+  //   ],
+  //   lastUpdated: "2021-01-01T00:00:00Z",
+  //   lastSymptomCount: 10,
+  // }
+
   Future<void> saveDashboardCache(
       String userId, DashboardData data, int lastSymptomCount) async {
     await _db.into(_db.dashboardCache).insertOnConflictUpdate(

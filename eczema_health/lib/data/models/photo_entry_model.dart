@@ -1,4 +1,6 @@
 class PhotoEntryModel {
+  // url is stored as a string in the database to local storage
+
   final String id;
   final String userId;
   final String imageUrl;

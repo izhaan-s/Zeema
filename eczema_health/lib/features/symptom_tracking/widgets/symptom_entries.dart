@@ -1,5 +1,5 @@
 import 'package:eczema_health/data/models/symptom_entry_model.dart';
-import 'package:eczema_health/features/symptom_tracking/widgets/sympon_entry_card.dart';
+import 'package:eczema_health/features/symptom_tracking/widgets/symptom_entry_card.dart';
 import 'package:flutter/material.dart';
 
 class SymptomEntries extends StatefulWidget {

@@ -1,6 +1,6 @@
 import 'package:eczema_health/data/models/reminder_model.dart';
 import 'package:drift/drift.dart';
-import '../../local/app_database.dart';
+import '../../app_database.dart';
 import 'dart:convert';
 
 class ReminderRepository {

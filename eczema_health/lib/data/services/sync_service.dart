@@ -1,7 +1,7 @@
-import 'package:eczema_health/data/local/app_database.dart';
-import 'package:eczema_health/data/repositories/local_storage/symptom_repository.dart';
-import 'package:eczema_health/data/repositories/local_storage/photo_repository.dart';
-import 'package:eczema_health/data/repositories/local_storage/reminder_repository.dart';
+import 'package:eczema_health/data/app_database.dart';
+import 'package:eczema_health/data/repositories/local/symptom_repository.dart';
+import 'package:eczema_health/data/repositories/local/photo_repository.dart';
+import 'package:eczema_health/data/repositories/local/reminder_repository.dart';
 import 'package:eczema_health/data/repositories/cloud/symptom_repository.dart';
 import 'package:eczema_health/data/models/symptom_entry_model.dart';
 import 'package:eczema_health/data/models/photo_entry_model.dart';

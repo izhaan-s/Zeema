@@ -1,5 +1,5 @@
 import 'dart:convert';
-import '../../local/app_database.dart';
+import '../../app_database.dart';
 import '../../../features/dashboard/models/dashboard_data.dart';
 import '../../models/analysis_models.dart';
 

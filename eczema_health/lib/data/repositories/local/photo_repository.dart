@@ -1,4 +1,4 @@
-import 'package:eczema_health/data/local/app_database.dart';
+import 'package:eczema_health/data/app_database.dart';
 import 'package:path/path.dart' as path;
 import 'dart:io';
 import 'package:drift/drift.dart';

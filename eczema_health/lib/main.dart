@@ -13,7 +13,7 @@ import 'utils/nav_bar.dart';
 import 'features/symptom_tracking/screens/symptom_tracking_screen.dart';
 import 'features/lifestyle_tracking/screens/lifestyle_log_screen.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
-import 'data/local/app_database.dart';
+import 'data/app_database.dart';
 import 'data/services/sync_service.dart';
 import 'features/legal/terms_and_conditions_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';

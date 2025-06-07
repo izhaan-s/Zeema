@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 // import 'package:eczema_health/data/repositories/cloud/photo_repository.dart';
-import 'package:eczema_health/data/repositories/local_storage/photo_repository.dart';
-import 'package:eczema_health/data/local/app_database.dart';
+import 'package:eczema_health/data/repositories/local/photo_repository.dart';
+import 'package:eczema_health/data/app_database.dart';
 import '../widgets/body_part_selector.dart';
 import '../widgets/notes_input.dart';
 

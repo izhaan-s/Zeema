@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../data/models/reminder_model.dart';
-import '../../../data/repositories/local_storage/reminder_repository.dart';
-import '../../../data/local/app_database.dart';
+import '../../../data/repositories/local/reminder_repository.dart';
+import '../../../data/app_database.dart';
 import '../services/reminder_notification_manager.dart';
 import '../services/notification_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';

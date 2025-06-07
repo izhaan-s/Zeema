@@ -1,6 +1,6 @@
 import '../../../data/models/reminder_model.dart';
 import 'notification_service.dart';
-import '../../../data/repositories/local_storage/reminder_repository.dart';
+import '../../../data/repositories/local/reminder_repository.dart';
 
 class ReminderNotificationManager {
   final ReminderRepository _repository;

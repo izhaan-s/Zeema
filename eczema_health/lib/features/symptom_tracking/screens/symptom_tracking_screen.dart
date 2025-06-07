@@ -1,8 +1,8 @@
 import 'package:eczema_health/features/symptom_tracking/screens/symptom_input_screen.dart';
 import 'package:flutter/material.dart';
 import '../widgets/symptom_calendar.dart';
-import 'package:eczema_health/data/repositories/local_storage/symptom_repository.dart';
-import 'package:eczema_health/data/local/app_database.dart';
+import 'package:eczema_health/data/repositories/local/symptom_repository.dart';
+import 'package:eczema_health/data/app_database.dart';
 import 'package:eczema_health/data/models/symptom_entry_model.dart';
 import '../widgets/sympom_entries.dart' as symptom_widgets;
 import 'package:supabase_flutter/supabase_flutter.dart';

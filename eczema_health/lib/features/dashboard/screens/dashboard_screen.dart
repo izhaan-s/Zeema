@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:eczema_health/data/local/app_database.dart';
+import 'package:eczema_health/data/app_database.dart';
 import 'package:eczema_health/data/repositories/cloud/analysis_repository.dart';
-import 'package:eczema_health/data/repositories/local_storage/symptom_repository.dart';
-import 'package:eczema_health/data/repositories/local_storage/dashboard_cache_repository.dart';
+import 'package:eczema_health/data/repositories/local/symptom_repository.dart';
+import 'package:eczema_health/data/repositories/local/dashboard_cache_repository.dart';
 import 'package:eczema_health/features/dashboard/providers/dashboard_provider.dart';
 import 'package:eczema_health/features/dashboard/services/dashboard_service.dart';
 import 'package:eczema_health/features/dashboard/widgets/flare_cluster_chart.dart';

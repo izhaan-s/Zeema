@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart';
-import '../../../data/local/app_database.dart';
-import '../../../data/repositories/local_storage/medication_repository.dart';
+import '../../../data/app_database.dart';
+import '../../../data/repositories/local/medication_repository.dart';
 
 class MedicationSelectionDialog extends StatefulWidget {
   final Set<String> selectedMedications;

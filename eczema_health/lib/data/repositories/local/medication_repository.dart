@@ -1,5 +1,5 @@
 import 'package:drift/drift.dart';
-import '../../local/app_database.dart';
+import '../../app_database.dart';
 import 'dart:convert';
 
 class LocalMedicationRepository {

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../navigation/app_router.dart';
-import '../controllers/reminder_controller.dart';
-import '../../../data/models/reminder_model.dart';
-import '../widgets/reminder_section_card.dart';
-import '../widgets/empty_reminders_view.dart';
+import '../../navigation/app_router.dart';
+import 'reminder_controller.dart';
+import '../../data/models/reminder_model.dart';
+import 'widgets/reminder_section_card.dart';
+import 'widgets/empty_reminders_view.dart';
 
 class RemindersScreen extends StatefulWidget {
   const RemindersScreen({super.key});

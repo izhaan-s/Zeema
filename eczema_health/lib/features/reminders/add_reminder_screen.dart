@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../controllers/reminder_controller.dart';
-import '../widgets/day_selector.dart';
+import 'reminder_controller.dart';
+import 'widgets/day_selector.dart';
 
 class AddReminderScreen extends StatefulWidget {
   const AddReminderScreen({super.key});

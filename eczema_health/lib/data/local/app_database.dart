@@ -136,6 +136,37 @@ class DashboardCache extends Table {
   Set<Column> get primaryKey => {userId};
 }
 
+// Syncing status table
+class SyncState extends Table {
+  TextColumn get userId => text()
+      .customConstraint('NOT NULL REFERENCES profiles(id) ON DELETE CASCADE')();
+  TextColumn get entityName => text()(); // table to sync
+  IntColumn get rowId => integer()(); // row id in the table
+  // crud operation
+  TextColumn get operation => text().customConstraint(
+      "CHECK (operation IN ('insert', 'update', 'delete'))")();
+  BoolColumn get isSynced => boolean().withDefault(const Constant(false))();
+  DateTimeColumn get lastUpdatedAt =>
+      dateTime()(); // last updated time in the table
+  DateTimeColumn get lastSynced => dateTime().nullable()(); // last synced time
+  IntColumn get retryCount =>
+      integer().withDefault(const Constant(0))(); // retry count
+  TextColumn get error => text().nullable()(); // error message
+
+  @override
+  Set<Column> get primaryKey => {userId, entityName, rowId};
+
+  @override
+  List<String> get customConstraints =>
+      ['FOREIGN KEY(userId) REFERENCES profiles(id) ON DELETE CASCADE'];
+
+  @override
+  List<String> get indexes => [
+        'CREATE INDEX idx_sync_state_unsynced ON sync_state(is_synced)',
+        'CREATE INDEX idx_sync_state_last_updated ON sync_state(last_updated_at)'
+      ];
+}
+
 // ------------- DATABASE CLASS -------------
 
 @DriftDatabase(
@@ -148,6 +179,7 @@ class DashboardCache extends Table {
     SymptomEntries,
     SymptomMedicationLinks,
     DashboardCache,
+    SyncState,
   ],
 )
 class AppDatabase extends _$AppDatabase {

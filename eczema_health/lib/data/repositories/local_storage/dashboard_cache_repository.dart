@@ -51,6 +51,8 @@ class DashboardCacheRepository {
         );
   }
 
+  // get dashboard cache from local storage
+  // returns in same format as above
   Future<DashboardData?> getDashboardCache(String userId) async {
     final cache = await (_db.select(_db.dashboardCache)
           ..where((tbl) => tbl.userId.equals(userId)))
@@ -79,6 +81,7 @@ class DashboardCacheRepository {
     );
   }
 
+  // get last symptom count from local storage
   Future<int?> getLastSymptomCount(String userId) async {
     final cache = await (_db.select(_db.dashboardCache)
           ..where((tbl) => tbl.userId.equals(userId)))
@@ -86,6 +89,7 @@ class DashboardCacheRepository {
     return cache?.lastSymptomCount;
   }
 
+  // delete dashboard cache from local storage
   Future<void> deleteDashboardCache(String userId) async {
     await (_db.delete(_db.dashboardCache)
           ..where((tbl) => tbl.userId.equals(userId)))

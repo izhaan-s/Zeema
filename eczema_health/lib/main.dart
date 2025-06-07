@@ -10,7 +10,7 @@ import 'features/reminders/reminders_screen.dart';
 import 'features/reminders/reminder_controller.dart';
 import 'features/reminders/notification_service.dart';
 import 'utils/nav_bar.dart';
-import 'features/symptom_tracking/screens/symptom_tracking_screen.dart';
+import 'features/symptom_tracking/symptom_tracking_screen.dart';
 import 'features/lifestyle_tracking/screens/lifestyle_log_screen.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'data/app_database.dart';

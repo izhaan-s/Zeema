@@ -1,9 +1,9 @@
 import 'package:eczema_health/data/app_database.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../../data/models/symptom_entry_model.dart';
-import '../../../data/repositories/local/symptom_repository.dart';
-import '../widgets/medication_selection_dialog.dart';
+import '../../data/models/symptom_entry_model.dart';
+import '../../data/repositories/local/symptom_repository.dart';
+import 'widgets/medication_selection_dialog.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';

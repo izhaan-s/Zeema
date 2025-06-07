@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:eczema_health/features/dashboard/providers/dashboard_provider.dart';
+import 'package:eczema_health/features/dashboard/dashboard_provider.dart';
 
 /// Utility methods for dashboard functionality
 class DashboardUtils {

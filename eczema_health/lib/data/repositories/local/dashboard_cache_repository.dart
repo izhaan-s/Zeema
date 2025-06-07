@@ -1,6 +1,6 @@
 import 'dart:convert';
 import '../../app_database.dart';
-import '../../../features/dashboard/models/dashboard_data.dart';
+import '../../../features/dashboard/dashboard_data.dart';
 import '../../models/analysis_models.dart';
 
 class DashboardCacheRepository {

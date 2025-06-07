@@ -4,14 +4,14 @@ import 'package:eczema_health/data/app_database.dart';
 import 'package:eczema_health/data/repositories/cloud/analysis_repository.dart';
 import 'package:eczema_health/data/repositories/local/symptom_repository.dart';
 import 'package:eczema_health/data/repositories/local/dashboard_cache_repository.dart';
-import 'package:eczema_health/features/dashboard/providers/dashboard_provider.dart';
-import 'package:eczema_health/features/dashboard/services/dashboard_service.dart';
+import 'package:eczema_health/features/dashboard/dashboard_provider.dart';
+import 'package:eczema_health/features/dashboard/dashboard_service.dart';
 import 'package:eczema_health/features/dashboard/widgets/flare_cluster_chart.dart';
 import 'package:eczema_health/features/dashboard/widgets/symptom_matrix_chart.dart';
 import 'package:eczema_health/features/symptom_tracking/widgets/flare_up_card.dart';
 import 'package:eczema_health/data/models/analysis_models.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../profile/screens/settings_screen.dart';
+import '../profile/screens/settings_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});

@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-import 'package:eczema_health/features/dashboard/models/dashboard_data.dart';
-import 'package:eczema_health/features/dashboard/services/dashboard_service.dart';
+import 'package:eczema_health/features/dashboard/dashboard_data.dart';
+import 'package:eczema_health/features/dashboard/dashboard_service.dart';
 
 /// Provider to manage dashboard state
 class DashboardProvider extends ChangeNotifier {

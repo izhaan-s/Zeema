@@ -4,7 +4,7 @@ import 'package:eczema_health/data/models/analysis_models.dart';
 import 'package:eczema_health/data/repositories/cloud/analysis_repository.dart';
 import 'package:eczema_health/data/repositories/local/dashboard_cache_repository.dart';
 import 'package:eczema_health/data/repositories/local/symptom_repository.dart';
-import 'package:eczema_health/features/dashboard/models/dashboard_data.dart';
+import 'package:eczema_health/features/dashboard/dashboard_data.dart';
 
 /// Coordinates cloud and local repositories and maintains a cached copy of
 /// dashboard‑wide analytics (severity trend, flare clusters, symptom matrix).

@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'config/supabase_secrets.dart';
 import 'features/auth/screens/login_screen.dart';
 import 'navigation/app_router.dart';
-import 'features/dashboard/screens/dashboard_screen.dart';
+import 'features/dashboard/dashboard_screen.dart';
 import 'features/photo_tracking/screens/photo_gallery_screen.dart';
 import 'features/reminders/screens/reminders_screen.dart';
 import 'features/reminders/controllers/reminder_controller.dart';

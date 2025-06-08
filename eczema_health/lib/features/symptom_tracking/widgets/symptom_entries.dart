@@ -28,7 +28,7 @@ class _SymptomEntriesState extends State<SymptomEntries> {
         return SymptomEntryCard(
           symptom: widget.symptoms[index],
           symptomRepository: widget.symptomRepository,
-          onDeleted: () {
+          onChanged: () {
             widget.onSymptomsChanged?.call();
           },
         );

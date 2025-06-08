@@ -12,7 +12,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 
 class SymptomInputScreen extends StatefulWidget {
-  const SymptomInputScreen({super.key});
+  final SymptomEntryModel? symptom;
+
+  const SymptomInputScreen({super.key, this.symptom});
 
   @override
   State<SymptomInputScreen> createState() => _SymptomInputScreenState();
@@ -42,6 +44,27 @@ class _SymptomInputScreenState extends State<SymptomInputScreen> {
   void initState() {
     super.initState();
     _loadPreloadedMedications();
+    _initializeFormData();
+  }
+
+  void _initializeFormData() {
+    if (widget.symptom != null) {
+      final symptom = widget.symptom!;
+      selectedDate = symptom.date;
+      intensity = double.tryParse(symptom.severity) ?? 1.0;
+
+      if (symptom.symptoms != null) {
+        selectedSymptoms.addAll(symptom.symptoms!);
+      }
+
+      if (symptom.medications != null) {
+        selectedMedications.addAll(symptom.medications!);
+      }
+
+      if (symptom.notes != null && symptom.notes!.isNotEmpty) {
+        notesController.text = symptom.notes!.first;
+      }
+    }
   }
 
   Future<void> _loadPreloadedMedications() async {
@@ -148,7 +171,8 @@ class _SymptomInputScreenState extends State<SymptomInputScreen> {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Log Symptoms'),
+          title:
+              Text(widget.symptom != null ? 'Edit Symptoms' : 'Log Symptoms'),
           backgroundColor: Colors.white,
           scrolledUnderElevation: 0,
           surfaceTintColor: Colors.transparent,
@@ -167,33 +191,57 @@ class _SymptomInputScreenState extends State<SymptomInputScreen> {
                 final syncService =
                     Provider.of<SyncService>(context, listen: false);
 
-                final entry = SymptomEntryModel(
-                    id: DateTime.now().millisecondsSinceEpoch.toString(),
-                    userId: Supabase.instance.client.auth.currentUser?.id ?? "",
-                    date: selectedDate,
-                    isFlareup: intensity >= 4,
-                    severity: intensity.toInt().toString(),
-                    affectedAreas: selectedSymptoms.toList(),
-                    symptoms: selectedSymptoms.toList(),
-                    medications: selectedMedications.isNotEmpty
-                        ? selectedMedications.toList()
-                        : null,
-                    notes: notesController.text.isNotEmpty
-                        ? [notesController.text]
-                        : null,
-                    createdAt: DateTime.now(),
-                    updatedAt: DateTime.now());
-
                 try {
-                  // Save locally
-                  await symptomRepository.addSymptomEntry(entry);
+                  if (widget.symptom != null) {
+                    // Update existing entry
+                    final updatedEntry = SymptomEntryModel(
+                        id: widget.symptom!.id,
+                        userId: widget.symptom!.userId,
+                        date: selectedDate,
+                        isFlareup: intensity >= 4,
+                        severity: intensity.toInt().toString(),
+                        affectedAreas: selectedSymptoms.toList(),
+                        symptoms: selectedSymptoms.toList(),
+                        medications: selectedMedications.isNotEmpty
+                            ? selectedMedications.toList()
+                            : null,
+                        notes: notesController.text.isNotEmpty
+                            ? [notesController.text]
+                            : null,
+                        createdAt: widget.symptom!.createdAt,
+                        updatedAt: DateTime.now());
+
+                    await symptomRepository.updateSymptomEntry(updatedEntry);
+                  } else {
+                    // Create new entry
+                    final entry = SymptomEntryModel(
+                        id: DateTime.now().millisecondsSinceEpoch.toString(),
+                        userId:
+                            Supabase.instance.client.auth.currentUser?.id ?? "",
+                        date: selectedDate,
+                        isFlareup: intensity >= 4,
+                        severity: intensity.toInt().toString(),
+                        affectedAreas: selectedSymptoms.toList(),
+                        symptoms: selectedSymptoms.toList(),
+                        medications: selectedMedications.isNotEmpty
+                            ? selectedMedications.toList()
+                            : null,
+                        notes: notesController.text.isNotEmpty
+                            ? [notesController.text]
+                            : null,
+                        createdAt: DateTime.now(),
+                        updatedAt: DateTime.now());
+
+                    await symptomRepository.addSymptomEntry(entry);
+                  }
 
                   // Increment change count and try to sync
                   await syncService.incrementChangeCount('symptom');
                   await syncService.syncData();
 
                   if (mounted) {
-                    Navigator.pop(context);
+                    Navigator.pop(
+                        context, true); // Return true to indicate success
                   }
                 } catch (e) {
                   // Show error message

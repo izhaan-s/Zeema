@@ -25,6 +25,10 @@ class _FlareClusterChartState extends State<FlareClusterChart> {
 
   bool showFlares = true;
 
+  // Track which dates we've already shown to prevent duplicates
+  static final Set<String> _shownDates = <String>{};
+  static int _lastDataHash = 0;
+
   @override
   Widget build(BuildContext context) {
     if (widget.severityData.isEmpty) {
@@ -85,55 +89,98 @@ class _FlareClusterChartState extends State<FlareClusterChart> {
 
     final sortedData = List<SeverityPoint>.from(widget.severityData)
       ..sort((a, b) => a.date.compareTo(b.date));
-    final firstDate = sortedData.first.date;
-    final lastDate = sortedData.last.date;
-    final minX = firstDate.millisecondsSinceEpoch.toDouble();
-    final maxX = lastDate.millisecondsSinceEpoch.toDouble();
 
-    final clampedValue = value.clamp(minX, maxX);
-    final date = DateTime.fromMillisecondsSinceEpoch(clampedValue.toInt());
-    final dateRangeDays = lastDate.difference(firstDate).inDays;
+    // Create a set of actual data point timestamps
+    final dataTimestamps = sortedData
+        .map((e) => e.date.millisecondsSinceEpoch.toDouble())
+        .toList();
 
-    // Check if single day data point
-    final bool isSingleDay = dateRangeDays == 0;
+    // Create a hash of the current data to detect when we need to clear
+    final currentDataHash =
+        dataTimestamps.map((e) => e.toInt()).reduce((a, b) => a ^ b);
 
-    // For single day, only show the exact date
-    if (isSingleDay &&
-        (date.day != firstDate.day || date.month != firstDate.month)) {
+    // Clear the set when we detect a new chart render (different data)
+    if (currentDataHash != _lastDataHash) {
+      _shownDates.clear();
+      _lastDataHash = currentDataHash;
+      print('🔧 DEBUG: Cleared _shownDates (new data detected)');
+    }
+
+    print('🔧 DEBUG: bottomTitleWidgets called with value: $value');
+    print('🔧 DEBUG: Total data points: ${dataTimestamps.length}');
+    print('🔧 DEBUG: Data timestamps: $dataTimestamps');
+
+    // Find the closest actual data point to this value
+    double? closestTimestamp;
+    double minDistance = double.infinity;
+
+    for (final timestamp in dataTimestamps) {
+      final distance = (value - timestamp).abs();
+      if (distance < minDistance) {
+        minDistance = distance;
+        closestTimestamp = timestamp;
+      }
+    }
+
+    print(
+        '🔧 DEBUG: Closest timestamp: $closestTimestamp, Distance: $minDistance');
+
+    // Only show label if we're very close to an actual data point (within 6 hours)
+    if (closestTimestamp == null ||
+        minDistance > const Duration(hours: 6).inMilliseconds) {
+      print('🔧 DEBUG: Skipping - too far from data point');
       return const SizedBox.shrink();
     }
 
-    // For date ranges, reduce number of labels
-    if (!isSingleDay) {
-      // Show fewer labels based on range:
-      // For short ranges (< 30 days): show 1st, 10th, 20th of month or first day of data
-      // For medium ranges (< 90 days): show 1st of each month
-      // For long ranges (> 90 days): show 1st of each month or quarter start
+    final date = DateTime.fromMillisecondsSinceEpoch(closestTimestamp.toInt());
+    final dateRangeDays =
+        sortedData.last.date.difference(sortedData.first.date).inDays;
 
-      // Only show label if:
-      bool shouldShowLabel = false;
+    // Create unique date string to prevent duplicates
+    final String dateText = DateFormat('d MMM').format(date);
 
-      if (date.day == firstDate.day && date.month == firstDate.month) {
-        // Always show first date
-        shouldShowLabel = true;
-      } else if (date.day == lastDate.day && date.month == lastDate.month) {
-        // Always show last date
-        shouldShowLabel = true;
-      } else if (dateRangeDays <= 30) {
-        // For shorter ranges, show every 5th day
-        shouldShowLabel = date.day % 5 == 0;
-      } else if (dateRangeDays <= 90) {
-        // For medium ranges, show 1st and 15th
-        shouldShowLabel = date.day == 1 || date.day == 15;
-      } else {
-        // For long ranges, just show 1st of month
-        shouldShowLabel = date.day == 1;
-      }
+    print('🔧 DEBUG: Date text: $dateText, Date range days: $dateRangeDays');
+    print('🔧 DEBUG: _shownDates before: $_shownDates');
 
-      if (!shouldShowLabel) {
-        return const SizedBox.shrink();
-      }
+    // If we've already shown this date, don't show again
+    if (_shownDates.contains(dateText)) {
+      print('🔧 DEBUG: Already shown $dateText - skipping');
+      return const SizedBox.shrink();
     }
+
+    // Determine which data points to show labels for based on date range
+    final index = dataTimestamps.indexOf(closestTimestamp);
+    final totalPoints = dataTimestamps.length;
+    bool shouldShowLabel = false;
+
+    if (totalPoints == 1) {
+      // Only ONE data point: show it only once (for the first occurrence)
+      shouldShowLabel = index == 0 && !_shownDates.contains(dateText);
+    } else if (dateRangeDays == 0) {
+      // Multiple points same day: show only first one
+      shouldShowLabel = index == 0;
+    } else if (totalPoints <= 3) {
+      // Very few data points: show all of them
+      shouldShowLabel = true;
+    } else if (dateRangeDays <= 7) {
+      // One week: show exactly 3 points (first, middle, last)
+      final middleIndex = totalPoints ~/ 2;
+      shouldShowLabel =
+          index == 0 || index == middleIndex || index == totalPoints - 1;
+    } else if (dateRangeDays <= 30) {
+      // One month: show every 3rd data point + first and last
+      shouldShowLabel = index % 3 == 0 || index == totalPoints - 1;
+    } else {
+      // Longer periods: show every 5th data point + first and last
+      shouldShowLabel = index % 5 == 0 || index == totalPoints - 1;
+    }
+
+    if (!shouldShowLabel) {
+      return const SizedBox.shrink();
+    }
+
+    // Add this date to our shown set to prevent duplicates
+    _shownDates.add(dateText);
 
     const style = TextStyle(
       fontWeight: FontWeight.w600,
@@ -141,13 +188,10 @@ class _FlareClusterChartState extends State<FlareClusterChart> {
       color: Colors.black87,
     );
 
-    // Use this consistent format for all cases
-    final String text = DateFormat('d MMM').format(date);
-
     return SideTitleWidget(
       meta: meta,
       space: 4.0,
-      child: Text(text, style: style),
+      child: Text(dateText, style: style),
     );
   }
 

@@ -6,8 +6,8 @@ import '../features/dashboard/dashboard_screen.dart';
 import '../features/profile/screens/profile_screen.dart';
 import '../features/reminders/reminders_screen.dart';
 import '../features/reminders/add_reminder_screen.dart';
-import '../features/photo_tracking/screens/photo_upload_screen.dart';
-import '../features/photo_tracking/screens/photo_gallery_screen.dart';
+import '../features/photo_tracking/photo_upload_screen.dart';
+import '../features/photo_tracking/photo_gallery_screen.dart';
 import '../features/symptom_tracking/symptom_tracking_screen.dart';
 
 // Class for passing email to verification screen

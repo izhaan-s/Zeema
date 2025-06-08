@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:eczema_health/data/services/sync_service.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
 
 class SymptomInputScreen extends StatefulWidget {
   const SymptomInputScreen({super.key});
@@ -36,24 +37,11 @@ class _SymptomInputScreenState extends State<SymptomInputScreen> {
   final Set<String> selectedMedications = {};
   final TextEditingController notesController = TextEditingController();
   Map<String, String> medicationNames = {};
-  late LocalSymptomRepository _symptomRepository;
-  late SyncService _syncService;
-  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
     _loadPreloadedMedications();
-    _initRepository();
-  }
-
-  Future<void> _initRepository() async {
-    final db = await DBProvider.instance.database;
-    _symptomRepository = LocalSymptomRepository(db);
-    _syncService = SyncService(db);
-    setState(() {
-      _isInitialized = true;
-    });
   }
 
   Future<void> _loadPreloadedMedications() async {
@@ -174,10 +162,10 @@ class _SymptomInputScreenState extends State<SymptomInputScreen> {
             IconButton(
               icon: const Icon(Icons.check),
               onPressed: () async {
-                if (!_isInitialized) {
-                  // Show loading or wait
-                  return;
-                }
+                final symptomRepository =
+                    Provider.of<LocalSymptomRepository>(context, listen: false);
+                final syncService =
+                    Provider.of<SyncService>(context, listen: false);
 
                 final entry = SymptomEntryModel(
                     id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -198,11 +186,11 @@ class _SymptomInputScreenState extends State<SymptomInputScreen> {
 
                 try {
                   // Save locally
-                  await _symptomRepository.addSymptomEntry(entry);
+                  await symptomRepository.addSymptomEntry(entry);
 
                   // Increment change count and try to sync
-                  await _syncService.incrementChangeCount('symptom');
-                  await _syncService.syncData();
+                  await syncService.incrementChangeCount('symptom');
+                  await syncService.syncData();
 
                   if (mounted) {
                     Navigator.pop(context);

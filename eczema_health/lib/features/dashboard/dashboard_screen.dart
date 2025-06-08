@@ -40,11 +40,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _initDependencies() async {
-    // Set up the dependencies
+    // Set up the dependencies using Provider injection
     final cloudRepo = AnalysisRepository();
-    final db = await DBProvider.instance.database;
-    final localRepo = LocalSymptomRepository(db);
-    final cacheRepo = DashboardCacheRepository(db);
+    final localRepo =
+        Provider.of<LocalSymptomRepository>(context, listen: false);
+    final cacheRepo =
+        Provider.of<DashboardCacheRepository>(context, listen: false);
     final service = DashboardService(
       cloudRepo: cloudRepo,
       localRepo: localRepo,

@@ -2,11 +2,11 @@ import 'package:eczema_health/features/symptom_tracking/symptom_input_screen.dar
 import 'package:flutter/material.dart';
 import 'widgets/symptom_calendar.dart';
 import 'package:eczema_health/data/repositories/local/symptom_repository.dart';
-import 'package:eczema_health/data/app_database.dart';
 import 'package:eczema_health/data/models/symptom_entry_model.dart';
 import 'widgets/symptom_entries.dart' as symptom_widgets;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:eczema_health/data/services/sync_service.dart';
+import 'package:provider/provider.dart';
 
 class SymptomTrackingScreen extends StatefulWidget {
   const SymptomTrackingScreen({super.key});
@@ -16,8 +16,6 @@ class SymptomTrackingScreen extends StatefulWidget {
 }
 
 class _SymptomTrackingScreenState extends State<SymptomTrackingScreen> {
-  late final LocalSymptomRepository _symptomRepository;
-  late final SyncService _syncService;
   final String userId = Supabase.instance.client.auth.currentUser?.id ?? "";
   List<SymptomEntryModel> _symptoms = [];
   bool _isLoading = true;
@@ -25,23 +23,20 @@ class _SymptomTrackingScreenState extends State<SymptomTrackingScreen> {
   @override
   void initState() {
     super.initState();
-    _initDependencies();
-  }
-
-  Future<void> _initDependencies() async {
-    final db = await DBProvider.instance.database;
-    _symptomRepository = LocalSymptomRepository(db);
-    _syncService = SyncService(db);
-    await _loadSymptoms();
+    _loadSymptoms();
   }
 
   Future<void> _loadSymptoms() async {
+    final symptomRepository =
+        Provider.of<LocalSymptomRepository>(context, listen: false);
+    final syncService = Provider.of<SyncService>(context, listen: false);
+
     try {
       // Try to sync data first
-      await _syncService.syncData();
+      await syncService.syncData();
 
       // Then load local symptoms
-      final symptoms = await _symptomRepository.getSymptomEntries(userId);
+      final symptoms = await symptomRepository.getSymptomEntries(userId);
       setState(() {
         _symptoms = symptoms;
         _isLoading = false;
@@ -49,7 +44,7 @@ class _SymptomTrackingScreenState extends State<SymptomTrackingScreen> {
     } catch (e) {
       print('Error loading symptoms: $e');
       // If sync fails, still try to load local data
-      final symptoms = await _symptomRepository.getSymptomEntries(userId);
+      final symptoms = await symptomRepository.getSymptomEntries(userId);
       setState(() {
         _symptoms = symptoms;
         _isLoading = false;
@@ -112,7 +107,18 @@ class _SymptomTrackingScreenState extends State<SymptomTrackingScreen> {
           ),
           const SizedBox(height: 8),
           Expanded(
-            child: symptom_widgets.SymptomEntries(symptoms: _symptoms),
+            child: Consumer<LocalSymptomRepository>(
+              builder: (context, symptomRepository, child) {
+                return symptom_widgets.SymptomEntries(
+                  symptoms: _symptoms,
+                  symptomRepository: symptomRepository,
+                  onSymptomsChanged: () {
+                    // Refresh the symptoms list when a symptom is deleted
+                    _loadSymptoms();
+                  },
+                );
+              },
+            ),
           ),
         ],
       ),

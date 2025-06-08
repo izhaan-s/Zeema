@@ -5,7 +5,7 @@ import 'config/supabase_secrets.dart';
 import 'features/auth/screens/login_screen.dart';
 import 'navigation/app_router.dart';
 import 'features/dashboard/dashboard_screen.dart';
-import 'features/photo_tracking/screens/photo_gallery_screen.dart';
+import 'features/photo_tracking/photo_gallery_screen.dart';
 import 'features/reminders/reminders_screen.dart';
 import 'features/reminders/reminder_controller.dart';
 import 'features/reminders/notification_service.dart';
@@ -15,6 +15,12 @@ import 'features/lifestyle_tracking/screens/lifestyle_log_screen.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'data/app_database.dart';
 import 'data/services/sync_service.dart';
+import 'data/repositories/local/symptom_repository.dart';
+import 'data/repositories/local/photo_repository.dart';
+import 'data/repositories/local/reminder_repository.dart';
+import 'data/repositories/local/medication_repository.dart';
+import 'data/repositories/local/dashboard_cache_repository.dart';
+import 'data/repositories/cloud/symptom_repository.dart';
 import 'features/legal/terms_and_conditions_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -42,7 +48,56 @@ Future<void> main() async {
     url: SupabaseSecrets.supabaseUrl,
     anonKey: SupabaseSecrets.supabaseKey,
   );
-  runApp(const EczemaHealthApp());
+
+  // Initialize database and all dependencies
+  final appDatabase = AppDatabase();
+
+  // Create all repositories with the database instance
+  final localSymptomRepository = LocalSymptomRepository(appDatabase);
+  final photoRepository = PhotoRepository(appDatabase);
+  final reminderRepository = ReminderRepository(appDatabase);
+  final medicationRepository = LocalMedicationRepository(appDatabase);
+  final dashboardCacheRepository = DashboardCacheRepository(appDatabase);
+
+  // Create services that depend on repositories
+  final syncService = SyncService(
+    db: appDatabase,
+    localSymptomRepo: localSymptomRepository,
+    photoRepo: photoRepository,
+    reminderRepo: reminderRepository,
+    cloudRepo: SymptomRepository(),
+  );
+
+  // Perform initial sync
+  await syncService.syncData();
+
+  runApp(
+    MultiProvider(
+      providers: [
+        // Core database
+        Provider<AppDatabase>.value(value: appDatabase),
+
+        // Repositories
+        Provider<LocalSymptomRepository>.value(value: localSymptomRepository),
+        Provider<PhotoRepository>.value(value: photoRepository),
+        Provider<ReminderRepository>.value(value: reminderRepository),
+        Provider<LocalMedicationRepository>.value(value: medicationRepository),
+        Provider<DashboardCacheRepository>.value(
+            value: dashboardCacheRepository),
+
+        // Services
+        Provider<SyncService>.value(value: syncService),
+
+        // Controllers (these can remain as ChangeNotifierProvider since they manage state)
+        ChangeNotifierProvider(
+          create: (context) => ReminderController(
+            repository: Provider.of<ReminderRepository>(context, listen: false),
+          ),
+        ),
+      ],
+      child: const EczemaHealthApp(),
+    ),
+  );
 }
 
 // This class handles notification actions
@@ -87,21 +142,16 @@ class EczemaHealthApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => ReminderController()),
-      ],
-      child: MaterialApp(
-        title: 'Eczema Health',
-        navigatorKey: navigatorKey,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-          useMaterial3: true,
-        ),
-        home: const TermsOrAuthGate(),
-        // Keep onGenerateRoute for auth and deep links
-        onGenerateRoute: AppRouter.generateRoute,
+    return MaterialApp(
+      title: 'Eczema Health',
+      navigatorKey: navigatorKey,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        useMaterial3: true,
       ),
+      home: const TermsOrAuthGate(),
+      // Keep onGenerateRoute for auth and deep links
+      onGenerateRoute: AppRouter.generateRoute,
     );
   }
 }
@@ -202,8 +252,7 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Future<void> _runAutoSync() async {
-    final db = await DBProvider.instance.database;
-    final syncService = SyncService(db);
+    final syncService = Provider.of<SyncService>(context, listen: false);
     try {
       await syncService.syncData();
       print('Auto sync complete!');

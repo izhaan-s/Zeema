@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../../../navigation/app_router.dart';
-import '../widgets/album_list_item.dart';
-import '../widgets/photo_grid_item.dart';
-import '../../../data/repositories/local/photo_repository.dart';
-import '../../../data/app_database.dart';
+import '../../navigation/app_router.dart';
+import 'widgets/album_list_item.dart';
+import 'widgets/photo_grid_item.dart';
+import '../../data/repositories/local/photo_repository.dart';
+import 'package:provider/provider.dart';
 import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -53,7 +53,7 @@ class _PhotoGalleryScreenState extends State<PhotoGalleryScreen> {
   }
 
   Future<void> _initRepository() async {
-    photoRepository = await PhotoRepository.create();
+    photoRepository = Provider.of<PhotoRepository>(context, listen: false);
     await _loadPhotos();
   }
 

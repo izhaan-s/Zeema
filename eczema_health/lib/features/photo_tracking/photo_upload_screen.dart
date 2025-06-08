@@ -4,9 +4,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 // import 'package:eczema_health/data/repositories/cloud/photo_repository.dart';
 import 'package:eczema_health/data/repositories/local/photo_repository.dart';
-import 'package:eczema_health/data/app_database.dart';
-import '../widgets/body_part_selector.dart';
-import '../widgets/notes_input.dart';
+import 'package:provider/provider.dart';
+import 'widgets/body_part_selector.dart';
+import 'widgets/notes_input.dart';
 
 class PhotoUploadScreen extends StatefulWidget {
   const PhotoUploadScreen({super.key});
@@ -29,14 +29,7 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
   @override
   void initState() {
     super.initState();
-    _initRepository();
-  }
-
-  Future<void> _initRepository() async {
-    final db = await DBProvider.instance.database;
-    setState(() {
-      localPhotoRepository = PhotoRepository(db);
-    });
+    localPhotoRepository = Provider.of<PhotoRepository>(context, listen: false);
   }
 
   final List<String> bodyParts = [

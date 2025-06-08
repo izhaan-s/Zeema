@@ -7,27 +7,19 @@ import 'notification_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ReminderController extends ChangeNotifier {
-  late final ReminderRepository _repository;
+  final ReminderRepository _repository;
   List<ReminderModel> _reminders = [];
   bool _isLoading = false;
-  bool _isInitialized = false;
 
-  ReminderController() {
-    _initLocalRepository();
+  ReminderController({required ReminderRepository repository})
+      : _repository = repository {
+    loadReminders();
   }
 
   List<ReminderModel> get reminders => _reminders;
   bool get isLoading => _isLoading;
 
-  Future<void> _initLocalRepository() async {
-    final db = await DBProvider.instance.database;
-    _repository = ReminderRepository(db);
-    _isInitialized = true;
-    await loadReminders();
-  }
-
   Future<void> loadReminders() async {
-    if (!_isInitialized) return;
     _isLoading = true;
     notifyListeners();
 
@@ -75,12 +67,6 @@ class ReminderController extends ChangeNotifier {
     }
   }
 
-  Future<void> _ensureInitialized() async {
-    while (!_isInitialized) {
-      await Future.delayed(const Duration(milliseconds: 10));
-    }
-  }
-
   Future<ReminderModel?> createReminder({
     required String title,
     String? description,
@@ -88,7 +74,6 @@ class ReminderController extends ChangeNotifier {
     required List<bool> repeatDays,
     String? dosage,
   }) async {
-    await _ensureInitialized();
     try {
       final now = DateTime.now();
       final userId = Supabase.instance.client.auth.currentUser?.id;
@@ -117,7 +102,6 @@ class ReminderController extends ChangeNotifier {
   }
 
   Future<void> deleteReminder(String id) async {
-    await _ensureInitialized();
     try {
       // Find reminder before deleting to cancel its notification
       final reminderToDelete =
@@ -139,7 +123,6 @@ class ReminderController extends ChangeNotifier {
   }
 
   Future<void> toggleReminderStatus(String id, bool isActive) async {
-    await _ensureInitialized();
     try {
       // await _repository.updateReminderStatus(id, isActive);
       final index = _reminders.indexWhere((reminder) => reminder.id == id);

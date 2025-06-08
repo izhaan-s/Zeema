@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart';
-import '../../../data/app_database.dart';
+import 'package:provider/provider.dart';
 import '../../../data/repositories/local/medication_repository.dart';
 
 class MedicationSelectionDialog extends StatefulWidget {
@@ -29,22 +29,10 @@ class _MedicationSelectionDialogState extends State<MedicationSelectionDialog> {
   late Set<String> tempSelectedMedications;
   String searchQuery = '';
   String selectedCategory = 'All';
-  late LocalMedicationRepository _medicationRepository;
-  bool _isInitialized = false;
-
   @override
   void initState() {
     super.initState();
     tempSelectedMedications = Set.from(widget.selectedMedications);
-    _initRepository();
-  }
-
-  Future<void> _initRepository() async {
-    final db = await DBProvider.instance.database;
-    _medicationRepository = LocalMedicationRepository(db);
-    setState(() {
-      _isInitialized = true;
-    });
     _loadPreloadedMedications();
     _loadUserMedications();
   }
@@ -64,11 +52,11 @@ class _MedicationSelectionDialogState extends State<MedicationSelectionDialog> {
   }
 
   Future<void> _loadUserMedications() async {
-    if (!_isInitialized) return;
-
     try {
+      final medicationRepository =
+          Provider.of<LocalMedicationRepository>(context, listen: false);
       final medications =
-          await _medicationRepository.getUserMedications(widget.userId);
+          await medicationRepository.getUserMedications(widget.userId);
       setState(() {
         userMedications = medications.map((med) => med.toJson()).toList();
       });

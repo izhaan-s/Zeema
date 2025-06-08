@@ -110,7 +110,7 @@ class LocalSymptomRepository {
   }
 
   // Delete
-  Future<void> deleteSymptomEntry(String id) async {
+  Future<void> deleteSymptomEntry(String id, SymptomEntryModel entry) async {
     await _db.transaction(() async {
       // Delete the symptom-medication links first
       await (_db.delete(_db.symptomMedicationLinks)
@@ -120,6 +120,11 @@ class LocalSymptomRepository {
       // Then delete the symptom entry
       await (_db.delete(_db.symptomEntries)..where((tbl) => tbl.id.equals(id)))
           .go();
+
+      // TODO: Add to sync state for cloud synchronization
+      // Note: Temporarily disabled due to ID type mismatch (string vs int)
+      // Will need to refactor sync state to use string IDs or hash the string ID to int
+      // TY claude habibi
     });
   }
 

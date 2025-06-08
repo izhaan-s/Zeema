@@ -140,11 +140,11 @@ class DashboardCache extends Table {
 class SyncState extends Table {
   TextColumn get userId => text()
       .customConstraint('NOT NULL REFERENCES profiles(id) ON DELETE CASCADE')();
-  TextColumn get entityName => text()(); // table to sync
+  TextColumn get targetTable => text()(); // table to sync
   IntColumn get rowId => integer()(); // row id in the table
   // crud operation
   TextColumn get operation => text().customConstraint(
-      "CHECK (operation IN ('insert', 'update', 'delete'))")();
+      "NOT NULL CHECK (operation IN ('insert', 'update', 'delete'))")();
   BoolColumn get isSynced => boolean().withDefault(const Constant(false))();
   DateTimeColumn get lastUpdatedAt =>
       dateTime()(); // last updated time in the table
@@ -154,7 +154,7 @@ class SyncState extends Table {
   TextColumn get error => text().nullable()(); // error message
 
   @override
-  Set<Column> get primaryKey => {userId, entityName, rowId};
+  Set<Column> get primaryKey => {userId, targetTable, rowId};
 
   @override
   List<String> get customConstraints =>
@@ -252,21 +252,4 @@ Future<void> _handleDatabaseRecreation() async {
   }
 }
 
-// Add this singleton pattern
-class DBProvider {
-  // Private constructor
-  DBProvider._();
-
-  // Singleton instance
-  static final DBProvider instance = DBProvider._();
-
-  // Database instance
-  AppDatabase? _database;
-
-  // Get database, create if it doesn't exist
-  Future<AppDatabase> get database async {
-    if (_database != null) return _database!;
-    _database = AppDatabase();
-    return _database!;
-  }
-}
+// DBProvider singleton removed - using dependency injection via Provider package instead

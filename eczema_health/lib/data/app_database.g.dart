@@ -4112,6 +4112,491 @@ class DashboardCacheCompanion extends UpdateCompanion<DashboardCacheData> {
   }
 }
 
+class $SyncStateTable extends SyncState
+    with TableInfo<$SyncStateTable, SyncStateData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SyncStateTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+      'user_id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL REFERENCES profiles(id) ON DELETE CASCADE');
+  static const VerificationMeta _targetTableMeta =
+      const VerificationMeta('targetTable');
+  @override
+  late final GeneratedColumn<String> targetTable = GeneratedColumn<String>(
+      'target_table', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _rowIdMeta = const VerificationMeta('rowId');
+  @override
+  late final GeneratedColumn<int> rowId = GeneratedColumn<int>(
+      'row_id', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _operationMeta =
+      const VerificationMeta('operation');
+  @override
+  late final GeneratedColumn<String> operation = GeneratedColumn<String>(
+      'operation', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      $customConstraints:
+          'NOT NULL CHECK (operation IN (\'insert\', \'update\', \'delete\'))');
+  static const VerificationMeta _isSyncedMeta =
+      const VerificationMeta('isSynced');
+  @override
+  late final GeneratedColumn<bool> isSynced = GeneratedColumn<bool>(
+      'is_synced', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_synced" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _lastUpdatedAtMeta =
+      const VerificationMeta('lastUpdatedAt');
+  @override
+  late final GeneratedColumn<DateTime> lastUpdatedAt =
+      GeneratedColumn<DateTime>('last_updated_at', aliasedName, false,
+          type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _lastSyncedMeta =
+      const VerificationMeta('lastSynced');
+  @override
+  late final GeneratedColumn<DateTime> lastSynced = GeneratedColumn<DateTime>(
+      'last_synced', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _retryCountMeta =
+      const VerificationMeta('retryCount');
+  @override
+  late final GeneratedColumn<int> retryCount = GeneratedColumn<int>(
+      'retry_count', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _errorMeta = const VerificationMeta('error');
+  @override
+  late final GeneratedColumn<String> error = GeneratedColumn<String>(
+      'error', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        userId,
+        targetTable,
+        rowId,
+        operation,
+        isSynced,
+        lastUpdatedAt,
+        lastSynced,
+        retryCount,
+        error
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'sync_state';
+  @override
+  VerificationContext validateIntegrity(Insertable<SyncStateData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('user_id')) {
+      context.handle(_userIdMeta,
+          userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta));
+    } else if (isInserting) {
+      context.missing(_userIdMeta);
+    }
+    if (data.containsKey('target_table')) {
+      context.handle(
+          _targetTableMeta,
+          targetTable.isAcceptableOrUnknown(
+              data['target_table']!, _targetTableMeta));
+    } else if (isInserting) {
+      context.missing(_targetTableMeta);
+    }
+    if (data.containsKey('row_id')) {
+      context.handle(
+          _rowIdMeta, rowId.isAcceptableOrUnknown(data['row_id']!, _rowIdMeta));
+    } else if (isInserting) {
+      context.missing(_rowIdMeta);
+    }
+    if (data.containsKey('operation')) {
+      context.handle(_operationMeta,
+          operation.isAcceptableOrUnknown(data['operation']!, _operationMeta));
+    } else if (isInserting) {
+      context.missing(_operationMeta);
+    }
+    if (data.containsKey('is_synced')) {
+      context.handle(_isSyncedMeta,
+          isSynced.isAcceptableOrUnknown(data['is_synced']!, _isSyncedMeta));
+    }
+    if (data.containsKey('last_updated_at')) {
+      context.handle(
+          _lastUpdatedAtMeta,
+          lastUpdatedAt.isAcceptableOrUnknown(
+              data['last_updated_at']!, _lastUpdatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_lastUpdatedAtMeta);
+    }
+    if (data.containsKey('last_synced')) {
+      context.handle(
+          _lastSyncedMeta,
+          lastSynced.isAcceptableOrUnknown(
+              data['last_synced']!, _lastSyncedMeta));
+    }
+    if (data.containsKey('retry_count')) {
+      context.handle(
+          _retryCountMeta,
+          retryCount.isAcceptableOrUnknown(
+              data['retry_count']!, _retryCountMeta));
+    }
+    if (data.containsKey('error')) {
+      context.handle(
+          _errorMeta, error.isAcceptableOrUnknown(data['error']!, _errorMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {userId, targetTable, rowId};
+  @override
+  SyncStateData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SyncStateData(
+      userId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}user_id'])!,
+      targetTable: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}target_table'])!,
+      rowId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}row_id'])!,
+      operation: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}operation'])!,
+      isSynced: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_synced'])!,
+      lastUpdatedAt: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}last_updated_at'])!,
+      lastSynced: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}last_synced']),
+      retryCount: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}retry_count'])!,
+      error: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}error']),
+    );
+  }
+
+  @override
+  $SyncStateTable createAlias(String alias) {
+    return $SyncStateTable(attachedDatabase, alias);
+  }
+}
+
+class SyncStateData extends DataClass implements Insertable<SyncStateData> {
+  final String userId;
+  final String targetTable;
+  final int rowId;
+  final String operation;
+  final bool isSynced;
+  final DateTime lastUpdatedAt;
+  final DateTime? lastSynced;
+  final int retryCount;
+  final String? error;
+  const SyncStateData(
+      {required this.userId,
+      required this.targetTable,
+      required this.rowId,
+      required this.operation,
+      required this.isSynced,
+      required this.lastUpdatedAt,
+      this.lastSynced,
+      required this.retryCount,
+      this.error});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['user_id'] = Variable<String>(userId);
+    map['target_table'] = Variable<String>(targetTable);
+    map['row_id'] = Variable<int>(rowId);
+    map['operation'] = Variable<String>(operation);
+    map['is_synced'] = Variable<bool>(isSynced);
+    map['last_updated_at'] = Variable<DateTime>(lastUpdatedAt);
+    if (!nullToAbsent || lastSynced != null) {
+      map['last_synced'] = Variable<DateTime>(lastSynced);
+    }
+    map['retry_count'] = Variable<int>(retryCount);
+    if (!nullToAbsent || error != null) {
+      map['error'] = Variable<String>(error);
+    }
+    return map;
+  }
+
+  SyncStateCompanion toCompanion(bool nullToAbsent) {
+    return SyncStateCompanion(
+      userId: Value(userId),
+      targetTable: Value(targetTable),
+      rowId: Value(rowId),
+      operation: Value(operation),
+      isSynced: Value(isSynced),
+      lastUpdatedAt: Value(lastUpdatedAt),
+      lastSynced: lastSynced == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastSynced),
+      retryCount: Value(retryCount),
+      error:
+          error == null && nullToAbsent ? const Value.absent() : Value(error),
+    );
+  }
+
+  factory SyncStateData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SyncStateData(
+      userId: serializer.fromJson<String>(json['userId']),
+      targetTable: serializer.fromJson<String>(json['targetTable']),
+      rowId: serializer.fromJson<int>(json['rowId']),
+      operation: serializer.fromJson<String>(json['operation']),
+      isSynced: serializer.fromJson<bool>(json['isSynced']),
+      lastUpdatedAt: serializer.fromJson<DateTime>(json['lastUpdatedAt']),
+      lastSynced: serializer.fromJson<DateTime?>(json['lastSynced']),
+      retryCount: serializer.fromJson<int>(json['retryCount']),
+      error: serializer.fromJson<String?>(json['error']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'userId': serializer.toJson<String>(userId),
+      'targetTable': serializer.toJson<String>(targetTable),
+      'rowId': serializer.toJson<int>(rowId),
+      'operation': serializer.toJson<String>(operation),
+      'isSynced': serializer.toJson<bool>(isSynced),
+      'lastUpdatedAt': serializer.toJson<DateTime>(lastUpdatedAt),
+      'lastSynced': serializer.toJson<DateTime?>(lastSynced),
+      'retryCount': serializer.toJson<int>(retryCount),
+      'error': serializer.toJson<String?>(error),
+    };
+  }
+
+  SyncStateData copyWith(
+          {String? userId,
+          String? targetTable,
+          int? rowId,
+          String? operation,
+          bool? isSynced,
+          DateTime? lastUpdatedAt,
+          Value<DateTime?> lastSynced = const Value.absent(),
+          int? retryCount,
+          Value<String?> error = const Value.absent()}) =>
+      SyncStateData(
+        userId: userId ?? this.userId,
+        targetTable: targetTable ?? this.targetTable,
+        rowId: rowId ?? this.rowId,
+        operation: operation ?? this.operation,
+        isSynced: isSynced ?? this.isSynced,
+        lastUpdatedAt: lastUpdatedAt ?? this.lastUpdatedAt,
+        lastSynced: lastSynced.present ? lastSynced.value : this.lastSynced,
+        retryCount: retryCount ?? this.retryCount,
+        error: error.present ? error.value : this.error,
+      );
+  SyncStateData copyWithCompanion(SyncStateCompanion data) {
+    return SyncStateData(
+      userId: data.userId.present ? data.userId.value : this.userId,
+      targetTable:
+          data.targetTable.present ? data.targetTable.value : this.targetTable,
+      rowId: data.rowId.present ? data.rowId.value : this.rowId,
+      operation: data.operation.present ? data.operation.value : this.operation,
+      isSynced: data.isSynced.present ? data.isSynced.value : this.isSynced,
+      lastUpdatedAt: data.lastUpdatedAt.present
+          ? data.lastUpdatedAt.value
+          : this.lastUpdatedAt,
+      lastSynced:
+          data.lastSynced.present ? data.lastSynced.value : this.lastSynced,
+      retryCount:
+          data.retryCount.present ? data.retryCount.value : this.retryCount,
+      error: data.error.present ? data.error.value : this.error,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyncStateData(')
+          ..write('userId: $userId, ')
+          ..write('targetTable: $targetTable, ')
+          ..write('rowId: $rowId, ')
+          ..write('operation: $operation, ')
+          ..write('isSynced: $isSynced, ')
+          ..write('lastUpdatedAt: $lastUpdatedAt, ')
+          ..write('lastSynced: $lastSynced, ')
+          ..write('retryCount: $retryCount, ')
+          ..write('error: $error')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(userId, targetTable, rowId, operation,
+      isSynced, lastUpdatedAt, lastSynced, retryCount, error);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SyncStateData &&
+          other.userId == this.userId &&
+          other.targetTable == this.targetTable &&
+          other.rowId == this.rowId &&
+          other.operation == this.operation &&
+          other.isSynced == this.isSynced &&
+          other.lastUpdatedAt == this.lastUpdatedAt &&
+          other.lastSynced == this.lastSynced &&
+          other.retryCount == this.retryCount &&
+          other.error == this.error);
+}
+
+class SyncStateCompanion extends UpdateCompanion<SyncStateData> {
+  final Value<String> userId;
+  final Value<String> targetTable;
+  final Value<int> rowId;
+  final Value<String> operation;
+  final Value<bool> isSynced;
+  final Value<DateTime> lastUpdatedAt;
+  final Value<DateTime?> lastSynced;
+  final Value<int> retryCount;
+  final Value<String?> error;
+  final Value<int> rowid;
+  const SyncStateCompanion({
+    this.userId = const Value.absent(),
+    this.targetTable = const Value.absent(),
+    this.rowId = const Value.absent(),
+    this.operation = const Value.absent(),
+    this.isSynced = const Value.absent(),
+    this.lastUpdatedAt = const Value.absent(),
+    this.lastSynced = const Value.absent(),
+    this.retryCount = const Value.absent(),
+    this.error = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SyncStateCompanion.insert({
+    required String userId,
+    required String targetTable,
+    required int rowId,
+    required String operation,
+    this.isSynced = const Value.absent(),
+    required DateTime lastUpdatedAt,
+    this.lastSynced = const Value.absent(),
+    this.retryCount = const Value.absent(),
+    this.error = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : userId = Value(userId),
+        targetTable = Value(targetTable),
+        rowId = Value(rowId),
+        operation = Value(operation),
+        lastUpdatedAt = Value(lastUpdatedAt);
+  static Insertable<SyncStateData> custom({
+    Expression<String>? userId,
+    Expression<String>? targetTable,
+    Expression<int>? rowId,
+    Expression<String>? operation,
+    Expression<bool>? isSynced,
+    Expression<DateTime>? lastUpdatedAt,
+    Expression<DateTime>? lastSynced,
+    Expression<int>? retryCount,
+    Expression<String>? error,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (userId != null) 'user_id': userId,
+      if (targetTable != null) 'target_table': targetTable,
+      if (rowId != null) 'row_id': rowId,
+      if (operation != null) 'operation': operation,
+      if (isSynced != null) 'is_synced': isSynced,
+      if (lastUpdatedAt != null) 'last_updated_at': lastUpdatedAt,
+      if (lastSynced != null) 'last_synced': lastSynced,
+      if (retryCount != null) 'retry_count': retryCount,
+      if (error != null) 'error': error,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SyncStateCompanion copyWith(
+      {Value<String>? userId,
+      Value<String>? targetTable,
+      Value<int>? rowId,
+      Value<String>? operation,
+      Value<bool>? isSynced,
+      Value<DateTime>? lastUpdatedAt,
+      Value<DateTime?>? lastSynced,
+      Value<int>? retryCount,
+      Value<String?>? error,
+      Value<int>? rowid}) {
+    return SyncStateCompanion(
+      userId: userId ?? this.userId,
+      targetTable: targetTable ?? this.targetTable,
+      rowId: rowId ?? this.rowId,
+      operation: operation ?? this.operation,
+      isSynced: isSynced ?? this.isSynced,
+      lastUpdatedAt: lastUpdatedAt ?? this.lastUpdatedAt,
+      lastSynced: lastSynced ?? this.lastSynced,
+      retryCount: retryCount ?? this.retryCount,
+      error: error ?? this.error,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
+    }
+    if (targetTable.present) {
+      map['target_table'] = Variable<String>(targetTable.value);
+    }
+    if (rowId.present) {
+      map['row_id'] = Variable<int>(rowId.value);
+    }
+    if (operation.present) {
+      map['operation'] = Variable<String>(operation.value);
+    }
+    if (isSynced.present) {
+      map['is_synced'] = Variable<bool>(isSynced.value);
+    }
+    if (lastUpdatedAt.present) {
+      map['last_updated_at'] = Variable<DateTime>(lastUpdatedAt.value);
+    }
+    if (lastSynced.present) {
+      map['last_synced'] = Variable<DateTime>(lastSynced.value);
+    }
+    if (retryCount.present) {
+      map['retry_count'] = Variable<int>(retryCount.value);
+    }
+    if (error.present) {
+      map['error'] = Variable<String>(error.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyncStateCompanion(')
+          ..write('userId: $userId, ')
+          ..write('targetTable: $targetTable, ')
+          ..write('rowId: $rowId, ')
+          ..write('operation: $operation, ')
+          ..write('isSynced: $isSynced, ')
+          ..write('lastUpdatedAt: $lastUpdatedAt, ')
+          ..write('lastSynced: $lastSynced, ')
+          ..write('retryCount: $retryCount, ')
+          ..write('error: $error, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -4125,6 +4610,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $SymptomMedicationLinksTable symptomMedicationLinks =
       $SymptomMedicationLinksTable(this);
   late final $DashboardCacheTable dashboardCache = $DashboardCacheTable(this);
+  late final $SyncStateTable syncState = $SyncStateTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -4137,7 +4623,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         lifestyleEntries,
         symptomEntries,
         symptomMedicationLinks,
-        dashboardCache
+        dashboardCache,
+        syncState
       ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules(
@@ -4203,6 +4690,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
                 limitUpdateKind: UpdateKind.delete),
             result: [
               TableUpdate('dashboard_cache', kind: UpdateKind.delete),
+            ],
+          ),
+          WritePropagation(
+            on: TableUpdateQuery.onTableName('profiles',
+                limitUpdateKind: UpdateKind.delete),
+            result: [
+              TableUpdate('sync_state', kind: UpdateKind.delete),
             ],
           ),
         ],
@@ -4347,6 +4841,20 @@ final class $$ProfilesTableReferences
         .filter((f) => f.userId.id.sqlEquals($_itemColumn<String>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_dashboardCacheRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+
+  static MultiTypedResultKey<$SyncStateTable, List<SyncStateData>>
+      _syncStateRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+          db.syncState,
+          aliasName: $_aliasNameGenerator(db.profiles.id, db.syncState.userId));
+
+  $$SyncStateTableProcessedTableManager get syncStateRefs {
+    final manager = $$SyncStateTableTableManager($_db, $_db.syncState)
+        .filter((f) => f.userId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_syncStateRefsTable($_db));
     return ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: cache));
   }
@@ -4536,6 +5044,27 @@ class $$ProfilesTableFilterComposer
             $$DashboardCacheTableFilterComposer(
               $db: $db,
               $table: $db.dashboardCache,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<bool> syncStateRefs(
+      Expression<bool> Function($$SyncStateTableFilterComposer f) f) {
+    final $$SyncStateTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.syncState,
+        getReferencedColumn: (t) => t.userId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$SyncStateTableFilterComposer(
+              $db: $db,
+              $table: $db.syncState,
               $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
               joinBuilder: joinBuilder,
               $removeJoinBuilderFromRootComposer:
@@ -4780,6 +5309,27 @@ class $$ProfilesTableAnnotationComposer
             ));
     return f(composer);
   }
+
+  Expression<T> syncStateRefs<T extends Object>(
+      Expression<T> Function($$SyncStateTableAnnotationComposer a) f) {
+    final $$SyncStateTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.syncState,
+        getReferencedColumn: (t) => t.userId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$SyncStateTableAnnotationComposer(
+              $db: $db,
+              $table: $db.syncState,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
 }
 
 class $$ProfilesTableTableManager extends RootTableManager<
@@ -4800,7 +5350,8 @@ class $$ProfilesTableTableManager extends RootTableManager<
         bool lifestyleEntriesRefs,
         bool symptomEntriesRefs,
         bool symptomMedicationLinksRefs,
-        bool dashboardCacheRefs})> {
+        bool dashboardCacheRefs,
+        bool syncStateRefs})> {
   $$ProfilesTableTableManager(_$AppDatabase db, $ProfilesTable table)
       : super(TableManagerState(
           db: db,
@@ -4878,7 +5429,8 @@ class $$ProfilesTableTableManager extends RootTableManager<
               lifestyleEntriesRefs = false,
               symptomEntriesRefs = false,
               symptomMedicationLinksRefs = false,
-              dashboardCacheRefs = false}) {
+              dashboardCacheRefs = false,
+              syncStateRefs = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [
@@ -4888,7 +5440,8 @@ class $$ProfilesTableTableManager extends RootTableManager<
                 if (lifestyleEntriesRefs) db.lifestyleEntries,
                 if (symptomEntriesRefs) db.symptomEntries,
                 if (symptomMedicationLinksRefs) db.symptomMedicationLinks,
-                if (dashboardCacheRefs) db.dashboardCache
+                if (dashboardCacheRefs) db.dashboardCache,
+                if (syncStateRefs) db.syncState
               ],
               addJoins: null,
               getPrefetchedDataCallback: (items) async {
@@ -4981,6 +5534,19 @@ class $$ProfilesTableTableManager extends RootTableManager<
                         referencedItemsForCurrentItem: (item,
                                 referencedItems) =>
                             referencedItems.where((e) => e.userId == item.id),
+                        typedResults: items),
+                  if (syncStateRefs)
+                    await $_getPrefetchedData<Profile, $ProfilesTable,
+                            SyncStateData>(
+                        currentTable: table,
+                        referencedTable:
+                            $$ProfilesTableReferences._syncStateRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$ProfilesTableReferences(db, table, p0)
+                                .syncStateRefs,
+                        referencedItemsForCurrentItem: (item,
+                                referencedItems) =>
+                            referencedItems.where((e) => e.userId == item.id),
                         typedResults: items)
                 ];
               },
@@ -5007,7 +5573,8 @@ typedef $$ProfilesTableProcessedTableManager = ProcessedTableManager<
         bool lifestyleEntriesRefs,
         bool symptomEntriesRefs,
         bool symptomMedicationLinksRefs,
-        bool dashboardCacheRefs})>;
+        bool dashboardCacheRefs,
+        bool syncStateRefs})>;
 typedef $$RemindersTableCreateCompanionBuilder = RemindersCompanion Function({
   required String id,
   required String userId,
@@ -7753,6 +8320,339 @@ typedef $$DashboardCacheTableProcessedTableManager = ProcessedTableManager<
     (DashboardCacheData, $$DashboardCacheTableReferences),
     DashboardCacheData,
     PrefetchHooks Function({bool userId})>;
+typedef $$SyncStateTableCreateCompanionBuilder = SyncStateCompanion Function({
+  required String userId,
+  required String targetTable,
+  required int rowId,
+  required String operation,
+  Value<bool> isSynced,
+  required DateTime lastUpdatedAt,
+  Value<DateTime?> lastSynced,
+  Value<int> retryCount,
+  Value<String?> error,
+  Value<int> rowid,
+});
+typedef $$SyncStateTableUpdateCompanionBuilder = SyncStateCompanion Function({
+  Value<String> userId,
+  Value<String> targetTable,
+  Value<int> rowId,
+  Value<String> operation,
+  Value<bool> isSynced,
+  Value<DateTime> lastUpdatedAt,
+  Value<DateTime?> lastSynced,
+  Value<int> retryCount,
+  Value<String?> error,
+  Value<int> rowid,
+});
+
+final class $$SyncStateTableReferences
+    extends BaseReferences<_$AppDatabase, $SyncStateTable, SyncStateData> {
+  $$SyncStateTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $ProfilesTable _userIdTable(_$AppDatabase db) => db.profiles
+      .createAlias($_aliasNameGenerator(db.syncState.userId, db.profiles.id));
+
+  $$ProfilesTableProcessedTableManager get userId {
+    final $_column = $_itemColumn<String>('user_id')!;
+
+    final manager = $$ProfilesTableTableManager($_db, $_db.profiles)
+        .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_userIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
+class $$SyncStateTableFilterComposer
+    extends Composer<_$AppDatabase, $SyncStateTable> {
+  $$SyncStateTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get targetTable => $composableBuilder(
+      column: $table.targetTable, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get rowId => $composableBuilder(
+      column: $table.rowId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get operation => $composableBuilder(
+      column: $table.operation, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isSynced => $composableBuilder(
+      column: $table.isSynced, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get lastUpdatedAt => $composableBuilder(
+      column: $table.lastUpdatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get lastSynced => $composableBuilder(
+      column: $table.lastSynced, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get retryCount => $composableBuilder(
+      column: $table.retryCount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get error => $composableBuilder(
+      column: $table.error, builder: (column) => ColumnFilters(column));
+
+  $$ProfilesTableFilterComposer get userId {
+    final $$ProfilesTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.userId,
+        referencedTable: $db.profiles,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ProfilesTableFilterComposer(
+              $db: $db,
+              $table: $db.profiles,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$SyncStateTableOrderingComposer
+    extends Composer<_$AppDatabase, $SyncStateTable> {
+  $$SyncStateTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get targetTable => $composableBuilder(
+      column: $table.targetTable, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get rowId => $composableBuilder(
+      column: $table.rowId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get operation => $composableBuilder(
+      column: $table.operation, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isSynced => $composableBuilder(
+      column: $table.isSynced, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get lastUpdatedAt => $composableBuilder(
+      column: $table.lastUpdatedAt,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get lastSynced => $composableBuilder(
+      column: $table.lastSynced, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get retryCount => $composableBuilder(
+      column: $table.retryCount, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get error => $composableBuilder(
+      column: $table.error, builder: (column) => ColumnOrderings(column));
+
+  $$ProfilesTableOrderingComposer get userId {
+    final $$ProfilesTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.userId,
+        referencedTable: $db.profiles,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ProfilesTableOrderingComposer(
+              $db: $db,
+              $table: $db.profiles,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$SyncStateTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SyncStateTable> {
+  $$SyncStateTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get targetTable => $composableBuilder(
+      column: $table.targetTable, builder: (column) => column);
+
+  GeneratedColumn<int> get rowId =>
+      $composableBuilder(column: $table.rowId, builder: (column) => column);
+
+  GeneratedColumn<String> get operation =>
+      $composableBuilder(column: $table.operation, builder: (column) => column);
+
+  GeneratedColumn<bool> get isSynced =>
+      $composableBuilder(column: $table.isSynced, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastUpdatedAt => $composableBuilder(
+      column: $table.lastUpdatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastSynced => $composableBuilder(
+      column: $table.lastSynced, builder: (column) => column);
+
+  GeneratedColumn<int> get retryCount => $composableBuilder(
+      column: $table.retryCount, builder: (column) => column);
+
+  GeneratedColumn<String> get error =>
+      $composableBuilder(column: $table.error, builder: (column) => column);
+
+  $$ProfilesTableAnnotationComposer get userId {
+    final $$ProfilesTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.userId,
+        referencedTable: $db.profiles,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ProfilesTableAnnotationComposer(
+              $db: $db,
+              $table: $db.profiles,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$SyncStateTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $SyncStateTable,
+    SyncStateData,
+    $$SyncStateTableFilterComposer,
+    $$SyncStateTableOrderingComposer,
+    $$SyncStateTableAnnotationComposer,
+    $$SyncStateTableCreateCompanionBuilder,
+    $$SyncStateTableUpdateCompanionBuilder,
+    (SyncStateData, $$SyncStateTableReferences),
+    SyncStateData,
+    PrefetchHooks Function({bool userId})> {
+  $$SyncStateTableTableManager(_$AppDatabase db, $SyncStateTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SyncStateTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SyncStateTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SyncStateTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> userId = const Value.absent(),
+            Value<String> targetTable = const Value.absent(),
+            Value<int> rowId = const Value.absent(),
+            Value<String> operation = const Value.absent(),
+            Value<bool> isSynced = const Value.absent(),
+            Value<DateTime> lastUpdatedAt = const Value.absent(),
+            Value<DateTime?> lastSynced = const Value.absent(),
+            Value<int> retryCount = const Value.absent(),
+            Value<String?> error = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              SyncStateCompanion(
+            userId: userId,
+            targetTable: targetTable,
+            rowId: rowId,
+            operation: operation,
+            isSynced: isSynced,
+            lastUpdatedAt: lastUpdatedAt,
+            lastSynced: lastSynced,
+            retryCount: retryCount,
+            error: error,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String userId,
+            required String targetTable,
+            required int rowId,
+            required String operation,
+            Value<bool> isSynced = const Value.absent(),
+            required DateTime lastUpdatedAt,
+            Value<DateTime?> lastSynced = const Value.absent(),
+            Value<int> retryCount = const Value.absent(),
+            Value<String?> error = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              SyncStateCompanion.insert(
+            userId: userId,
+            targetTable: targetTable,
+            rowId: rowId,
+            operation: operation,
+            isSynced: isSynced,
+            lastUpdatedAt: lastUpdatedAt,
+            lastSynced: lastSynced,
+            retryCount: retryCount,
+            error: error,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$SyncStateTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({userId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (userId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.userId,
+                    referencedTable:
+                        $$SyncStateTableReferences._userIdTable(db),
+                    referencedColumn:
+                        $$SyncStateTableReferences._userIdTable(db).id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$SyncStateTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $SyncStateTable,
+    SyncStateData,
+    $$SyncStateTableFilterComposer,
+    $$SyncStateTableOrderingComposer,
+    $$SyncStateTableAnnotationComposer,
+    $$SyncStateTableCreateCompanionBuilder,
+    $$SyncStateTableUpdateCompanionBuilder,
+    (SyncStateData, $$SyncStateTableReferences),
+    SyncStateData,
+    PrefetchHooks Function({bool userId})>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -7774,4 +8674,6 @@ class $AppDatabaseManager {
           _db, _db.symptomMedicationLinks);
   $$DashboardCacheTableTableManager get dashboardCache =>
       $$DashboardCacheTableTableManager(_db, _db.dashboardCache);
+  $$SyncStateTableTableManager get syncState =>
+      $$SyncStateTableTableManager(_db, _db.syncState);
 }

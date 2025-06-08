@@ -25,11 +25,17 @@ class SyncService {
   static const int _maxChanges = 20;
   static const Duration _syncInterval = Duration(hours: 24);
 
-  SyncService(this._db)
-      : _localRepo = LocalSymptomRepository(_db),
-        _photoRepo = PhotoRepository(_db),
-        _reminderRepo = ReminderRepository(_db),
-        _cloudRepo = SymptomRepository(),
+  SyncService({
+    required AppDatabase db,
+    required LocalSymptomRepository localSymptomRepo,
+    required PhotoRepository photoRepo,
+    required ReminderRepository reminderRepo,
+    required SymptomRepository cloudRepo,
+  })  : _db = db,
+        _localRepo = localSymptomRepo,
+        _photoRepo = photoRepo,
+        _reminderRepo = reminderRepo,
+        _cloudRepo = cloudRepo,
         _supabase = Supabase.instance.client;
 
   Future<bool> shouldSync() async {

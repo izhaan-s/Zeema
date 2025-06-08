@@ -15,12 +15,6 @@ class PhotoRepository {
 
   PhotoRepository(this._db);
 
-  // Factory constructor to create repository with singleton database
-  static Future<PhotoRepository> create() async {
-    final db = await DBProvider.instance.database;
-    return PhotoRepository(db);
-  }
-
   Future<void> _verifyPhotoSchema() async {
     if (_schemaVerified) return;
 

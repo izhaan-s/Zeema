@@ -107,7 +107,7 @@ class ReminderController extends ChangeNotifier {
       final reminderToDelete =
           _reminders.firstWhere((reminder) => reminder.id == id);
 
-      // await _repository.deleteReminder(id);
+      await _repository.deleteReminder(reminderToDelete);
       // _reminders.removeWhere((reminder) => reminder.id == id);
       // notifyListeners();
 

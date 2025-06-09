@@ -55,7 +55,6 @@ dependencies:
   tuple: ^2.0.2
   fl_chart: ^1.0.0
   awesome_notifications: ^0.10.1
-  image_gallery_saver: ^2.0.3  # For saving to gallery/albums
   permission_handler: ^11.3.1  # For gallery permissions
   # Removing problematic flutter_local_notifications
   # flutter_local_notifications: ^9.9.1

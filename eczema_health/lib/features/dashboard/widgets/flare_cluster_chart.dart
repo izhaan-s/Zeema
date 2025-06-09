@@ -103,12 +103,7 @@ class _FlareClusterChartState extends State<FlareClusterChart> {
     if (currentDataHash != _lastDataHash) {
       _shownDates.clear();
       _lastDataHash = currentDataHash;
-      print('🔧 DEBUG: Cleared _shownDates (new data detected)');
     }
-
-    print('🔧 DEBUG: bottomTitleWidgets called with value: $value');
-    print('🔧 DEBUG: Total data points: ${dataTimestamps.length}');
-    print('🔧 DEBUG: Data timestamps: $dataTimestamps');
 
     // Find the closest actual data point to this value
     double? closestTimestamp;
@@ -122,13 +117,9 @@ class _FlareClusterChartState extends State<FlareClusterChart> {
       }
     }
 
-    print(
-        '🔧 DEBUG: Closest timestamp: $closestTimestamp, Distance: $minDistance');
-
     // Only show label if we're very close to an actual data point (within 6 hours)
     if (closestTimestamp == null ||
         minDistance > const Duration(hours: 6).inMilliseconds) {
-      print('🔧 DEBUG: Skipping - too far from data point');
       return const SizedBox.shrink();
     }
 
@@ -139,12 +130,8 @@ class _FlareClusterChartState extends State<FlareClusterChart> {
     // Create unique date string to prevent duplicates
     final String dateText = DateFormat('d MMM').format(date);
 
-    print('🔧 DEBUG: Date text: $dateText, Date range days: $dateRangeDays');
-    print('🔧 DEBUG: _shownDates before: $_shownDates');
-
     // If we've already shown this date, don't show again
     if (_shownDates.contains(dateText)) {
-      print('🔧 DEBUG: Already shown $dateText - skipping');
       return const SizedBox.shrink();
     }
 

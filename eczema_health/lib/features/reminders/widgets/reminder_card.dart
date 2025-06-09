@@ -20,29 +20,25 @@ class ReminderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Dismissible(
-        key: Key(reminder.id),
-        background: Container(
-          color: Colors.red,
-          alignment: Alignment.centerRight,
-          padding: const EdgeInsets.only(right: 16),
-          child: const Icon(
-            Icons.delete,
-            color: Colors.white,
-          ),
+    return Dismissible(
+      key: Key(reminder.id),
+      background: Container(
+        color: Colors.red,
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 16),
+        child: const Icon(
+          Icons.delete,
+          color: Colors.white,
         ),
-        direction: DismissDirection.endToStart,
-        onDismissed: (_) => onDelete(),
+      ),
+      onDismissed: (_) => onDelete(),
+      child: Card(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: ListTile(
           contentPadding: const EdgeInsets.all(16),
           title: Text(
             reminder.title,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

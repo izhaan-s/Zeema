@@ -102,6 +102,9 @@ class _RemindersScreenState extends State<RemindersScreen> {
                         reminders: grouped['Daily']!,
                         color: Colors.blue,
                         backgroundColor: Colors.white,
+                        onDelete: (id) {
+                          controller.deleteReminder(id);
+                        },
                       ),
                     if (grouped['Weekly']!.isNotEmpty)
                       ReminderSectionCard(
@@ -109,6 +112,9 @@ class _RemindersScreenState extends State<RemindersScreen> {
                         reminders: grouped['Weekly']!,
                         color: Colors.green,
                         backgroundColor: Colors.white,
+                        onDelete: (id) {
+                          controller.deleteReminder(id);
+                        },
                       ),
                     if (grouped['Custom']!.isNotEmpty)
                       ReminderSectionCard(
@@ -116,6 +122,9 @@ class _RemindersScreenState extends State<RemindersScreen> {
                         reminders: grouped['Custom']!,
                         color: Colors.purple,
                         backgroundColor: Colors.white,
+                        onDelete: (id) {
+                          controller.deleteReminder(id);
+                        },
                       ),
                   ],
                 );

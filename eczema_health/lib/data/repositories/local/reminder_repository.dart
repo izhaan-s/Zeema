@@ -50,7 +50,7 @@ class ReminderRepository {
     await (_db.delete(_db.reminders)
           ..where((tbl) => tbl.id.equals(reminder.id)))
         .go();
-    await _db.into(_db.syncState).insert(
+    await _db.into(_db.syncState).insertOnConflictUpdate(
           SyncStateCompanion.insert(
             userId: reminder.userId,
             targetTable: 'reminders',

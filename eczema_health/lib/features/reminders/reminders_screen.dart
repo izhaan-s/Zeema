@@ -102,8 +102,31 @@ class _RemindersScreenState extends State<RemindersScreen> {
                         reminders: grouped['Daily']!,
                         color: Colors.blue,
                         backgroundColor: Colors.white,
-                        onDelete: (id) {
-                          controller.deleteReminder(id);
+                        onDelete: (id) async {
+                          try {
+                            await controller.deleteReminder(id);
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content:
+                                      Text('Reminder deleted successfully'),
+                                  backgroundColor: Colors.green,
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                            }
+                          } catch (e) {
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content:
+                                      Text('Failed to delete reminder: $e'),
+                                  backgroundColor: Colors.red,
+                                  duration: const Duration(seconds: 3),
+                                ),
+                              );
+                            }
+                          }
                         },
                       ),
                     if (grouped['Weekly']!.isNotEmpty)
@@ -112,8 +135,31 @@ class _RemindersScreenState extends State<RemindersScreen> {
                         reminders: grouped['Weekly']!,
                         color: Colors.green,
                         backgroundColor: Colors.white,
-                        onDelete: (id) {
-                          controller.deleteReminder(id);
+                        onDelete: (id) async {
+                          try {
+                            await controller.deleteReminder(id);
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content:
+                                      Text('Reminder deleted successfully'),
+                                  backgroundColor: Colors.green,
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                            }
+                          } catch (e) {
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content:
+                                      Text('Failed to delete reminder: $e'),
+                                  backgroundColor: Colors.red,
+                                  duration: const Duration(seconds: 3),
+                                ),
+                              );
+                            }
+                          }
                         },
                       ),
                     if (grouped['Custom']!.isNotEmpty)
@@ -122,8 +168,31 @@ class _RemindersScreenState extends State<RemindersScreen> {
                         reminders: grouped['Custom']!,
                         color: Colors.purple,
                         backgroundColor: Colors.white,
-                        onDelete: (id) {
-                          controller.deleteReminder(id);
+                        onDelete: (id) async {
+                          try {
+                            await controller.deleteReminder(id);
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content:
+                                      Text('Reminder deleted successfully'),
+                                  backgroundColor: Colors.green,
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                            }
+                          } catch (e) {
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content:
+                                      Text('Failed to delete reminder: $e'),
+                                  backgroundColor: Colors.red,
+                                  duration: const Duration(seconds: 3),
+                                ),
+                              );
+                            }
+                          }
                         },
                       ),
                   ],

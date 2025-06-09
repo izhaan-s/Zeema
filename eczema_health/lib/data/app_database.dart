@@ -158,7 +158,7 @@ class SyncState extends Table {
 
   @override
   List<String> get customConstraints =>
-      ['FOREIGN KEY(userId) REFERENCES profiles(id) ON DELETE CASCADE'];
+      ['FOREIGN KEY(user_id) REFERENCES profiles(id) ON DELETE CASCADE'];
 
   @override
   List<String> get indexes => [
@@ -196,7 +196,7 @@ class AppDatabase extends _$AppDatabase {
               }));
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -234,7 +234,7 @@ Future<void> _handleDatabaseRecreation() async {
   final prefs = await SharedPreferences.getInstance();
   final currentDbVersion = prefs.getInt('db_version') ?? 1;
 
-  if (currentDbVersion < 2) {
+  if (currentDbVersion < 4) {
     // Need to recreate database
     try {
       final dbFolder = await getApplicationDocumentsDirectory();
@@ -245,7 +245,7 @@ Future<void> _handleDatabaseRecreation() async {
       }
 
       // Save the new version
-      await prefs.setInt('db_version', 2);
+      await prefs.setInt('db_version', 4);
     } catch (e) {
       // Error during database recreation
     }

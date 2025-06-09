@@ -68,7 +68,15 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
         );
 
         if (mounted) {
-          Navigator.pop(context);
+          // Show success snackbar before popping
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Reminder created successfully'),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 2),
+            ),
+          );
+          Navigator.pop(context, true); // Return true to indicate success
         }
       } catch (e) {
         if (mounted) {

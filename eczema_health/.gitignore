@@ -10,6 +10,7 @@ build/
 generated_plugin_registrant.dart
 .pub-cache/
 pubspec.lock
+key.jks
 
 # Flutter/Dart specific
 **/doc/api/

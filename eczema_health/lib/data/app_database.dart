@@ -141,7 +141,7 @@ class SyncState extends Table {
   TextColumn get userId => text()
       .customConstraint('NOT NULL REFERENCES profiles(id) ON DELETE CASCADE')();
   TextColumn get targetTable => text()(); // table to sync
-  IntColumn get rowId => integer()(); // row id in the table
+  TextColumn get rowId => text()(); // row id in the table
   // crud operation
   TextColumn get operation => text().customConstraint(
       "NOT NULL CHECK (operation IN ('insert', 'update', 'delete'))")();

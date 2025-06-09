@@ -4133,9 +4133,9 @@ class $SyncStateTable extends SyncState
       type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _rowIdMeta = const VerificationMeta('rowId');
   @override
-  late final GeneratedColumn<int> rowId = GeneratedColumn<int>(
+  late final GeneratedColumn<String> rowId = GeneratedColumn<String>(
       'row_id', aliasedName, false,
-      type: DriftSqlType.int, requiredDuringInsert: true);
+      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _operationMeta =
       const VerificationMeta('operation');
   @override
@@ -4270,7 +4270,7 @@ class $SyncStateTable extends SyncState
       targetTable: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}target_table'])!,
       rowId: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}row_id'])!,
+          .read(DriftSqlType.string, data['${effectivePrefix}row_id'])!,
       operation: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}operation'])!,
       isSynced: attachedDatabase.typeMapping
@@ -4295,7 +4295,7 @@ class $SyncStateTable extends SyncState
 class SyncStateData extends DataClass implements Insertable<SyncStateData> {
   final String userId;
   final String targetTable;
-  final int rowId;
+  final String rowId;
   final String operation;
   final bool isSynced;
   final DateTime lastUpdatedAt;
@@ -4317,7 +4317,7 @@ class SyncStateData extends DataClass implements Insertable<SyncStateData> {
     final map = <String, Expression>{};
     map['user_id'] = Variable<String>(userId);
     map['target_table'] = Variable<String>(targetTable);
-    map['row_id'] = Variable<int>(rowId);
+    map['row_id'] = Variable<String>(rowId);
     map['operation'] = Variable<String>(operation);
     map['is_synced'] = Variable<bool>(isSynced);
     map['last_updated_at'] = Variable<DateTime>(lastUpdatedAt);
@@ -4354,7 +4354,7 @@ class SyncStateData extends DataClass implements Insertable<SyncStateData> {
     return SyncStateData(
       userId: serializer.fromJson<String>(json['userId']),
       targetTable: serializer.fromJson<String>(json['targetTable']),
-      rowId: serializer.fromJson<int>(json['rowId']),
+      rowId: serializer.fromJson<String>(json['rowId']),
       operation: serializer.fromJson<String>(json['operation']),
       isSynced: serializer.fromJson<bool>(json['isSynced']),
       lastUpdatedAt: serializer.fromJson<DateTime>(json['lastUpdatedAt']),
@@ -4369,7 +4369,7 @@ class SyncStateData extends DataClass implements Insertable<SyncStateData> {
     return <String, dynamic>{
       'userId': serializer.toJson<String>(userId),
       'targetTable': serializer.toJson<String>(targetTable),
-      'rowId': serializer.toJson<int>(rowId),
+      'rowId': serializer.toJson<String>(rowId),
       'operation': serializer.toJson<String>(operation),
       'isSynced': serializer.toJson<bool>(isSynced),
       'lastUpdatedAt': serializer.toJson<DateTime>(lastUpdatedAt),
@@ -4382,7 +4382,7 @@ class SyncStateData extends DataClass implements Insertable<SyncStateData> {
   SyncStateData copyWith(
           {String? userId,
           String? targetTable,
-          int? rowId,
+          String? rowId,
           String? operation,
           bool? isSynced,
           DateTime? lastUpdatedAt,
@@ -4456,7 +4456,7 @@ class SyncStateData extends DataClass implements Insertable<SyncStateData> {
 class SyncStateCompanion extends UpdateCompanion<SyncStateData> {
   final Value<String> userId;
   final Value<String> targetTable;
-  final Value<int> rowId;
+  final Value<String> rowId;
   final Value<String> operation;
   final Value<bool> isSynced;
   final Value<DateTime> lastUpdatedAt;
@@ -4479,7 +4479,7 @@ class SyncStateCompanion extends UpdateCompanion<SyncStateData> {
   SyncStateCompanion.insert({
     required String userId,
     required String targetTable,
-    required int rowId,
+    required String rowId,
     required String operation,
     this.isSynced = const Value.absent(),
     required DateTime lastUpdatedAt,
@@ -4495,7 +4495,7 @@ class SyncStateCompanion extends UpdateCompanion<SyncStateData> {
   static Insertable<SyncStateData> custom({
     Expression<String>? userId,
     Expression<String>? targetTable,
-    Expression<int>? rowId,
+    Expression<String>? rowId,
     Expression<String>? operation,
     Expression<bool>? isSynced,
     Expression<DateTime>? lastUpdatedAt,
@@ -4521,7 +4521,7 @@ class SyncStateCompanion extends UpdateCompanion<SyncStateData> {
   SyncStateCompanion copyWith(
       {Value<String>? userId,
       Value<String>? targetTable,
-      Value<int>? rowId,
+      Value<String>? rowId,
       Value<String>? operation,
       Value<bool>? isSynced,
       Value<DateTime>? lastUpdatedAt,
@@ -4553,7 +4553,7 @@ class SyncStateCompanion extends UpdateCompanion<SyncStateData> {
       map['target_table'] = Variable<String>(targetTable.value);
     }
     if (rowId.present) {
-      map['row_id'] = Variable<int>(rowId.value);
+      map['row_id'] = Variable<String>(rowId.value);
     }
     if (operation.present) {
       map['operation'] = Variable<String>(operation.value);
@@ -8323,7 +8323,7 @@ typedef $$DashboardCacheTableProcessedTableManager = ProcessedTableManager<
 typedef $$SyncStateTableCreateCompanionBuilder = SyncStateCompanion Function({
   required String userId,
   required String targetTable,
-  required int rowId,
+  required String rowId,
   required String operation,
   Value<bool> isSynced,
   required DateTime lastUpdatedAt,
@@ -8335,7 +8335,7 @@ typedef $$SyncStateTableCreateCompanionBuilder = SyncStateCompanion Function({
 typedef $$SyncStateTableUpdateCompanionBuilder = SyncStateCompanion Function({
   Value<String> userId,
   Value<String> targetTable,
-  Value<int> rowId,
+  Value<String> rowId,
   Value<String> operation,
   Value<bool> isSynced,
   Value<DateTime> lastUpdatedAt,
@@ -8376,7 +8376,7 @@ class $$SyncStateTableFilterComposer
   ColumnFilters<String> get targetTable => $composableBuilder(
       column: $table.targetTable, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<int> get rowId => $composableBuilder(
+  ColumnFilters<String> get rowId => $composableBuilder(
       column: $table.rowId, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get operation => $composableBuilder(
@@ -8430,7 +8430,7 @@ class $$SyncStateTableOrderingComposer
   ColumnOrderings<String> get targetTable => $composableBuilder(
       column: $table.targetTable, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<int> get rowId => $composableBuilder(
+  ColumnOrderings<String> get rowId => $composableBuilder(
       column: $table.rowId, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get operation => $composableBuilder(
@@ -8485,7 +8485,7 @@ class $$SyncStateTableAnnotationComposer
   GeneratedColumn<String> get targetTable => $composableBuilder(
       column: $table.targetTable, builder: (column) => column);
 
-  GeneratedColumn<int> get rowId =>
+  GeneratedColumn<String> get rowId =>
       $composableBuilder(column: $table.rowId, builder: (column) => column);
 
   GeneratedColumn<String> get operation =>
@@ -8552,7 +8552,7 @@ class $$SyncStateTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<String> userId = const Value.absent(),
             Value<String> targetTable = const Value.absent(),
-            Value<int> rowId = const Value.absent(),
+            Value<String> rowId = const Value.absent(),
             Value<String> operation = const Value.absent(),
             Value<bool> isSynced = const Value.absent(),
             Value<DateTime> lastUpdatedAt = const Value.absent(),
@@ -8576,7 +8576,7 @@ class $$SyncStateTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             required String userId,
             required String targetTable,
-            required int rowId,
+            required String rowId,
             required String operation,
             Value<bool> isSynced = const Value.absent(),
             required DateTime lastUpdatedAt,

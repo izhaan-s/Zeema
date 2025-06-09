@@ -45,4 +45,23 @@ class ReminderRepository {
           ..where((tbl) => tbl.userId.equals(userId)))
         .get();
   }
+
+  Future<void> deleteReminder(ReminderModel reminder) async {
+    await (_db.delete(_db.reminders)
+          ..where((tbl) => tbl.id.equals(reminder.id)))
+        .go();
+    await _db.into(_db.syncState).insert(
+          SyncStateCompanion.insert(
+            userId: reminder.userId,
+            targetTable: 'reminders',
+            operation: 'delete',
+            lastUpdatedAt: reminder.updatedAt,
+            lastSynced: Value(reminder.updatedAt),
+            retryCount: const Value(0),
+            error: const Value(null),
+            rowId: reminder.id,
+            isSynced: const Value(false),
+          ),
+        );
+  }
 }

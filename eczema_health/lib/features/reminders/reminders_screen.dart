@@ -5,6 +5,7 @@ import 'reminder_controller.dart';
 import '../../data/models/reminder_model.dart';
 import 'widgets/reminder_section_card.dart';
 import 'widgets/empty_reminders_view.dart';
+import 'add_reminder_screen.dart';
 
 class RemindersScreen extends StatefulWidget {
   const RemindersScreen({super.key});
@@ -41,6 +42,23 @@ class _RemindersScreenState extends State<RemindersScreen> {
     return grouped;
   }
 
+  Future<void> _editReminder(ReminderModel reminder) async {
+    print(
+        'RemindersScreen._editReminder called for reminder: ${reminder.id}, title: ${reminder.title}');
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddReminderScreen(reminder: reminder),
+      ),
+    );
+
+    // Refresh reminders after returning if reminder was updated
+    if (result == true && mounted) {
+      final controller = context.read<ReminderController>();
+      await controller.loadReminders();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,9 +77,13 @@ class _RemindersScreenState extends State<RemindersScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 12.0),
             child: ElevatedButton.icon(
               onPressed: () async {
-                await Navigator.pushNamed(context, AppRouter.addReminder);
-                // Refresh reminders after returning
-                setState(() {});
+                final result =
+                    await Navigator.pushNamed(context, AppRouter.addReminder);
+                // Refresh reminders after returning if reminder was created
+                if (result == true && mounted) {
+                  final controller = context.read<ReminderController>();
+                  await controller.loadReminders();
+                }
               },
               icon: const Icon(Icons.add, size: 18, color: Colors.white),
               label: const Text('Add'),
@@ -102,6 +124,7 @@ class _RemindersScreenState extends State<RemindersScreen> {
                         reminders: grouped['Daily']!,
                         color: Colors.blue,
                         backgroundColor: Colors.white,
+                        onEdit: _editReminder,
                         onDelete: (id) async {
                           try {
                             await controller.deleteReminder(id);
@@ -135,6 +158,7 @@ class _RemindersScreenState extends State<RemindersScreen> {
                         reminders: grouped['Weekly']!,
                         color: Colors.green,
                         backgroundColor: Colors.white,
+                        onEdit: _editReminder,
                         onDelete: (id) async {
                           try {
                             await controller.deleteReminder(id);
@@ -168,6 +192,7 @@ class _RemindersScreenState extends State<RemindersScreen> {
                         reminders: grouped['Custom']!,
                         color: Colors.purple,
                         backgroundColor: Colors.white,
+                        onEdit: _editReminder,
                         onDelete: (id) async {
                           try {
                             await controller.deleteReminder(id);

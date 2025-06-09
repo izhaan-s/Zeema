@@ -46,6 +46,37 @@ class ReminderRepository {
         .get();
   }
 
+  Future<void> updateReminder(ReminderModel reminder) async {
+    print('ReminderRepository.updateReminder called for id: ${reminder.id}');
+    final result = await (_db.update(_db.reminders)
+          ..where((tbl) => tbl.id.equals(reminder.id)))
+        .write(
+      RemindersCompanion(
+        title: Value(reminder.title),
+        description: Value(reminder.description),
+        reminderType: Value(reminder.reminderType),
+        time: Value(reminder.dateTime),
+        repeatDays: Value(reminder.repeatDays.join(',')),
+        isActive: Value(reminder.isActive),
+        updatedAt: Value(reminder.updatedAt),
+      ),
+    );
+    print('ReminderRepository.updateReminder: Updated $result rows');
+    await _db.into(_db.syncState).insertOnConflictUpdate(
+          SyncStateCompanion.insert(
+            userId: reminder.userId,
+            targetTable: 'reminders',
+            operation: 'update',
+            lastUpdatedAt: reminder.updatedAt,
+            lastSynced: Value(reminder.updatedAt),
+            retryCount: const Value(0),
+            error: const Value(null),
+            rowId: reminder.id,
+            isSynced: const Value(false),
+          ),
+        );
+  }
+
   Future<void> deleteReminder(ReminderModel reminder) async {
     await (_db.delete(_db.reminders)
           ..where((tbl) => tbl.id.equals(reminder.id)))

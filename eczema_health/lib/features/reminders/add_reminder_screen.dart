@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'reminder_controller.dart';
 import 'widgets/day_selector.dart';
+import '../../data/models/reminder_model.dart';
 
 class AddReminderScreen extends StatefulWidget {
-  const AddReminderScreen({super.key});
+  final ReminderModel? reminder; // null for create, non-null for edit
+
+  const AddReminderScreen({super.key, this.reminder});
 
   @override
   State<AddReminderScreen> createState() => _AddReminderScreenState();
@@ -12,12 +15,43 @@ class AddReminderScreen extends StatefulWidget {
 
 class _AddReminderScreenState extends State<AddReminderScreen> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _dosageController = TextEditingController();
-  final TextEditingController _notesController = TextEditingController();
-  TimeOfDay _selectedTime = TimeOfDay.now();
-  final List<bool> _selectedDays = List.generate(7, (_) => false);
+  late TextEditingController _titleController;
+  late TextEditingController _dosageController;
+  late TextEditingController _notesController;
+  late TimeOfDay _selectedTime;
+  late List<bool> _selectedDays;
   bool _isLoading = false;
+
+  bool get isEditing => widget.reminder != null;
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (isEditing) {
+      // Initialize with existing reminder data
+      _titleController = TextEditingController(text: widget.reminder!.title);
+      _dosageController =
+          TextEditingController(text: widget.reminder!.description ?? '');
+      _notesController =
+          TextEditingController(text: widget.reminder!.description ?? '');
+      _selectedTime = TimeOfDay.fromDateTime(widget.reminder!.dateTime);
+      _selectedDays =
+          widget.reminder!.repeatDays.map((day) => day == 'true').toList();
+
+      // Ensure we have 7 days
+      while (_selectedDays.length < 7) {
+        _selectedDays.add(false);
+      }
+    } else {
+      // Initialize with empty data for new reminder
+      _titleController = TextEditingController();
+      _dosageController = TextEditingController();
+      _notesController = TextEditingController();
+      _selectedTime = TimeOfDay.now();
+      _selectedDays = List.generate(7, (_) => false);
+    }
+  }
 
   @override
   void dispose() {
@@ -57,23 +91,43 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
 
       try {
         final controller = context.read<ReminderController>();
-        await controller.createReminder(
-          title: _titleController.text,
-          description:
-              _notesController.text.isNotEmpty ? _notesController.text : null,
-          time: _selectedTime,
-          repeatDays: _selectedDays,
-          dosage:
-              _dosageController.text.isNotEmpty ? _dosageController.text : null,
-        );
+
+        if (isEditing) {
+          // Update existing reminder
+          print(
+              'AddReminderScreen: Editing mode - calling updateReminder with id: ${widget.reminder!.id}');
+          await controller.updateReminder(
+            id: widget.reminder!.id,
+            title: _titleController.text,
+            description:
+                _notesController.text.isNotEmpty ? _notesController.text : null,
+            time: _selectedTime,
+            repeatDays: _selectedDays,
+          );
+        } else {
+          // Create new reminder
+          print('AddReminderScreen: Creating new reminder');
+          await controller.createReminder(
+            title: _titleController.text,
+            description:
+                _notesController.text.isNotEmpty ? _notesController.text : null,
+            time: _selectedTime,
+            repeatDays: _selectedDays,
+            dosage: _dosageController.text.isNotEmpty
+                ? _dosageController.text
+                : null,
+          );
+        }
 
         if (mounted) {
           // Show success snackbar before popping
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Reminder created successfully'),
+            SnackBar(
+              content: Text(isEditing
+                  ? 'Reminder updated successfully'
+                  : 'Reminder created successfully'),
               backgroundColor: Colors.green,
-              duration: Duration(seconds: 2),
+              duration: const Duration(seconds: 2),
             ),
           );
           Navigator.pop(context, true); // Return true to indicate success
@@ -81,7 +135,9 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to save reminder: ${e.toString()}')),
+            SnackBar(
+                content: Text(
+                    'Failed to ${isEditing ? 'update' : 'save'} reminder: ${e.toString()}')),
           );
         }
       } finally {
@@ -100,9 +156,9 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text(
-            'Add Reminder',
-            style: TextStyle(
+          title: Text(
+            isEditing ? 'Edit Reminder' : 'Add Reminder',
+            style: const TextStyle(
               color: Colors.black,
               fontWeight: FontWeight.bold,
             ),
@@ -127,9 +183,9 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
                         valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
                       ),
                     )
-                  : const Text(
-                      'Save',
-                      style: TextStyle(
+                  : Text(
+                      isEditing ? 'Update' : 'Save',
+                      style: const TextStyle(
                         color: Colors.blue,
                         fontWeight: FontWeight.bold,
                         fontSize: 16,

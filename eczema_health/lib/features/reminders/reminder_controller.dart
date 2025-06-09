@@ -101,6 +101,66 @@ class ReminderController extends ChangeNotifier {
     }
   }
 
+  Future<void> updateReminder({
+    required String id,
+    required String title,
+    String? description,
+    required TimeOfDay time,
+    required List<bool> repeatDays,
+  }) async {
+    try {
+      print(
+          'ReminderController.updateReminder called with id: $id, title: $title');
+      final userId = Supabase.instance.client.auth.currentUser?.id;
+      if (userId == null) {
+        throw Exception('User not logged in');
+      }
+
+      // Find the existing reminder
+      final existingReminderIndex = _reminders.indexWhere((r) => r.id == id);
+      print('Found existing reminder at index: $existingReminderIndex');
+      if (existingReminderIndex == -1) {
+        throw Exception('Reminder not found');
+      }
+
+      final existingReminder = _reminders[existingReminderIndex];
+      final now = DateTime.now();
+
+      // Create updated reminder model
+      final updatedReminder = ReminderModel(
+        id: id,
+        userId: userId,
+        title: title,
+        description: description,
+        reminderType: existingReminder.reminderType,
+        dateTime:
+            DateTime(now.year, now.month, now.day, time.hour, time.minute),
+        repeatDays: repeatDays.map((b) => b.toString()).toList(),
+        isActive: existingReminder.isActive,
+        createdAt: existingReminder.createdAt,
+        updatedAt: now,
+      );
+
+      // Cancel old notification first (before any database changes)
+      print('Canceling old notification...');
+      await ReminderNotificationManager.cancelReminderNotification(
+          existingReminder);
+
+      print('Calling repository.updateReminder...');
+      await _repository.updateReminder(updatedReminder);
+      print('Repository update successful, reloading reminders...');
+
+      // Reload from database to ensure consistency
+      await loadReminders();
+
+      // Note: loadReminders() already schedules all notifications, so we don't need to manually schedule here
+      // Check remaining notifications
+      await NotificationService.printActiveNotifications();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   Future<void> deleteReminder(String id) async {
     try {
       // Find reminder before deleting to cancel its notification

@@ -9,9 +9,9 @@ class SyncServiceRevamped {
 
   // Configuration constants
   static const int maxRetryCount = 3;
-  static const int batchSize = 50;
-  static const Duration highPriorityInterval = Duration(minutes: 30);
-  static const Duration normalPriorityInterval = Duration(hours: 24);
+  static const int batchSize = 20;
+  static const Duration highPriorityInterval = Duration(hours: 2);
+  static const Duration normalPriorityInterval = Duration(hours: 6);
 
   SyncServiceRevamped({
     required AppDatabase db,

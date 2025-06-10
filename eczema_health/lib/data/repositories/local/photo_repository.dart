@@ -83,7 +83,7 @@ class PhotoRepository {
         updatedAt: photo.updatedAt,
       );
 
-      await _db.into(_db.syncState).insert(
+      await _db.into(_db.syncState).insertOnConflictUpdate(
             SyncStateCompanion.insert(
               userId: photo.userId,
               targetTable: 'photos',

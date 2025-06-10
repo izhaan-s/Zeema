@@ -43,7 +43,7 @@ class LocalMedicationRepository {
           ),
         );
 
-    await _db.into(_db.syncState).insert(
+    await _db.into(_db.syncState).insertOnConflictUpdate(
           SyncStateCompanion.insert(
             userId: medication['userId'],
             targetTable: 'medications',
@@ -86,7 +86,7 @@ class LocalMedicationRepository {
       ),
     );
 
-    await _db.into(_db.syncState).insert(
+    await _db.into(_db.syncState).insertOnConflictUpdate(
           SyncStateCompanion.insert(
             userId: medication['userId'],
             targetTable: 'medications',
@@ -106,7 +106,7 @@ class LocalMedicationRepository {
       String id, Map<String, dynamic> medication) async {
     await (_db.delete(_db.medications)..where((tbl) => tbl.id.equals(id))).go();
 
-    await _db.into(_db.syncState).insert(
+    await _db.into(_db.syncState).insertOnConflictUpdate(
           SyncStateCompanion.insert(
             userId: medication['userId'],
             targetTable: 'medications',

@@ -14,7 +14,8 @@ import 'features/symptom_tracking/symptom_tracking_screen.dart';
 import 'features/lifestyle_tracking/screens/lifestyle_log_screen.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'data/app_database.dart';
-import 'data/services/sync_service.dart';
+import 'data/services/sync_service_revamped.dart';
+import 'data/services/sync_manager.dart';
 import 'data/repositories/local/symptom_repository.dart';
 import 'data/repositories/local/photo_repository.dart';
 import 'data/repositories/local/reminder_repository.dart';
@@ -59,17 +60,21 @@ Future<void> main() async {
   final medicationRepository = LocalMedicationRepository(appDatabase);
   final dashboardCacheRepository = DashboardCacheRepository(appDatabase);
 
-  // Create services that depend on repositories
-  final syncService = SyncService(
+  // Create the revamped sync service and sync manager
+  final syncService = SyncServiceRevamped(
     db: appDatabase,
-    localSymptomRepo: localSymptomRepository,
-    photoRepo: photoRepository,
-    reminderRepo: reminderRepository,
-    cloudRepo: SymptomRepository(),
+    supabase: supabase,
   );
 
-  // Perform initial sync
-  await syncService.syncData();
+  final syncManager = SyncManager(syncService);
+
+  // Initialize sync manager and perform initial sync check
+  try {
+    await syncManager.initialize();
+    print('Sync manager initialized');
+  } catch (e) {
+    print('Sync manager initialization failed: $e');
+  }
 
   runApp(
     MultiProvider(
@@ -86,7 +91,8 @@ Future<void> main() async {
             value: dashboardCacheRepository),
 
         // Services
-        Provider<SyncService>.value(value: syncService),
+        Provider<SyncServiceRevamped>.value(value: syncService),
+        Provider<SyncManager>.value(value: syncManager),
 
         // Controllers (these can remain as ChangeNotifierProvider since they manage state)
         ChangeNotifierProvider(
@@ -252,9 +258,9 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Future<void> _runAutoSync() async {
-    final syncService = Provider.of<SyncService>(context, listen: false);
+    final syncManager = Provider.of<SyncManager>(context, listen: false);
     try {
-      await syncService.syncData();
+      await syncManager.triggerSync();
       print('Auto sync complete!');
     } catch (e) {
       print('Auto sync failed: $e');

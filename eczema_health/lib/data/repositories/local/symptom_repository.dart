@@ -30,7 +30,7 @@ class LocalSymptomRepository {
           );
 
       // sync to sync service
-      await _db.into(_db.syncState).insert(
+      await _db.into(_db.syncState).insertOnConflictUpdate(
             SyncStateCompanion.insert(
               userId: entry.userId,
               targetTable: 'symptom_entries',
@@ -120,7 +120,7 @@ class LocalSymptomRepository {
       );
 
       // sync to sync service
-      await _db.into(_db.syncState).insert(
+      await _db.into(_db.syncState).insertOnConflictUpdate(
             SyncStateCompanion.insert(
               userId: entry.userId,
               targetTable: 'symptom_entries',
@@ -142,7 +142,7 @@ class LocalSymptomRepository {
   Future<void> deleteSymptomEntry(String id, SymptomEntryModel entry) async {
     await _db.transaction(() async {
       // sync removal of medication links
-      await _db.into(_db.syncState).insert(
+      await _db.into(_db.syncState).insertOnConflictUpdate(
             SyncStateCompanion.insert(
               userId: entry.userId,
               targetTable: 'symptom_medication_links',
@@ -166,7 +166,7 @@ class LocalSymptomRepository {
           .go();
 
       // sync to sync service
-      await _db.into(_db.syncState).insert(
+      await _db.into(_db.syncState).insertOnConflictUpdate(
             SyncStateCompanion.insert(
               userId: entry.userId,
               targetTable: 'symptom_entries',

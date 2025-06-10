@@ -111,6 +111,8 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
         _notesController.text.isEmpty ? null : _notesController.text,
       );
 
+      // sync to sync service
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

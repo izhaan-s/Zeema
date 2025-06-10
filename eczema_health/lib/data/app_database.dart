@@ -152,7 +152,7 @@ class SyncState extends Table {
   IntColumn get retryCount =>
       integer().withDefault(const Constant(0))(); // retry count
   TextColumn get error => text().nullable()(); // error message
-
+  // can add more complexity such as priority, aswell as actual event data like json
   @override
   Set<Column> get primaryKey => {userId, targetTable, rowId};
 

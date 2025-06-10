@@ -29,6 +29,20 @@ class LocalSymptomRepository {
             ),
           );
 
+      // sync to sync service
+      await _db.into(_db.syncState).insert(
+            SyncStateCompanion.insert(
+              userId: entry.userId,
+              targetTable: 'symptom_entries',
+              operation: 'insert',
+              lastUpdatedAt: entry.updatedAt,
+              lastSynced: Value(null),
+              retryCount: const Value(0),
+              error: const Value(null),
+              rowId: entry.id,
+              isSynced: const Value(false),
+            ),
+          );
       // If there are medications, create the links
       if (entry.medications != null && entry.medications!.isNotEmpty) {
         final links = entry.medications!.map((medicationId) {
@@ -104,6 +118,21 @@ class LocalSymptomRepository {
           updatedAt: Value(entry.updatedAt),
         ),
       );
+
+      // sync to sync service
+      await _db.into(_db.syncState).insert(
+            SyncStateCompanion.insert(
+              userId: entry.userId,
+              targetTable: 'symptom_entries',
+              operation: 'update',
+              lastUpdatedAt: entry.updatedAt,
+              lastSynced: Value(null),
+              retryCount: const Value(0),
+              error: const Value(null),
+              rowId: entry.id,
+              isSynced: const Value(false),
+            ),
+          );
     } catch (e) {
       throw Exception('Failed to update symptom entry: $e');
     }
@@ -112,6 +141,21 @@ class LocalSymptomRepository {
   // Delete
   Future<void> deleteSymptomEntry(String id, SymptomEntryModel entry) async {
     await _db.transaction(() async {
+      // sync removal of medication links
+      await _db.into(_db.syncState).insert(
+            SyncStateCompanion.insert(
+              userId: entry.userId,
+              targetTable: 'symptom_medication_links',
+              operation: 'delete',
+              lastUpdatedAt: entry.updatedAt,
+              lastSynced: Value(null),
+              retryCount: const Value(0),
+              error: const Value(null),
+              rowId: id,
+              isSynced: const Value(false),
+            ),
+          );
+
       // Delete the symptom-medication links first
       await (_db.delete(_db.symptomMedicationLinks)
             ..where((tbl) => tbl.symptomId.equals(id)))
@@ -121,10 +165,20 @@ class LocalSymptomRepository {
       await (_db.delete(_db.symptomEntries)..where((tbl) => tbl.id.equals(id)))
           .go();
 
-      // TODO: Add to sync state for cloud synchronization
-      // Note: Temporarily disabled due to ID type mismatch (string vs int)
-      // Will need to refactor sync state to use string IDs or hash the string ID to int
-      // TY claude habibi
+      // sync to sync service
+      await _db.into(_db.syncState).insert(
+            SyncStateCompanion.insert(
+              userId: entry.userId,
+              targetTable: 'symptom_entries',
+              operation: 'delete',
+              lastUpdatedAt: entry.updatedAt,
+              lastSynced: Value(null),
+              retryCount: const Value(0),
+              error: const Value(null),
+              rowId: id,
+              isSynced: const Value(false),
+            ),
+          );
     });
   }
 

@@ -38,6 +38,19 @@ class ReminderRepository {
             updatedAt: model.updatedAt,
           ),
         );
+    await _db.into(_db.syncState).insert(
+          SyncStateCompanion.insert(
+            userId: model.userId,
+            targetTable: 'reminders',
+            operation: 'insert',
+            lastUpdatedAt: model.updatedAt,
+            lastSynced: Value(null),
+            retryCount: const Value(0),
+            error: const Value(null),
+            rowId: model.id,
+            isSynced: const Value(false),
+          ),
+        );
   }
 
   Future<List<Reminder>> getReminders(String userId) async {

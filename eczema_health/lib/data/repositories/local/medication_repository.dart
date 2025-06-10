@@ -42,6 +42,20 @@ class LocalMedicationRepository {
             updatedAt: DateTime.now(),
           ),
         );
+
+    await _db.into(_db.syncState).insert(
+          SyncStateCompanion.insert(
+            userId: medication['userId'],
+            targetTable: 'medications',
+            operation: 'insert',
+            lastUpdatedAt: DateTime.now(),
+            lastSynced: Value(null),
+            retryCount: const Value(0),
+            error: const Value(null),
+            rowId: medication['id'],
+            isSynced: const Value(false),
+          ),
+        );
   }
 
   // Update an existing medication
@@ -71,10 +85,39 @@ class LocalMedicationRepository {
         updatedAt: Value(DateTime.now()),
       ),
     );
+
+    await _db.into(_db.syncState).insert(
+          SyncStateCompanion.insert(
+            userId: medication['userId'],
+            targetTable: 'medications',
+            operation: 'update',
+            lastUpdatedAt: DateTime.now(),
+            lastSynced: Value(null),
+            retryCount: const Value(0),
+            error: const Value(null),
+            rowId: id,
+            isSynced: const Value(false),
+          ),
+        );
   }
 
   // Delete a medication
-  Future<void> deleteMedication(String id) async {
+  Future<void> deleteMedication(
+      String id, Map<String, dynamic> medication) async {
     await (_db.delete(_db.medications)..where((tbl) => tbl.id.equals(id))).go();
+
+    await _db.into(_db.syncState).insert(
+          SyncStateCompanion.insert(
+            userId: medication['userId'],
+            targetTable: 'medications',
+            operation: 'delete',
+            lastUpdatedAt: DateTime.now(),
+            lastSynced: Value(null),
+            retryCount: const Value(0),
+            error: const Value(null),
+            rowId: id,
+            isSynced: const Value(false),
+          ),
+        );
   }
 }

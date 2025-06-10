@@ -83,6 +83,20 @@ class PhotoRepository {
         updatedAt: photo.updatedAt,
       );
 
+      await _db.into(_db.syncState).insert(
+            SyncStateCompanion.insert(
+              userId: photo.userId,
+              targetTable: 'photos',
+              operation: 'insert',
+              lastUpdatedAt: photo.updatedAt,
+              lastSynced: Value(null),
+              retryCount: const Value(0),
+              error: const Value(null),
+              rowId: photo.id,
+              isSynced: const Value(false),
+            ),
+          );
+
       await _db.into(_db.photos).insert(companion);
     } catch (e) {
       rethrow;

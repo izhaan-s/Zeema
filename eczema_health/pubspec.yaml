@@ -96,6 +96,7 @@ flutter:
     - assets/preloaded_medications.json
     - assets/images/placeholder.png
     - assets/images/infographics/
+    - assets/icon/icon.png.png
 
   
 

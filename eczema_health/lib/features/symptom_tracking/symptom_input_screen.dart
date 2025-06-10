@@ -7,7 +7,7 @@ import 'widgets/medication_selection_dialog.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:eczema_health/data/services/sync_service.dart';
+import 'package:eczema_health/data/services/sync_manager.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 
@@ -189,7 +189,7 @@ class _SymptomInputScreenState extends State<SymptomInputScreen> {
                 final symptomRepository =
                     Provider.of<LocalSymptomRepository>(context, listen: false);
                 final syncService =
-                    Provider.of<SyncService>(context, listen: false);
+                    Provider.of<SyncManager>(context, listen: false);
 
                 try {
                   if (widget.symptom != null) {
@@ -235,14 +235,11 @@ class _SymptomInputScreenState extends State<SymptomInputScreen> {
                     await symptomRepository.addSymptomEntry(entry);
                   }
 
-                  // Increment change count and try to sync
-                  await syncService.incrementChangeCount('symptom');
-                  await syncService.syncData();
+                  // Navigate back and trigger sync
+                  Navigator.of(context).pop(true);
 
-                  if (mounted) {
-                    Navigator.pop(
-                        context, true); // Return true to indicate success
-                  }
+                  // Trigger sync
+                  await syncService.triggerSync();
                 } catch (e) {
                   // Show error message
                   if (mounted) {

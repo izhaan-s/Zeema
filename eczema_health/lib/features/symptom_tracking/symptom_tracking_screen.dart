@@ -5,7 +5,7 @@ import 'package:eczema_health/data/repositories/local/symptom_repository.dart';
 import 'package:eczema_health/data/models/symptom_entry_model.dart';
 import 'widgets/symptom_entries.dart' as symptom_widgets;
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:eczema_health/data/services/sync_service.dart';
+import 'package:eczema_health/data/services/sync_manager.dart';
 import 'package:provider/provider.dart';
 
 class SymptomTrackingScreen extends StatefulWidget {
@@ -29,11 +29,11 @@ class _SymptomTrackingScreenState extends State<SymptomTrackingScreen> {
   Future<void> _loadSymptoms() async {
     final symptomRepository =
         Provider.of<LocalSymptomRepository>(context, listen: false);
-    final syncService = Provider.of<SyncService>(context, listen: false);
+    final syncManager = Provider.of<SyncManager>(context, listen: false);
 
     try {
       // Try to sync data first
-      await syncService.syncData();
+      await syncManager.triggerSync();
 
       // Then load local symptoms
       final symptoms = await symptomRepository.getSymptomEntries(userId);
@@ -49,6 +49,27 @@ class _SymptomTrackingScreenState extends State<SymptomTrackingScreen> {
         _symptoms = symptoms;
         _isLoading = false;
       });
+    }
+  }
+
+  void _onRefresh() async {
+    final syncManager = Provider.of<SyncManager>(context, listen: false);
+
+    try {
+      // Trigger sync
+      await syncManager.triggerSync();
+
+      // Refresh data
+      await _loadSymptoms();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Sync failed: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 

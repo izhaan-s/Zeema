@@ -66,7 +66,7 @@ Future<void> main() async {
     supabase: supabase,
   );
 
-  final syncManager = SyncManager(syncService);
+  final syncManager = SyncManager(syncService, appDatabase);
 
   // Initialize sync manager and perform initial sync check
   try {

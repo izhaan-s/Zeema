@@ -13,17 +13,31 @@ class DownloadData {
   String _handleArrayField(dynamic value) {
     if (value == null) return '';
     if (value is List) {
-      return jsonEncode(value);
+      return value.join(','); // Convert array to comma-separated string
+    }
+    if (value is String) {
+      // If it's already a string, check if it's JSON array
+      if (value.startsWith('[') && value.endsWith(']')) {
+        try {
+          final decoded = jsonDecode(value);
+          if (decoded is List) {
+            return decoded.join(',');
+          }
+        } catch (e) {
+          // If JSON decode fails, return the string as-is
+        }
+      }
+      return value;
     }
     return value.toString();
   }
 
   Future<void> _downloadSymptomEntries() async {
     try {
-      final data = await _supabase
-          .from('symptom_entries')
-          .select('*')
-          .eq('user_id', userId);
+      final data =
+          await _supabase.from('symptoms').select('*').eq('user_id', userId);
+
+      print('📥 Downloading ${data.length} symptom entries...');
 
       for (final item in data) {
         await _db.into(_db.symptomEntries).insertOnConflictUpdate(
@@ -32,17 +46,18 @@ class DownloadData {
                 userId: item['user_id'],
                 date: DateTime.parse(item['date']),
                 isFlareup: item['is_flareup'],
-                severity: item['severity'],
-                affectedAreas: item['affected_areas'],
-                symptoms: item['symptoms'],
-                notes: item['notes'],
+                severity: item['severity'].toString(), // Convert to string
+                affectedAreas: _handleArrayField(item['affected_areas']),
+                symptoms: Value(_handleArrayField(item['symptoms'])),
+                notes: Value(_handleArrayField(item['notes'])),
                 createdAt: DateTime.parse(item['created_at']),
                 updatedAt: DateTime.parse(item['updated_at']),
               ),
             );
       }
+      print('✅ Downloaded ${data.length} symptom entries');
     } catch (e) {
-      print('Error downloading symptom entries: $e');
+      print('❌ Error downloading symptom entries: $e');
     }
   }
   // Gonna have to do photos later there is no syncing for that :skull:

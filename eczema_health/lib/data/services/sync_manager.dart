@@ -37,8 +37,7 @@ class SyncManager {
         print('👤 User signed in - downloading and syncing data');
         _handleUserSignIn();
       } else if (data.event == AuthChangeEvent.signedOut) {
-        print('👤 User signed out - stopping sync');
-        _stopPeriodicSync();
+        _handleUserSignOut();
       }
     });
 
@@ -53,15 +52,44 @@ class SyncManager {
     if (userId == null) return;
 
     try {
+      // Check for local changes BEFORE download
+      final pendingBeforeDownload = await _syncService.numberOfUnsyncedItems();
+      print('📊 Local changes before download: $pendingBeforeDownload');
+
+      // Download user data from server (this won't create sync_state entries)
       final downloadService = DownloadData(userId, _db);
       await downloadService.downloadAllUserData();
 
+      // Start periodic sync
       _startPeriodicSync();
-      triggerSync();
+
+      // Only upload if there were pending changes BEFORE download
+      if (pendingBeforeDownload > 0) {
+        print('📤 Uploading $pendingBeforeDownload local changes...');
+        triggerSync();
+      } else {
+        print('✅ No local changes to upload');
+      }
     } catch (e) {
       print('❌ Error during sign in sync: $e');
+      // Still start sync even if download fails
       _startPeriodicSync();
       triggerSync();
+    }
+  }
+
+  /// Handle user sign out - sync pending data first
+  Future<void> _handleUserSignOut() async {
+    print('👤 User signing out - syncing pending data...');
+
+    try {
+      // Force sync any pending changes before logout
+      await triggerSync(force: true);
+      print('✅ Pre-logout sync completed');
+    } catch (e) {
+      print('⚠️ Pre-logout sync failed: $e');
+    } finally {
+      _stopPeriodicSync();
     }
   }
 

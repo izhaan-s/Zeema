@@ -10,6 +10,7 @@ class ReminderController extends ChangeNotifier {
   final ReminderRepository _repository;
   List<ReminderModel> _reminders = [];
   bool _isLoading = false;
+  bool _disposed = false; // Add disposal tracking
 
   ReminderController({required ReminderRepository repository})
       : _repository = repository {
@@ -20,6 +21,8 @@ class ReminderController extends ChangeNotifier {
   bool get isLoading => _isLoading;
 
   Future<void> loadReminders() async {
+    if (_disposed) return; // Prevent operations after disposal
+
     _isLoading = true;
     notifyListeners();
 
@@ -33,8 +36,10 @@ class ReminderController extends ChangeNotifier {
       final userId = Supabase.instance.client.auth.currentUser?.id;
       if (userId == null) {
         _reminders = [];
-        _isLoading = false;
-        notifyListeners();
+        if (!_disposed) {
+          _isLoading = false;
+          notifyListeners();
+        }
         return;
       }
       final localReminders = await _repository.getReminders(userId);
@@ -54,16 +59,19 @@ class ReminderController extends ChangeNotifier {
           .toList();
 
       // Schedule notifications for all loaded reminders
-      if (hasPermission) {
+      if (hasPermission && !_disposed) {
         await ReminderNotificationManager.scheduleAllReminders(_reminders);
         // Check active notifications
         await NotificationService.printActiveNotifications();
       }
     } catch (e) {
       // Error loading reminders
+      print('Error loading reminders: $e');
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      if (!_disposed) {
+        _isLoading = false;
+        notifyListeners();
+      }
     }
   }
 
@@ -213,5 +221,12 @@ class ReminderController extends ChangeNotifier {
     } catch (e) {
       rethrow;
     }
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    print('ReminderController disposed');
+    super.dispose();
   }
 }

@@ -32,16 +32,16 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize the notification service (now a stub implementation)
+  // Initialize the notification service
   await NotificationService.init();
 
-  AwesomeNotifications().setListeners(
-    onActionReceivedMethod: NotificationController.onActionReceivedMethod,
-    onNotificationCreatedMethod:
-        NotificationController.onNotificationCreatedMethod,
-    onNotificationDisplayedMethod:
+  // Set up notification listeners through our service (prevents memory leaks)
+  NotificationService.setListeners(
+    onActionReceived: NotificationController.onActionReceivedMethod,
+    onNotificationCreated: NotificationController.onNotificationCreatedMethod,
+    onNotificationDisplayed:
         NotificationController.onNotificationDisplayedMethod,
-    onDismissActionReceivedMethod:
+    onDismissActionReceived:
         NotificationController.onDismissActionReceivedMethod,
   );
 
@@ -101,7 +101,8 @@ Future<void> main() async {
           ),
         ),
       ],
-      child: const EczemaHealthApp(),
+      child: EczemaHealthApp(
+          syncManager: syncManager), // Pass syncManager for disposal
     ),
   );
 }
@@ -143,8 +144,23 @@ class NotificationController {
   }
 }
 
-class EczemaHealthApp extends StatelessWidget {
-  const EczemaHealthApp({super.key});
+class EczemaHealthApp extends StatefulWidget {
+  const EczemaHealthApp({super.key, required this.syncManager});
+
+  final SyncManager syncManager;
+
+  @override
+  State<EczemaHealthApp> createState() => _EczemaHealthAppState();
+}
+
+class _EczemaHealthAppState extends State<EczemaHealthApp> {
+  @override
+  void dispose() {
+    // Dispose sync manager and notification service
+    widget.syncManager.dispose();
+    NotificationService.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

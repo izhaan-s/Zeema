@@ -9,6 +9,7 @@ class SyncManager {
   final SyncServiceRevamped _syncService;
   final AppDatabase _db;
   Timer? _periodicSyncTimer;
+  StreamSubscription<AuthState>? _authSubscription;
   bool _isOnline = true;
   bool _isSyncing = false;
 
@@ -31,8 +32,9 @@ class SyncManager {
     await _updateSyncStats();
     _startPeriodicSync();
 
-    // Listen to auth state changes
-    Supabase.instance.client.auth.onAuthStateChange.listen((data) {
+    // Listen to auth state changes - PROPERLY store the subscription
+    _authSubscription =
+        Supabase.instance.client.auth.onAuthStateChange.listen((data) {
       if (data.event == AuthChangeEvent.signedIn) {
         print('👤 User signed in - downloading and syncing data');
         _handleUserSignIn();
@@ -209,8 +211,11 @@ class SyncManager {
   /// Dispose of resources
   void dispose() {
     _stopPeriodicSync();
+    _authSubscription?.cancel();
+    _authSubscription = null;
     _syncStatusController.close();
     _syncStatsController.close();
+    print('SyncManager disposed');
   }
 }
 

@@ -6,6 +6,9 @@ class NotificationService {
   static const String channelName = 'Reminders';
   static const String channelDescription = 'Channel for reminder notifications';
 
+  // Track if listeners are already set to prevent duplicates
+  static bool _listenersInitialized = false;
+
   static Future<void> init() async {
     // Make sure old notifications are cleared on startup to avoid issues
     await AwesomeNotifications().cancelAll();
@@ -34,6 +37,45 @@ class NotificationService {
 
     // Request notification permissions
     await requestPermission();
+  }
+
+  /// Set up notification listeners - should only be called once
+  static void setListeners({
+    required Future<void> Function(ReceivedNotification) onNotificationCreated,
+    required Future<void> Function(ReceivedNotification)
+        onNotificationDisplayed,
+    required Future<void> Function(ReceivedAction) onActionReceived,
+    required Future<void> Function(ReceivedAction) onDismissActionReceived,
+  }) {
+    if (_listenersInitialized) {
+      print('Notification listeners already initialized, skipping...');
+      return;
+    }
+
+    AwesomeNotifications().setListeners(
+      onActionReceivedMethod: onActionReceived,
+      onNotificationCreatedMethod: onNotificationCreated,
+      onNotificationDisplayedMethod: onNotificationDisplayed,
+      onDismissActionReceivedMethod: onDismissActionReceived,
+    );
+
+    _listenersInitialized = true;
+    print('Notification listeners initialized');
+  }
+
+  /// Dispose of notification listeners and resources
+  static Future<void> dispose() async {
+    try {
+      // Cancel all scheduled notifications
+      await AwesomeNotifications().cancelAll();
+
+      // Reset the listeners flag
+      _listenersInitialized = false;
+
+      print('NotificationService disposed');
+    } catch (e) {
+      print('Error disposing NotificationService: $e');
+    }
   }
 
   /// Request permission to show notifications

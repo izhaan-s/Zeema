@@ -13,7 +13,7 @@ class DownloadData {
   String _handleArrayField(dynamic value) {
     if (value == null) return '';
     if (value is List) {
-      return value.join(','); // Convert array to comma-separated string
+      return jsonEncode(value); // Convert array to JSON string
     }
     if (value is String) {
       // If it's already a string, check if it's JSON array
@@ -21,7 +21,7 @@ class DownloadData {
         try {
           final decoded = jsonDecode(value);
           if (decoded is List) {
-            return decoded.join(',');
+            return jsonEncode(decoded); // Re-encode as JSON
           }
         } catch (e) {
           // If JSON decode fails, return the string as-is

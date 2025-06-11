@@ -219,9 +219,7 @@ class SyncServiceRevamped {
       }
 
       // Handle date/time fields - convert timestamps to ISO strings
-      if (snakeKey.contains('_at') ||
-          snakeKey.contains('date') ||
-          snakeKey.contains('time')) {
+      if (snakeKey.contains('_at') || snakeKey.contains('date')) {
         if (value is int) {
           // Convert millisecond timestamp to ISO string
           try {
@@ -235,6 +233,25 @@ class SyncServiceRevamped {
           try {
             final dateTime = DateTime.parse(value);
             value = dateTime.toIso8601String();
+          } catch (e) {
+            // If parsing fails, keep original value
+          }
+        }
+      } else if (snakeKey == 'time') {
+        // Handle time field specifically - extract only HH:mm:ss
+        if (value is int) {
+          try {
+            final dateTime = DateTime.fromMillisecondsSinceEpoch(value);
+            value =
+                '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}:${dateTime.second.toString().padLeft(2, '0')}';
+          } catch (e) {
+            // If conversion fails, keep original value
+          }
+        } else if (value is String && value.isNotEmpty) {
+          try {
+            final dateTime = DateTime.parse(value);
+            value =
+                '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}:${dateTime.second.toString().padLeft(2, '0')}';
           } catch (e) {
             // If parsing fails, keep original value
           }

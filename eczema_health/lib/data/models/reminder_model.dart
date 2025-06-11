@@ -75,7 +75,8 @@ class ReminderModel {
       'title': title,
       'description': description,
       'reminder_type': reminderType,
-      'time': dateTime.toIso8601String(),
+      'time':
+          '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}:${dateTime.second.toString().padLeft(2, '0')}',
       'repeat_days': repeatDays,
       'is_active': isActive,
       'created_at': createdAt.toIso8601String(),

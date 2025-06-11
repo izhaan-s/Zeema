@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:eczema_health/data/app_database.dart';
 import 'package:eczema_health/data/repositories/local/symptom_repository.dart';
 import 'package:eczema_health/data/repositories/local/photo_repository.dart';
@@ -89,6 +90,18 @@ class SyncService {
     await prefs.setInt(_lastSyncKey, DateTime.now().millisecondsSinceEpoch);
   }
 
+  /// Parses repeat days from either old comma-separated format or new JSON format
+  List<String> _parseRepeatDays(String repeatDaysStr) {
+    try {
+      // Try to parse as JSON first (new format)
+      final List<dynamic> jsonList = jsonDecode(repeatDaysStr);
+      return jsonList.map((e) => e.toString()).toList();
+    } catch (e) {
+      // If JSON parsing fails, treat as comma-separated string (old format)
+      return repeatDaysStr.split(',');
+    }
+  }
+
   Future<void> syncData() async {
     final userId = _supabase.auth.currentUser?.id;
     if (userId == null) {
@@ -141,7 +154,7 @@ class SyncService {
             'reminder_type': reminder.reminderType,
             'time':
                 reminder.time.toIso8601String().substring(11, 19), // HH:mm:ss
-            'repeat_days': reminder.repeatDays.split(','),
+            'repeat_days': _parseRepeatDays(reminder.repeatDays),
             'is_active': reminder.isActive,
             'created_at': reminder.createdAt.toIso8601String(),
             'updated_at': reminder.updatedAt.toIso8601String(),

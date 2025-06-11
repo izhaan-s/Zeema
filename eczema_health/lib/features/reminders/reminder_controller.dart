@@ -1,7 +1,7 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../../data/models/reminder_model.dart';
 import '../../data/repositories/local/reminder_repository.dart';
-import '../../data/app_database.dart';
 import 'reminder_notification_manager.dart';
 import 'notification_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -19,6 +19,18 @@ class ReminderController extends ChangeNotifier {
 
   List<ReminderModel> get reminders => _reminders;
   bool get isLoading => _isLoading;
+
+  /// Parses repeat days from either old comma-separated format or new JSON format
+  List<String> _parseRepeatDays(String repeatDaysStr) {
+    try {
+      // Try to parse as JSON first (new format)
+      final List<dynamic> jsonList = jsonDecode(repeatDaysStr);
+      return jsonList.map((e) => e.toString()).toList();
+    } catch (e) {
+      // If JSON parsing fails, treat as comma-separated string (old format)
+      return repeatDaysStr.split(',');
+    }
+  }
 
   Future<void> loadReminders() async {
     if (_disposed) return; // Prevent operations after disposal
@@ -51,7 +63,7 @@ class ReminderController extends ChangeNotifier {
                 description: r.description,
                 reminderType: r.reminderType,
                 dateTime: r.time,
-                repeatDays: r.repeatDays.split(','),
+                repeatDays: _parseRepeatDays(r.repeatDays),
                 isActive: r.isActive,
                 createdAt: r.createdAt,
                 updatedAt: r.updatedAt,

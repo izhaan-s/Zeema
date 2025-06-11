@@ -97,14 +97,24 @@ class _SymptomTrackingScreenState extends State<SymptomTrackingScreen> {
                 ),
               ),
               onPressed: () async {
-                await Navigator.push(
+                final result = await Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => const SymptomInputScreen(),
                   ),
                 );
-                // Refresh symptoms after returning
-                await _loadSymptoms();
+                // Only refresh if a symptom was actually saved
+                if (result == true) {
+                  // Just reload local data, don't trigger another sync
+                  final symptomRepository = Provider.of<LocalSymptomRepository>(
+                      context,
+                      listen: false);
+                  final symptoms =
+                      await symptomRepository.getSymptomEntries(userId);
+                  setState(() {
+                    _symptoms = symptoms;
+                  });
+                }
               },
               icon: const Icon(Icons.add, size: 18, color: Colors.white),
               label: const Text('Log Symptoms'),

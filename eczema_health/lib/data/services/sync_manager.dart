@@ -1,11 +1,13 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'sync_service_revamped.dart';
+import 'download_data.dart';
+import 'package:eczema_health/data/app_database.dart';
 
 /// Manages automatic and manual syncing with network awareness
 class SyncManager {
   final SyncServiceRevamped _syncService;
+  final AppDatabase _db;
   Timer? _periodicSyncTimer;
   bool _isOnline = true;
   bool _isSyncing = false;
@@ -21,7 +23,7 @@ class SyncManager {
   Stream<SyncStatus> get syncStatusStream => _syncStatusController.stream;
   Stream<Map<String, int>> get syncStatsStream => _syncStatsController.stream;
 
-  SyncManager(this._syncService);
+  SyncManager(this._syncService, this._db);
 
   /// Initialize the sync manager and start periodic syncing
   Future<void> initialize() async {
@@ -32,9 +34,8 @@ class SyncManager {
     // Listen to auth state changes
     Supabase.instance.client.auth.onAuthStateChange.listen((data) {
       if (data.event == AuthChangeEvent.signedIn) {
-        print('👤 User signed in - starting sync');
-        _startPeriodicSync();
-        triggerSync(); // Immediate sync on login
+        print('👤 User signed in - downloading and syncing data');
+        _handleUserSignIn();
       } else if (data.event == AuthChangeEvent.signedOut) {
         print('👤 User signed out - stopping sync');
         _stopPeriodicSync();
@@ -44,6 +45,24 @@ class SyncManager {
     final initialStats = await _syncService.getSyncStats();
     print(
         '📊 Initial sync stats - Pending: ${initialStats['pending']}, Failed: ${initialStats['failed']}');
+  }
+
+  /// Handle user sign in - download data then start syncing
+  Future<void> _handleUserSignIn() async {
+    final userId = Supabase.instance.client.auth.currentUser?.id;
+    if (userId == null) return;
+
+    try {
+      final downloadService = DownloadData(userId, _db);
+      await downloadService.downloadAllUserData();
+
+      _startPeriodicSync();
+      triggerSync();
+    } catch (e) {
+      print('❌ Error during sign in sync: $e');
+      _startPeriodicSync();
+      triggerSync();
+    }
   }
 
   /// Start periodic syncing based on current conditions

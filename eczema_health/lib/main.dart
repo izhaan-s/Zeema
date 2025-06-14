@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:provider/provider.dart';
 import 'config/supabase_secrets.dart';
-import 'features/auth/screens/login_screen.dart';
+import 'features/auth/login_screen.dart';
 import 'navigation/app_router.dart';
 import 'features/dashboard/dashboard_screen.dart';
 import 'features/photo_tracking/photo_gallery_screen.dart';

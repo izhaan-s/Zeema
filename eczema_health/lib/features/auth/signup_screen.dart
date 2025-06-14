@@ -1,8 +1,8 @@
-import 'package:eczema_health/features/auth/screens/verification_screen.dart';
+import 'package:eczema_health/features/auth/verification_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../../data/repositories/cloud/auth_repository.dart';
+import '../../data/repositories/cloud/auth_repository.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});

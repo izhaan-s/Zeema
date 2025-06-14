@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../../data/repositories/cloud/auth_repository.dart';
+import '../../data/repositories/cloud/auth_repository.dart';
 import 'signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {

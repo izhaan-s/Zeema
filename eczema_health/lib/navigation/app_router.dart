@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../features/auth/screens/login_screen.dart';
-import '../features/auth/screens/signup_screen.dart';
-import '../features/auth/screens/verification_screen.dart';
+import '../features/auth/login_screen.dart';
+import '../features/auth/signup_screen.dart';
+import '../features/auth/verification_screen.dart';
 import '../features/dashboard/dashboard_screen.dart';
 import '../features/profile/screens/profile_screen.dart';
 import '../features/reminders/reminders_screen.dart';

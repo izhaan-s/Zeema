@@ -1,4 +1,5 @@
 # Eczema Health
+zeema.app
 WAITLIST: https://eczema.framer.website/ 
 ## 🩺 Overview
 **Eczema Health** is a cross-platform mobile app built with Flutter that empowers individuals with eczema to manage and monitor their condition. Through symptom logs, lifestyle tracking, medication management, and a visual dashboard, users gain personalized insights to improve their care routines.

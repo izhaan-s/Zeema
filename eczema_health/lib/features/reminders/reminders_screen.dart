@@ -79,7 +79,8 @@ class _RemindersScreenState extends State<RemindersScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 12.0),
             child: Showcase(
               key: TutorialManager.reminderKey,
-              description: 'Set up a daily medication reminder.',
+              description:
+                  'Tap here to set up medication reminders. Never miss a dose again!',
               child: ElevatedButton.icon(
                 onPressed: () async {
                   final result =

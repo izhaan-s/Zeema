@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'tutorial_service.dart';
+import '../../main.dart';
 
 class TutorialManager {
   static final GlobalKey _symptomKey = GlobalKey();
@@ -34,6 +35,11 @@ class TutorialManager {
 
     print("DEBUG TutorialManager: Starting step-by-step tutorial");
 
+    // Ensure we start on the Dashboard tab
+    if (mainScreenKey.currentState != null) {
+      mainScreenKey.currentState!.navigateToTab(0);
+    }
+
     // Wait for widgets to be fully built and attached
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Add additional delay to ensure all widgets are rendered
@@ -58,7 +64,7 @@ class TutorialManager {
 
     switch (_currentStep) {
       case 0:
-        // Show Dashboard tab
+        // Show Dashboard tab tooltip
         print(
             "DEBUG TutorialManager: Dashboard key attached: ${_dashboardKey.currentWidget != null}");
         print(
@@ -76,25 +82,12 @@ class TutorialManager {
         break;
 
       case 1:
-        // Show Symptoms tab
-        print(
-            "DEBUG TutorialManager: Symptoms key attached: ${_symptomKey.currentWidget != null}");
-        print(
-            "DEBUG TutorialManager: Symptoms key context: ${_symptomKey.currentContext != null}");
-
-        if (_symptomKey.currentContext != null) {
-          ShowCaseWidget.of(context).startShowCase([_symptomKey]);
-        } else {
-          print(
-              "DEBUG TutorialManager: Symptoms key not ready, retrying in 500ms");
-          Future.delayed(const Duration(milliseconds: 500), () {
-            _showNextStep();
-          });
-        }
+        // Navigate to Symptoms tab first, then show tooltip
+        _navigateToSymptomsAndShowcase(context);
         break;
 
       case 2:
-        // Show Reminders tab - need to navigate first
+        // Navigate to Reminders tab and show showcase
         _navigateToRemindersAndShowcase(context);
         break;
 
@@ -104,20 +97,110 @@ class TutorialManager {
     }
   }
 
+  static void _navigateToSymptomsAndShowcase(BuildContext context) {
+    print("DEBUG TutorialManager: Navigating to Symptoms screen");
+
+    if (mainScreenKey.currentState != null) {
+      print(
+          "DEBUG TutorialManager: MainScreen found, navigating to Symptoms tab");
+
+      // Navigate to the Symptoms tab (index 2)
+      mainScreenKey.currentState!.navigateToTab(2);
+
+      // Wait for navigation and widget rebuild, then show the showcase
+      Future.delayed(const Duration(milliseconds: 1000), () {
+        // Get fresh context after navigation
+        final currentContext = navigatorKey.currentContext;
+        if (currentContext != null && _symptomKey.currentContext != null) {
+          print("DEBUG TutorialManager: Symptoms key ready after navigation");
+          ShowCaseWidget.of(currentContext).startShowCase([_symptomKey]);
+        } else {
+          print("DEBUG TutorialManager: Symptoms key not ready, retrying");
+          _retrySymptomsShowcase(0);
+        }
+      });
+    } else {
+      print("DEBUG TutorialManager: MainScreen not found, completing tutorial");
+      completeTutorial();
+    }
+  }
+
+  static void _retrySymptomsShowcase(int attempt) {
+    const maxAttempts = 3;
+
+    if (attempt >= maxAttempts) {
+      print(
+          "DEBUG TutorialManager: Max attempts reached for symptoms, moving to next step");
+      onShowcaseComplete();
+      return;
+    }
+
+    print(
+        "DEBUG TutorialManager: Retry attempt ${attempt + 1} for symptoms showcase");
+
+    Future.delayed(const Duration(milliseconds: 500), () {
+      final currentContext = navigatorKey.currentContext;
+      if (currentContext != null && _symptomKey.currentContext != null) {
+        print(
+            "DEBUG TutorialManager: Symptoms key ready on attempt ${attempt + 1}");
+        ShowCaseWidget.of(currentContext).startShowCase([_symptomKey]);
+      } else {
+        _retrySymptomsShowcase(attempt + 1);
+      }
+    });
+  }
+
   static void _navigateToRemindersAndShowcase(BuildContext context) {
     print("DEBUG TutorialManager: Navigating to Reminders screen");
 
-    // We need to navigate to the reminders tab (index 4) first
-    // Since we can't directly access MainScreen's state, we'll use a different approach
-    // For now, let's just show the reminder key if it's available
-
-    if (_reminderKey.currentContext != null) {
-      ShowCaseWidget.of(context).startShowCase([_reminderKey]);
-    } else {
+    if (mainScreenKey.currentState != null) {
       print(
-          "DEBUG TutorialManager: Reminder key not ready, completing tutorial");
+          "DEBUG TutorialManager: MainScreen found, navigating to Reminders tab");
+
+      // Navigate to the Reminders tab (index 4)
+      mainScreenKey.currentState!.navigateToTab(4);
+
+      // Wait for navigation and widget rebuild, then show the showcase
+      Future.delayed(const Duration(milliseconds: 1000), () {
+        // Get fresh context after navigation
+        final currentContext = navigatorKey.currentContext;
+        if (currentContext != null && _reminderKey.currentContext != null) {
+          print("DEBUG TutorialManager: Reminder key ready after navigation");
+          ShowCaseWidget.of(currentContext).startShowCase([_reminderKey]);
+        } else {
+          print("DEBUG TutorialManager: Reminder key not ready, retrying");
+          _retryReminderShowcase(0);
+        }
+      });
+    } else {
+      print("DEBUG TutorialManager: MainScreen not found, completing tutorial");
       completeTutorial();
     }
+  }
+
+  static void _retryReminderShowcase(int attempt) {
+    const maxAttempts = 3;
+
+    if (attempt >= maxAttempts) {
+      print(
+          "DEBUG TutorialManager: Max attempts reached for reminders, completing tutorial");
+      completeTutorial();
+      return;
+    }
+
+    print(
+        "DEBUG TutorialManager: Retry attempt ${attempt + 1} for reminder showcase");
+
+    Future.delayed(const Duration(milliseconds: 500), () {
+      final currentContext = navigatorKey.currentContext;
+      if (currentContext != null && _reminderKey.currentContext != null) {
+        print(
+            "DEBUG TutorialManager: Reminder key ready on attempt ${attempt + 1}");
+        ShowCaseWidget.of(currentContext).startShowCase([_reminderKey]);
+      } else {
+        _retryReminderShowcase(attempt + 1);
+      }
+    });
   }
 
   static void onShowcaseComplete() {
@@ -140,14 +223,24 @@ class TutorialManager {
     await tutorialService.setHasSeenTutorial();
     _tutorialContext = null;
     _currentStep = 0;
+
+    // Navigate back to Dashboard when tutorial is complete
+    if (mainScreenKey.currentState != null) {
+      mainScreenKey.currentState!.navigateToTab(0);
+    }
   }
 
   // Helper method to get current valid context
   static BuildContext? _getCurrentContext() {
-    // Check if stored context is still valid
+    // Always try to get the most current context from navigator
+    final currentContext = navigatorKey.currentContext;
+    if (currentContext != null) {
+      return currentContext;
+    }
+
+    // Fallback to stored context if it's still valid
     if (_tutorialContext != null) {
       try {
-        // Check if context is still mounted
         if (_tutorialContext!.mounted) {
           return _tutorialContext;
         }
@@ -176,5 +269,17 @@ class TutorialManager {
     final tutorialService = TutorialService();
     await tutorialService.resetTutorial();
     await startTutorial(context);
+  }
+
+  // Method to manually navigate to a specific tab (called from MainScreen)
+  static void navigateToTab(int tabIndex) {
+    print("DEBUG TutorialManager: navigateToTab called with index $tabIndex");
+    if (mainScreenKey.currentState != null) {
+      mainScreenKey.currentState!.navigateToTab(tabIndex);
+      print(
+          "DEBUG TutorialManager: Successfully called navigateToTab($tabIndex)");
+    } else {
+      print("DEBUG TutorialManager: MainScreen not available for navigation");
+    }
   }
 }

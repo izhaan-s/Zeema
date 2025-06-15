@@ -308,6 +308,17 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
+  // Method to navigate to a specific tab (for tutorial)
+  void navigateToTab(int index) {
+    print("DEBUG MainScreen: navigateToTab called with index $index");
+    if (mounted && index >= 0 && index < _pages.length) {
+      setState(() {
+        _selectedIndex = index;
+      });
+      print("DEBUG MainScreen: Successfully navigated to tab $index");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

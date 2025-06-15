@@ -116,7 +116,7 @@ class BottomNav extends StatelessWidget {
       return Showcase(
         key: TutorialManager.dashboardKey,
         description:
-            'This is where your progress, flare cycles, and patterns appear.',
+            'Welcome to your Dashboard! This is where you\'ll see your progress, flare patterns, and health insights.',
         child: tabContent,
       );
     } else if (index == 2) {
@@ -124,7 +124,7 @@ class BottomNav extends StatelessWidget {
       return Showcase(
         key: TutorialManager.symptomKey,
         description:
-            'Log your first symptom to begin tracking flare-ups and intensity.',
+            'Tap here to log your symptoms. Track severity, body locations, and triggers to identify patterns.',
         child: tabContent,
       );
     }

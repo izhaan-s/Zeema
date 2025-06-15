@@ -6,6 +6,8 @@ import '../../data/models/reminder_model.dart';
 import 'widgets/reminder_section_card.dart';
 import 'widgets/empty_reminders_view.dart';
 import 'add_reminder_screen.dart';
+import 'package:showcaseview/showcaseview.dart';
+import '../auth/tutorial_manager.dart';
 
 class RemindersScreen extends StatefulWidget {
   const RemindersScreen({super.key});
@@ -75,28 +77,32 @@ class _RemindersScreenState extends State<RemindersScreen> {
         actions: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12.0),
-            child: ElevatedButton.icon(
-              onPressed: () async {
-                final result =
-                    await Navigator.pushNamed(context, AppRouter.addReminder);
-                // Refresh reminders after returning if reminder was created
-                if (result == true && mounted) {
-                  final controller = context.read<ReminderController>();
-                  await controller.loadReminders();
-                }
-              },
-              icon: const Icon(Icons.add, size: 18, color: Colors.white),
-              label: const Text('Add'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF3b82f6),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+            child: Showcase(
+              key: TutorialManager.reminderKey,
+              description: 'Set up a daily medication reminder.',
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  final result =
+                      await Navigator.pushNamed(context, AppRouter.addReminder);
+                  // Refresh reminders after returning if reminder was created
+                  if (result == true && mounted) {
+                    final controller = context.read<ReminderController>();
+                    await controller.loadReminders();
+                  }
+                },
+                icon: const Icon(Icons.add, size: 18, color: Colors.white),
+                label: const Text('Add'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF3b82f6),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  textStyle: const TextStyle(fontWeight: FontWeight.bold),
+                  elevation: 0,
                 ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                textStyle: const TextStyle(fontWeight: FontWeight.bold),
-                elevation: 0,
               ),
             ),
           ),

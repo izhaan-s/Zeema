@@ -4,6 +4,8 @@ import '../../data/repositories/cloud/auth_repository.dart';
 import '../onboarding/welcome_tutorial_screen.dart';
 import 'signup_screen.dart';
 import 'tutorial_service.dart';
+import 'tutorial_manager.dart';
+import '../../main.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -483,10 +485,19 @@ class _LoginScreenState extends State<LoginScreen> {
               context,
               MaterialPageRoute(
                 builder: (context) => WelcomeTutorialScreen(
-                  onShowMeHow: () {
+                  onShowMeHow: () async {
                     print("DEBUG: onShowMeHow called");
-                    tutorialService.setHasSeenTutorial();
+                    // Temporarily reset tutorial state for testing
+                    await tutorialService.resetTutorial();
                     Navigator.of(context).popUntil((route) => route.isFirst);
+                    // Wait for MainScreen to fully build before starting tutorial
+                    await Future.delayed(const Duration(milliseconds: 1000));
+                    // Use the MainScreen key to start tutorial
+                    if (mainScreenKey.currentState != null) {
+                      mainScreenKey.currentState!.startTutorial();
+                    } else {
+                      print("DEBUG: MainScreen not available for tutorial");
+                    }
                   },
                   onSkip: () {
                     print("DEBUG: onSkip called");

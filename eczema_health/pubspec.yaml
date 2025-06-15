@@ -56,6 +56,7 @@ dependencies:
   fl_chart: ^1.0.0
   awesome_notifications: ^0.10.1
   permission_handler: ^11.3.1  # For gallery permissions
+  showcaseview: ^4.0.1
   # Removing problematic flutter_local_notifications
   # flutter_local_notifications: ^9.9.1
   # timezone: ^0.8.0

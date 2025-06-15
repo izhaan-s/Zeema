@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:showcaseview/showcaseview.dart';
 import 'config/supabase_secrets.dart';
 import 'features/auth/login_screen.dart';
 import 'navigation/app_router.dart';
@@ -24,10 +25,13 @@ import 'data/repositories/local/dashboard_cache_repository.dart';
 import 'data/repositories/cloud/symptom_repository.dart';
 import 'features/legal/terms_and_conditions_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'features/auth/tutorial_manager.dart';
 
 final supabase = Supabase.instance.client;
 // Global navigator key to use for navigation from anywhere
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+// Global key for MainScreen to access its state
+final GlobalKey<_MainScreenState> mainScreenKey = GlobalKey<_MainScreenState>();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -164,16 +168,25 @@ class _EczemaHealthAppState extends State<EczemaHealthApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Eczema Health',
-      navigatorKey: navigatorKey,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
+    return ShowCaseWidget(
+      onStart: (index, key) {
+        print('Showcase started: index $index');
+      },
+      onComplete: (index, key) {
+        print('Showcase completed: index $index');
+        TutorialManager.onShowcaseComplete();
+      },
+      builder: (context) => MaterialApp(
+        title: 'Eczema Health',
+        navigatorKey: navigatorKey,
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+          useMaterial3: true,
+        ),
+        home: const TermsOrAuthGate(),
+        // Keep onGenerateRoute for auth and deep links
+        onGenerateRoute: AppRouter.generateRoute,
       ),
-      home: const TermsOrAuthGate(),
-      // Keep onGenerateRoute for auth and deep links
-      onGenerateRoute: AppRouter.generateRoute,
     );
   }
 }
@@ -234,7 +247,7 @@ class AuthGate extends StatelessWidget {
           );
         }
         if (session != null && session.user != null) {
-          return const MainScreen();
+          return MainScreen(key: mainScreenKey);
         } else {
           return const LoginScreen();
         }
@@ -281,6 +294,18 @@ class _MainScreenState extends State<MainScreen> {
     } catch (e) {
       print('Auto sync failed: $e');
     }
+  }
+
+  // Method to start tutorial from external calls
+  void startTutorial() {
+    print("DEBUG MainScreen: startTutorial called");
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.delayed(const Duration(milliseconds: 1000), () {
+        if (mounted) {
+          TutorialManager.startTutorial(context);
+        }
+      });
+    });
   }
 
   @override

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../auth/tutorial_manager.dart';
 
 class WelcomeTutorialScreen extends StatelessWidget {
   final VoidCallback onShowMeHow;

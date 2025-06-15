@@ -12,6 +12,7 @@ import 'package:eczema_health/features/symptom_tracking/widgets/flare_up_card.da
 import 'package:eczema_health/data/models/analysis_models.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../profile/screens/settings_screen.dart';
+import '../auth/tutorial_manager.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -92,6 +93,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
           surfaceTintColor: Colors.transparent,
           elevation: 0,
           actions: [
+            // Debug button for tutorial (remove in production)
+            IconButton(
+              icon: const Icon(Icons.help_outline),
+              onPressed: () async {
+                await TutorialManager.restartTutorial(context);
+              },
+            ),
             IconButton(
               icon: const Icon(Icons.settings),
               onPressed: () {

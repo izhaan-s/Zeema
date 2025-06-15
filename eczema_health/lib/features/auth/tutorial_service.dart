@@ -5,11 +5,23 @@ class TutorialService {
 
   Future<bool> hasSeenTutorial() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(hasSeenTutorialKey) ?? false;
+    final result = prefs.getBool(hasSeenTutorialKey) ?? false;
+    print("DEBUG TutorialService: hasSeenTutorial() returning $result");
+    return result;
   }
 
   Future<void> setHasSeenTutorial() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(hasSeenTutorialKey, true);
+    print(
+        "DEBUG TutorialService: setHasSeenTutorial() called - marked as seen");
+  }
+
+  // For debugging - reset tutorial state
+  Future<void> resetTutorial() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(hasSeenTutorialKey);
+    print(
+        "DEBUG TutorialService: resetTutorial() called - tutorial state reset");
   }
 }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../data/repositories/cloud/auth_repository.dart';
+import '../onboarding/welcome_tutorial_screen.dart';
 import 'signup_screen.dart';
+import 'tutorial_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -465,9 +467,40 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (response.user != null) {
         _showSuccess('Welcome back! Redirecting...');
-        Future.delayed(const Duration(milliseconds: 1500), () {
+        final tutorialService = TutorialService();
+        final hasSeenTutorial = await tutorialService.hasSeenTutorial();
+        print("DEBUG: hasSeenTutorial = $hasSeenTutorial");
+
+        if (hasSeenTutorial) {
+          print("DEBUG: User has seen tutorial, going to main app");
           Navigator.of(context).popUntil((route) => route.isFirst);
-        });
+        } else {
+          // First time user, show welcome tutorial
+          print("DEBUG: First time user, showing welcome tutorial");
+          print("DEBUG: About to navigate to welcome screen");
+          try {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => WelcomeTutorialScreen(
+                  onShowMeHow: () {
+                    print("DEBUG: onShowMeHow called");
+                    tutorialService.setHasSeenTutorial();
+                    Navigator.of(context).popUntil((route) => route.isFirst);
+                  },
+                  onSkip: () {
+                    print("DEBUG: onSkip called");
+                    tutorialService.setHasSeenTutorial();
+                    Navigator.of(context).popUntil((route) => route.isFirst);
+                  },
+                ),
+              ),
+            );
+            print("DEBUG: Navigation to welcome screen successful");
+          } catch (e) {
+            print("DEBUG: Error navigating to welcome screen: $e");
+          }
+        }
       } else {
         _showError('Invalid email or password. Please try again.');
       }

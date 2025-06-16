@@ -52,28 +52,59 @@ class SettingsScreen extends StatelessWidget {
             subtitle:
                 const Text('Permanently delete your account and all data.'),
             onTap: () async {
-              final confirm = await showDialog<bool>(
+              await showDialog(
                 context: context,
                 builder: (context) => AlertDialog(
-                  title: const Text('Delete Account'),
-                  content: const Text(
-                      'Are you sure you want to delete your account? This cannot be undone.'),
+                  title: const Text('How to request account deletion'),
+                  content: const Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('1. ',
+                              style: TextStyle(fontWeight: FontWeight.bold)),
+                          Expanded(
+                            child: Text(
+                                'Email us at support@zeema.app from your registered email address.'),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 12),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('2. ',
+                              style: TextStyle(fontWeight: FontWeight.bold)),
+                          Expanded(
+                            child: Text(
+                                'Use the subject line: "Account Deletion Request"'),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 12),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('3. ',
+                              style: TextStyle(fontWeight: FontWeight.bold)),
+                          Expanded(
+                            child: Text(
+                                'We\'ll verify your identity and delete all data within 7 business days.'),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                   actions: [
                     TextButton(
-                      onPressed: () => Navigator.of(context).pop(false),
-                      child: const Text('Cancel'),
-                    ),
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(true),
-                      child: const Text('Delete',
-                          style: TextStyle(color: Colors.red)),
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('Got it'),
                     ),
                   ],
                 ),
               );
-              if (confirm == true) {
-                _deleteAccount(context);
-              }
             },
           ),
           ListTile(
@@ -85,7 +116,7 @@ class SettingsScreen extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.support_agent),
             title: const Text('Contact & Support'),
-            subtitle: const Text('Email: support@eczemahealth.app'),
+            subtitle: const Text('Email: support@zeema.app'),
             onTap: () {},
           ),
         ],

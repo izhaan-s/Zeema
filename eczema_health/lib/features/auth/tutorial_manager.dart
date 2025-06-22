@@ -221,6 +221,7 @@ class TutorialManager {
         "DEBUG TutorialManager: completeTutorial called, clearing _tutorialContext");
     final tutorialService = TutorialService();
     await tutorialService.setHasSeenTutorial();
+    await tutorialService.clearNewUserFlag();
     _tutorialContext = null;
     _currentStep = 0;
 

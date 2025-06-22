@@ -470,16 +470,16 @@ class _LoginScreenState extends State<LoginScreen> {
       if (response.user != null) {
         _showSuccess('Welcome back! Redirecting...');
         final tutorialService = TutorialService();
+        final isNewUser = await tutorialService.isNewUser();
         final hasSeenTutorial = await tutorialService.hasSeenTutorial();
+
+        print("DEBUG: isNewUser = $isNewUser");
         print("DEBUG: hasSeenTutorial = $hasSeenTutorial");
 
-        if (hasSeenTutorial) {
-          print("DEBUG: User has seen tutorial, going to main app");
-          Navigator.of(context).popUntil((route) => route.isFirst);
-        } else {
-          // First time user, show welcome tutorial
-          print("DEBUG: First time user, showing welcome tutorial");
-          print("DEBUG: About to navigate to welcome screen");
+        // Only show tutorial for new users who haven't seen it yet
+        if (isNewUser && !hasSeenTutorial) {
+          // New signup user, show welcome tutorial
+          print("DEBUG: New user, showing welcome tutorial");
           try {
             Navigator.pushReplacement(
               context,
@@ -487,8 +487,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 builder: (context) => WelcomeTutorialScreen(
                   onShowMeHow: () async {
                     print("DEBUG: onShowMeHow called");
-                    // Temporarily reset tutorial state for testing
-                    await tutorialService.resetTutorial();
+                    // Clear the new user flag and start tutorial
+                    await tutorialService.clearNewUserFlag();
                     Navigator.of(context).popUntil((route) => route.isFirst);
                     // Wait for MainScreen to fully build before starting tutorial
                     await Future.delayed(const Duration(milliseconds: 1000));
@@ -499,9 +499,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       print("DEBUG: MainScreen not available for tutorial");
                     }
                   },
-                  onSkip: () {
+                  onSkip: () async {
                     print("DEBUG: onSkip called");
-                    tutorialService.setHasSeenTutorial();
+                    await tutorialService.setHasSeenTutorial();
+                    await tutorialService.clearNewUserFlag();
                     Navigator.of(context).popUntil((route) => route.isFirst);
                   },
                 ),
@@ -511,6 +512,11 @@ class _LoginScreenState extends State<LoginScreen> {
           } catch (e) {
             print("DEBUG: Error navigating to welcome screen: $e");
           }
+        } else {
+          // Existing user or user who already saw tutorial, go directly to main app
+          print(
+              "DEBUG: Existing user or tutorial already seen, going to main app");
+          Navigator.of(context).popUntil((route) => route.isFirst);
         }
       } else {
         _showError('Invalid email or password. Please try again.');

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../data/repositories/cloud/auth_repository.dart';
+import 'tutorial_service.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -157,6 +158,8 @@ class _SignupScreenState extends State<SignupScreen> {
 
   Future<void> _submitForm() async {
     final authRepository = AuthRepository();
+    final tutorialService = TutorialService();
+
     try {
       final response = await authRepository.signUpUser(
         email: emailController.text,
@@ -164,6 +167,9 @@ class _SignupScreenState extends State<SignupScreen> {
       );
 
       if (response.user != null) {
+        // Mark this user as a new signup for tutorial purposes
+        await tutorialService.markAsNewUser();
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(

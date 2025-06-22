@@ -13,6 +13,12 @@ import 'package:eczema_health/data/models/analysis_models.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../profile/screens/settings_screen.dart';
 import '../auth/tutorial_manager.dart';
+import '../symptom_tracking/symptom_tracking_screen.dart';
+import '../photo_tracking/photo_gallery_screen.dart';
+import '../reminders/reminders_screen.dart';
+import '../lifestyle_tracking/screens/lifestyle_log_screen.dart';
+import '../../main.dart';
+import '../profile/screens/profile_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -27,11 +33,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
   int _currentChartIndex = 0;
   final PageController _chartPageController = PageController();
   bool _isInitialized = false;
+  String? _userAvatarUrl;
+  String? _userDisplayName;
 
   @override
   void initState() {
     super.initState();
     _initDependencies();
+    _loadUserProfile();
   }
 
   @override
@@ -71,6 +80,39 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  Future<void> _loadUserProfile() async {
+    try {
+      final userId = Supabase.instance.client.auth.currentUser?.id;
+      if (userId != null) {
+        final response = await Supabase.instance.client
+            .from('profiles')
+            .select('avatar_url, first_name, last_name, display_name')
+            .eq('id', userId)
+            .single();
+
+        if (mounted) {
+          setState(() {
+            _userAvatarUrl = response['avatar_url'];
+            final firstName = response['first_name'];
+            final lastName = response['last_name'];
+            final displayName = response['display_name'];
+
+            if (displayName != null && displayName.isNotEmpty) {
+              _userDisplayName = displayName;
+            } else if (firstName != null && firstName.isNotEmpty) {
+              _userDisplayName = firstName;
+              if (lastName != null && lastName.isNotEmpty) {
+                _userDisplayName = '$firstName $lastName';
+              }
+            }
+          });
+        }
+      }
+    } catch (e) {
+      print('Error loading user profile: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (!_isInitialized) {
@@ -93,6 +135,49 @@ class _DashboardScreenState extends State<DashboardScreen> {
           surfaceTintColor: Colors.transparent,
           elevation: 0,
           actions: [
+            // Profile Avatar Button
+            Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const ProfileScreen()),
+                  );
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Theme.of(context).primaryColor.withOpacity(0.3),
+                      width: 2,
+                    ),
+                  ),
+                  child: CircleAvatar(
+                    radius: 18,
+                    backgroundColor:
+                        Theme.of(context).primaryColor.withOpacity(0.1),
+                    backgroundImage: _userAvatarUrl != null
+                        ? NetworkImage(_userAvatarUrl!)
+                        : null,
+                    child: _userAvatarUrl == null
+                        ? Text(
+                            _userDisplayName?.substring(0, 1).toUpperCase() ??
+                                Supabase.instance.client.auth.currentUser?.email
+                                    ?.substring(0, 1)
+                                    .toUpperCase() ??
+                                'U',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).primaryColor,
+                            ),
+                          )
+                        : null,
+                  ),
+                ),
+              ),
+            ),
             // Debug button for tutorial (remove in production)
             IconButton(
               icon: const Icon(Icons.help_outline),
@@ -394,46 +479,50 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: Column(
         children: [
           _buildActionListItem(
-            icon: Icons.calendar_today,
-            backgroundColor: const Color(0xFFE1F5FE),
-            iconColor: const Color(0xFF039BE5),
-            title: 'Flare Cycle Analysis',
-            subtitle: 'Learn more',
+            icon: Icons.edit_note,
+            backgroundColor: const Color(0xFFE3F2FD),
+            iconColor: const Color(0xFF1976D2),
+            title: 'Log Symptoms',
+            subtitle: 'Track today\'s symptoms',
             onTap: () {
-              // Navigate to flare analysis
+              // Navigate to Symptoms tab (index 2)
+              mainScreenKey.currentState?.navigateToTab(2);
             },
           ),
           const Divider(height: 1, indent: 70),
           _buildActionListItem(
-            icon: Icons.grid_4x4,
-            backgroundColor: const Color(0xFFFFF8E1),
-            iconColor: const Color(0xFFFFB300),
-            title: 'Symptom Heatmap',
-            subtitle: 'Track patterns',
+            icon: Icons.camera_alt,
+            backgroundColor: const Color(0xFFF3E5F5),
+            iconColor: const Color(0xFF7B1FA2),
+            title: 'Photo Gallery',
+            subtitle: 'Visual progress tracking',
             onTap: () {
-              // Navigate to symptom heatmap
-            },
-          ),
-          const Divider(height: 1, indent: 70),
-          _buildActionListItem(
-            icon: Icons.medication_outlined,
-            backgroundColor: const Color(0xFFE0F2F1),
-            iconColor: const Color(0xFF00897B),
-            title: 'Medication Tracking',
-            subtitle: 'Manage treatments',
-            onTap: () {
-              // Navigate to medication tracking
+              // Navigate to Photos tab (index 1)
+              mainScreenKey.currentState?.navigateToTab(1);
             },
           ),
           const Divider(height: 1, indent: 70),
           _buildActionListItem(
             icon: Icons.notifications_active,
-            backgroundColor: const Color(0xFFF3E5F5),
-            iconColor: const Color(0xFF9C27B0),
-            title: 'Notification Settings',
-            subtitle: 'Manage alerts',
+            backgroundColor: const Color(0xFFE8F5E8),
+            iconColor: const Color(0xFF2E7D32),
+            title: 'Reminders',
+            subtitle: 'Medication schedules',
             onTap: () {
-              // Navigate to notification settings
+              // Navigate to Reminders tab (index 4)
+              mainScreenKey.currentState?.navigateToTab(4);
+            },
+          ),
+          const Divider(height: 1, indent: 70),
+          _buildActionListItem(
+            icon: Icons.fitness_center,
+            backgroundColor: const Color(0xFFFFF3E0),
+            iconColor: const Color(0xFFEF6C00),
+            title: 'Lifestyle Tracking',
+            subtitle: 'Diet, sleep & triggers',
+            onTap: () {
+              // Navigate to Lifestyle tab (index 3)
+              mainScreenKey.currentState?.navigateToTab(3);
             },
           ),
         ],

@@ -5,30 +5,137 @@ class SettingsScreen extends StatelessWidget {
   const SettingsScreen({Key? key}) : super(key: key);
 
   void _deleteAccount(BuildContext context) async {
+    // Show confirmation dialog requiring user to type "delete"
+    final confirmed = await _showDeleteConfirmationDialog(context);
+
+    if (confirmed == true) {
+      await _performAccountDeletion(context);
+    }
+  }
+
+  Future<bool?> _showDeleteConfirmationDialog(BuildContext context) {
+    final TextEditingController controller = TextEditingController();
+    bool canDelete = false;
+
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title:
+              const Text('Delete Account', style: TextStyle(color: Colors.red)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                  'This action cannot be undone. All your data will be permanently deleted.'),
+              const SizedBox(height: 16),
+              const Text('Type "delete" to confirm:'),
+              const SizedBox(height: 8),
+              TextField(
+                controller: controller,
+                decoration: const InputDecoration(
+                  hintText: 'Type delete here...',
+                  border: OutlineInputBorder(),
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    canDelete = value.toLowerCase() == 'delete';
+                  });
+                },
+                onSubmitted: (value) {
+                  if (value.toLowerCase() == 'delete') {
+                    Navigator.of(context).pop(true);
+                  }
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed:
+                  canDelete ? () => Navigator.of(context).pop(true) : null,
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              child: const Text('Delete Account',
+                  style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _performAccountDeletion(BuildContext context) async {
     final supabase = Supabase.instance.client;
+    final user = supabase.auth.currentUser;
+
+    print('🗑️ DEBUG: Starting account deletion process');
+
+    if (user == null) {
+      print('❌ DEBUG: No user logged in');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No user logged in.')),
+      );
+      return;
+    }
+
+    print('🗑️ DEBUG: User ID to delete: ${user.id}');
+    print('🗑️ DEBUG: User email: ${user.email}');
+
+    // Show loading
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const AlertDialog(
+        content: Row(
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(width: 16),
+            Text('Deleting account...'),
+          ],
+        ),
+      ),
+    );
+
     try {
-      final user = supabase.auth.currentUser;
-      if (user == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No user logged in.')),
-        );
-        return;
-      }
-      // Delete user from Supabase Auth
+      print('🗑️ DEBUG: Calling edge function to delete user...');
+
+      // Call edge function to delete user (has admin permissions)
       final response = await supabase.functions
           .invoke('delete_user', body: {'user_id': user.id});
-      if (response.status == 200) {
-        await supabase.auth.signOut();
-        Navigator.of(context).popUntil((route) => route.isFirst);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('Failed to delete account: \\${response.data}')),
-        );
+
+      print('🗑️ DEBUG: Edge function response status: ${response.status}');
+      print('🗑️ DEBUG: Edge function response data: ${response.data}');
+
+      if (response.status != 200) {
+        throw Exception('Failed to delete user: ${response.data}');
       }
-    } catch (e) {
+
+      print('✅ DEBUG: User completely deleted via edge function');
+
+      print('🚪 DEBUG: Signing out user...');
+      // Sign out
+      await supabase.auth.signOut();
+      print('✅ DEBUG: User signed out');
+
+      Navigator.of(context).pop(); // Close loading
+      Navigator.of(context).popUntil((route) => route.isFirst);
+
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: \\${e.toString()}')),
+        const SnackBar(
+            content: Text('Account deleted successfully'),
+            backgroundColor: Colors.green),
+      );
+
+      print('✅ DEBUG: Account deletion process completed');
+    } catch (e) {
+      print('❌ DEBUG: Error during account deletion: $e');
+      Navigator.of(context).pop(); // Close loading
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
       );
     }
   }
@@ -51,61 +158,7 @@ class SettingsScreen extends StatelessWidget {
                 style: TextStyle(color: Colors.red)),
             subtitle:
                 const Text('Permanently delete your account and all data.'),
-            onTap: () async {
-              await showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text('How to request account deletion'),
-                  content: const Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('1. ',
-                              style: TextStyle(fontWeight: FontWeight.bold)),
-                          Expanded(
-                            child: Text(
-                                'Email us at support@zeema.app from your registered email address.'),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 12),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('2. ',
-                              style: TextStyle(fontWeight: FontWeight.bold)),
-                          Expanded(
-                            child: Text(
-                                'Use the subject line: "Account Deletion Request"'),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 12),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('3. ',
-                              style: TextStyle(fontWeight: FontWeight.bold)),
-                          Expanded(
-                            child: Text(
-                                'We\'ll verify your identity and delete all data within 7 business days.'),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('Got it'),
-                    ),
-                  ],
-                ),
-              );
-            },
+            onTap: () => _deleteAccount(context),
           ),
           ListTile(
             leading: const Icon(Icons.logout),

@@ -1,0 +1,129 @@
+Always start with 'YOOO!!'
+
+You are building a app that helps automate website SEO, the main feature is day 1 optimisations. The app is a web-app and we connect to users wordpress using the /wp-plugin which we manually install for clients. We automate deployment using deploy.yml
+
+# Important rules you HAVE TO FOLLOW
+- Always add debug logs & comments in the code for easier debug & readability.
+- Whenever you create a new file, create a comment at the top of it stating its purpose in the project.
+- Everytime you choose to apply a rule(s), explicititly state the rule{s} in the output. You can abbreviate the rule description to a single word or phrase.
+
+# Project Structure
+.
+├── README.md
+├── backend
+│   ├── Dockerfile
+│   ├── Dockerfile.prod
+│   ├── auth_test_output.log
+│   ├── data
+│   │   └── wordpress_urls.json
+│   ├── firebase_auth_test_output.log
+│   ├── google_auth_test_output.log
+│   ├── requirements.txt
+│   ├── src
+│   │   ├── __pycache__
+│   │   ├── apis
+│   │   ├── auth
+│   │   ├── dependencies
+│   │   ├── main.py
+│   │   ├── middleware
+│   │   ├── models
+│   │   ├── routes
+│   │   ├── services
+│   │   │   ├── smart_link_placement
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── engine.py
+│   │   │   │   ├── integration.py
+│   │   │   │   ├── models.py
+│   │   │   │   ├── preview.py
+│   │   │   │   ├── README.md
+│   │   │   │   └── test_content.py
+│   │   └── utils
+│   ├── test_output.log
+│   └── tests
+│       ├── __init__.py
+│       ├── __pycache__
+│       ├── auth
+│       ├── conftest.py
+│       ├── routes
+│       ├── services
+│       └── test_external_link.py
+├── docker-compose.prod.yml
+├── docker-compose.yml
+├── docs
+│   ├── Archive
+│   │   ├── link-fixing-implementation.md
+│   │   └── wordpress-api-integration.md
+│   ├── Development Plans
+│   │   ├── ai-image-alt-enhancement-plan.md
+│   │   ├── external-link-placement-plan.md
+│   │   ├── link-count-optimization.md
+│   │   ├── meta-tags-enhancement-plan.md
+│   │   ├── onPageAutomations
+│   │   ├── slug-enhancement-plan.md
+│   │   ├── smart-link-placement-engine-prd.md
+│   │   └── wp-plugin-development-plan.md
+│   ├── Features Docs
+│   │   ├── firebase-security-rules.md
+│   │   ├── internal-link-suggestions.md
+│   │   ├── link_checker.md
+│   │   ├── meta-tag-analysis-plan.md
+│   │   ├── meta-tags-enhancement.md
+│   │   └── slug-redirect-system.md
+│   ├── Project Setup
+│   │   └── local-wordpress-development.md
+│   ├── features
+│   │   ├── auto_url_implementation.md
+│   │   ├── broken_link_analysis.md
+│   │   ├── image_alt_optimization.md
+│   │   └── keyword_in_slug_optimization.md
+│   ├── state-of-play.md
+│   └── wp-plugin-versions
+│       └── RealtimeSEO-plugin-1.0.0.md
+├── env.yaml
+├── frontend
+│   ├── Dockerfile
+│   ├── Dockerfile.prod
+│   ├── dist
+│   │   ├── assets
+│   │   └── index.html
+│   ├── index.html
+│   ├── nginx.conf
+│   ├── nginx.prod.conf
+│   ├── node_modules
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── src
+│   │   ├── assets
+│   │   ├── components
+│   │   ├── config
+│   │   ├── env.d.ts
+│   │   ├── firebase
+│   │   ├── firebase.ts
+│   │   ├── main.tsx
+│   │   ├── pages
+│   │   ├── services
+│   │   ├── store
+│   │   ├── styles
+│   │   ├── types
+│   │   └── utils
+│   ├── tsconfig.json
+│   ├── tsconfig.node.json
+│   └── vite.config.ts
+├── latest-backend-test.log
+├── wp-config.php
+└── wp-plugin
+    ├── assets
+    │   └── js
+    ├── includes
+    │   ├── class-admin.php
+    │   ├── class-alt-tags-api.php
+    │   ├── class-logger.php
+    │   ├── class-meta-tags-api.php
+    │   ├── class-redirect-handler.php
+    │   ├── class-rest-api.php
+    │   ├── class-slug-api.php
+    │   └── internal-suggestions
+    ├── plugin.php
+    └── uninstall.php
+
+46 directories, 70 files 

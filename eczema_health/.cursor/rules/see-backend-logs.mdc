@@ -1,0 +1,11 @@
+---
+description: This task is useful for seeing the deployed apps backend logs - useful for debugging
+globs: 
+---
+
+# See backend Logs
+Run this command in Terminal
+```
+gcloud run services logs read backend --region=us-central1 --limit=100
+```
+

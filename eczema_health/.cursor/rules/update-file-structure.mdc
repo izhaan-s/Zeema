@@ -1,0 +1,6 @@
+---
+description: Useful for updating the agents internal knowledge of project structure.
+globs: 
+alwaysApply: false
+---
+When editing structure of the repo, ensure to then update .cursor/rules/main-cursor-rule.mdc with the new project structure, you can use "tree -L 3".
